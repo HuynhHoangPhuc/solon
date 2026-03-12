@@ -11,7 +11,7 @@
     }
   },
   "scripts": {
-    "build": "bun build src/index.ts --outdir dist --target node --format esm",
+    "build": "bun build src/index.ts --outdir dist --target node --format esm && tsc --emitDeclarationOnly --declaration --outDir dist",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
