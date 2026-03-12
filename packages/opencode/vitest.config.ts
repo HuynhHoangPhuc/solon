@@ -1,8 +1,8 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    name: '@solon/opencode',
-    include: ['tests/**/*.test.ts'],
+    name: "@solon/opencode",
+    include: ["tests/**/*.test.ts"],
   },
 });

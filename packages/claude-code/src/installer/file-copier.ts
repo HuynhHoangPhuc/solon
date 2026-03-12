@@ -1,7 +1,10 @@
-import { copyFile, mkdir, readdir, stat } from 'node:fs/promises';
-import { join } from 'node:path';
+import { copyFile, mkdir, readdir, stat } from "node:fs/promises";
+import { join } from "node:path";
 
-export async function copyDirectory(src: string, dest: string): Promise<string[]> {
+export async function copyDirectory(
+  src: string,
+  dest: string,
+): Promise<string[]> {
   const copied: string[] = [];
   await mkdir(dest, { recursive: true });
   const entries = await readdir(src, { withFileTypes: true });
@@ -19,7 +22,10 @@ export async function copyDirectory(src: string, dest: string): Promise<string[]
   return copied;
 }
 
-export async function copyFileIfExists(src: string, dest: string): Promise<boolean> {
+export async function copyFileIfExists(
+  src: string,
+  dest: string,
+): Promise<boolean> {
   try {
     await stat(src);
     await copyFile(src, dest);

@@ -15,12 +15,12 @@ export interface LineRef {
 export function normalizeLineRef(ref: string): string {
   let s = ref.trim();
   // Strip leading diff/context markers
-  s = s.replace(/^[>+\-]+\s*/, '');
+  s = s.replace(/^[>+\-]+\s*/, "");
   // Strip trailing |content
-  const pipeIdx = s.indexOf('|');
+  const pipeIdx = s.indexOf("|");
   if (pipeIdx !== -1) s = s.slice(0, pipeIdx);
   // Strip spaces around #
-  s = s.replace(/\s*#\s*/, '#');
+  s = s.replace(/\s*#\s*/, "#");
   return s.trim();
 }
 
@@ -30,13 +30,13 @@ export function normalizeLineRef(ref: string): string {
  */
 export function parseLineRef(ref: string): LineRef {
   const normalized = normalizeLineRef(ref);
-  const hashIdx = normalized.indexOf('#');
+  const hashIdx = normalized.indexOf("#");
 
   if (hashIdx !== -1) {
     const prefix = normalized.slice(0, hashIdx);
     if (prefix.length > 0 && !/^[0-9]+$/.test(prefix)) {
       throw new Error(
-        `"${prefix}" is not a line number. Use the actual line number from the read output.`
+        `"${prefix}" is not a line number. Use the actual line number from the read output.`,
       );
     }
   }
@@ -44,12 +44,12 @@ export function parseLineRef(ref: string): LineRef {
   const match = HASHLINE_REF_PATTERN.exec(normalized);
   if (!match) {
     throw new Error(
-      `Invalid line reference format: "${ref}". Expected format: "{line_number}#{hash_id}"`
+      `Invalid line reference format: "${ref}". Expected format: "{line_number}#{hash_id}"`,
     );
   }
 
   return {
-    line: parseInt(match[1]!, 10),
+    line: Number.parseInt(match[1]!, 10),
     hash: match[2]!,
   };
 }

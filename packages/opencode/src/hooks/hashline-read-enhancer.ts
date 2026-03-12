@@ -1,11 +1,13 @@
-import { computeLineHash, formatHashLine } from '@solon/core';
+import { computeLineHash, formatHashLine } from "@solon/core";
 
 // Matches: "  42: content" or "  42| content" (Claude Code/OpenCode Read output format)
 const READ_LINE_PATTERN = /^\s*(\d+)[:|\|] ?(.*)/;
-const TRUNCATED_SUFFIX = '... (line truncated to 2000 chars)';
+const TRUNCATED_SUFFIX = "... (line truncated to 2000 chars)";
 
-export async function enhanceReadOutput(output: { output: string }): Promise<void> {
-  const lines = output.output.split('\n');
+export async function enhanceReadOutput(output: {
+  output: string;
+}): Promise<void> {
+  const lines = output.output.split("\n");
   const transformed: string[] = [];
 
   for (const line of lines) {
@@ -21,11 +23,11 @@ export async function enhanceReadOutput(output: { output: string }): Promise<voi
       continue;
     }
 
-    const lineNumber = parseInt(match[1] ?? '0', 10);
-    const content = match[2] ?? '';
+    const lineNumber = Number.parseInt(match[1] ?? "0", 10);
+    const content = match[2] ?? "";
     const hash = await computeLineHash(lineNumber, content);
     transformed.push(formatHashLine(lineNumber, hash, content));
   }
 
-  output.output = transformed.join('\n');
+  output.output = transformed.join("\n");
 }

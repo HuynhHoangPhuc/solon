@@ -2,13 +2,24 @@
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": {
-    "ignore": ["**/dist/**", "**/node_modules/**", "**/*.cjs"]
+    "ignore": [
+      "**/dist/**",
+      "**/node_modules/**",
+      "**/*.cjs",
+      "packages/claude-code/templates/**"
+    ]
   },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
-      "suspicious": { "noExplicitAny": "warn" }
+      "suspicious": {
+        "noExplicitAny": "warn",
+        "noAssignInExpressions": "warn"
+      },
+      "style": {
+        "noNonNullAssertion": "warn"
+      }
     }
   },
   "formatter": {

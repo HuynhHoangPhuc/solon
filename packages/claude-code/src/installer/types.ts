@@ -1,5 +1,5 @@
 export interface HookSpec {
-  type: 'command';
+  type: "command";
   command: string;
   timeout?: number;
 }
@@ -10,7 +10,7 @@ export interface HookBinding {
 }
 
 export interface McpServerConfig {
-  type: 'stdio';
+  type: "stdio";
   command: string;
   args?: string[];
   env?: Record<string, string>;

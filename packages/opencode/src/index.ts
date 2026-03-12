@@ -2,17 +2,17 @@
 // Written as framework-agnostic export; no direct @opencode-ai/plugin import
 // to avoid hard dependency (it's a peerDep)
 
-import { enhanceReadOutput } from './hooks/hashline-read-enhancer.js';
-import { suppressWriteOutput } from './hooks/write-output-suppressor.js';
-import { truncateToolOutput } from './hooks/output-truncator.js';
-import { hashlineEditToolDef } from './tools/hashline-edit-tool.js';
-import { SOLON_AGENTS } from './agents/agent-definitions.js';
-import { loadPluginConfig } from './config/plugin-config-schema.js';
-import { TRUNCATABLE_TOOLS } from './config/constants.js';
+import { SOLON_AGENTS } from "./agents/agent-definitions.js";
+import { TRUNCATABLE_TOOLS } from "./config/constants.js";
+import { loadPluginConfig } from "./config/plugin-config-schema.js";
+import { enhanceReadOutput } from "./hooks/hashline-read-enhancer.js";
+import { truncateToolOutput } from "./hooks/output-truncator.js";
+import { suppressWriteOutput } from "./hooks/write-output-suppressor.js";
+import { hashlineEditToolDef } from "./tools/hashline-edit-tool.js";
 
-export type { PluginConfig } from './config/plugin-config-schema.js';
-export { SOLON_AGENTS } from './agents/agent-definitions.js';
-export { hashlineEditToolDef } from './tools/hashline-edit-tool.js';
+export type { PluginConfig } from "./config/plugin-config-schema.js";
+export { SOLON_AGENTS } from "./agents/agent-definitions.js";
+export { hashlineEditToolDef } from "./tools/hashline-edit-tool.js";
 
 // Plugin context type (subset of what OpenCode provides)
 interface PluginContext {
@@ -34,7 +34,7 @@ export async function createSolonPlugin(ctx: PluginContext = {}) {
   const config = await loadPluginConfig(ctx.directory);
 
   return {
-    name: 'solon' as const,
+    name: "solon" as const,
 
     agent: SOLON_AGENTS,
 
@@ -43,37 +43,40 @@ export async function createSolonPlugin(ctx: PluginContext = {}) {
     },
 
     mcp: {
-      solon: { type: 'local' as const, command: ['npx', '@solon/mcp-server'] },
+      solon: { type: "local" as const, command: ["npx", "@solon/mcp-server"] },
     },
 
-    async 'tool.execute.after'(input: ToolHookInput, output: ToolHookOutput) {
-      const toolName = (input.tool ?? input.tool_name ?? '').toLowerCase();
+    async "tool.execute.after"(input: ToolHookInput, output: ToolHookOutput) {
+      const toolName = (input.tool ?? input.tool_name ?? "").toLowerCase();
 
-      if (toolName === 'read' && config.hooks?.hashlineRead !== false) {
+      if (toolName === "read" && config.hooks?.hashlineRead !== false) {
         await enhanceReadOutput(output);
         return;
       }
 
-      if (toolName === 'write' && config.hooks?.writeSuppression !== false) {
+      if (toolName === "write" && config.hooks?.writeSuppression !== false) {
         await suppressWriteOutput(input, output);
         return;
       }
 
-      if (TRUNCATABLE_TOOLS.has(toolName) && config.hooks?.outputTruncation !== false) {
+      if (
+        TRUNCATABLE_TOOLS.has(toolName) &&
+        config.hooks?.outputTruncation !== false
+      ) {
         truncateToolOutput(toolName, output, config);
       }
     },
 
     async config(opencodeConfig: Record<string, unknown>) {
       // Merge agents into opencode config
-      const agents = (opencodeConfig['agent'] ?? {}) as Record<string, unknown>;
+      const agents = (opencodeConfig.agent ?? {}) as Record<string, unknown>;
       Object.assign(agents, SOLON_AGENTS);
-      opencodeConfig['agent'] = agents;
+      opencodeConfig.agent = agents;
 
       // Merge MCP
-      const mcp = (opencodeConfig['mcp'] ?? {}) as Record<string, unknown>;
-      mcp['solon'] = { type: 'local', command: ['npx', '@solon/mcp-server'] };
-      opencodeConfig['mcp'] = mcp;
+      const mcp = (opencodeConfig.mcp ?? {}) as Record<string, unknown>;
+      mcp.solon = { type: "local", command: ["npx", "@solon/mcp-server"] };
+      opencodeConfig.mcp = mcp;
     },
   };
 }

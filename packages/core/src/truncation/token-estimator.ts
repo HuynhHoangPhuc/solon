@@ -1,4 +1,4 @@
-import { CHARS_PER_TOKEN } from './truncation-constants.js';
+import { CHARS_PER_TOKEN } from "./truncation-constants.js";
 
 /**
  * Estimate token count for a string using a fixed chars-per-token ratio.

@@ -1,19 +1,19 @@
 #!/usr/bin/env node
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
-  solonReadInputSchema,
-  solonReadHandler,
   SOLON_READ_DESCRIPTION,
-} from './tools/solon-read-tool.js';
+  solonReadHandler,
+  solonReadInputSchema,
+} from "./tools/solon-read-tool.js";
 
 const server = new McpServer({
-  name: 'solon',
-  version: '0.1.0',
+  name: "solon",
+  version: "0.1.0",
 });
 
 server.registerTool(
-  'solon_read',
+  "solon_read",
   {
     description: SOLON_READ_DESCRIPTION,
     inputSchema: solonReadInputSchema,
@@ -27,6 +27,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error('solon-mcp fatal error:', err);
+  console.error("solon-mcp fatal error:", err);
   process.exit(1);
 });
