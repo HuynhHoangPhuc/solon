@@ -2,7 +2,6 @@
 // Written as framework-agnostic export; no direct @opencode-ai/plugin import
 // to avoid hard dependency (it's a peerDep)
 
-import { SOLON_AGENTS } from "./agents/agent-definitions.js";
 import { TRUNCATABLE_TOOLS } from "./config/constants.js";
 import { loadPluginConfig } from "./config/plugin-config-schema.js";
 import { enhanceReadOutput } from "./hooks/hashline-read-enhancer.js";
@@ -11,7 +10,6 @@ import { suppressWriteOutput } from "./hooks/write-output-suppressor.js";
 import { hashlineEditToolDef } from "./tools/hashline-edit-tool.js";
 
 export type { PluginConfig } from "./config/plugin-config-schema.js";
-export { SOLON_AGENTS } from "./agents/agent-definitions.js";
 export { hashlineEditToolDef } from "./tools/hashline-edit-tool.js";
 
 // Plugin context type (subset of what OpenCode provides)
@@ -35,8 +33,6 @@ export async function createSolonPlugin(ctx: PluginContext = {}) {
 
   return {
     name: "solon" as const,
-
-    agent: SOLON_AGENTS,
 
     tool: {
       hashline_edit: hashlineEditToolDef,
@@ -68,11 +64,6 @@ export async function createSolonPlugin(ctx: PluginContext = {}) {
     },
 
     async config(opencodeConfig: Record<string, unknown>) {
-      // Merge agents into opencode config
-      const agents = (opencodeConfig.agent ?? {}) as Record<string, unknown>;
-      Object.assign(agents, SOLON_AGENTS);
-      opencodeConfig.agent = agents;
-
       // Merge MCP
       const mcp = (opencodeConfig.mcp ?? {}) as Record<string, unknown>;
       mcp.solon = { type: "local", command: ["npx", "@solon/mcp-server"] };
