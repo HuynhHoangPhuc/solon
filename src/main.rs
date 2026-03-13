@@ -1,13 +1,17 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 
+mod ast;
 mod cmd;
 mod hashline;
-mod ast;
 mod lsp;
 
 #[derive(Parser)]
-#[command(name = "sl", version, about = "Hashline read/edit, AST-grep, LSP tools for Claude Code")]
+#[command(
+    name = "sl",
+    version,
+    about = "Hashline read/edit, AST-grep, LSP tools for Claude Code"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,

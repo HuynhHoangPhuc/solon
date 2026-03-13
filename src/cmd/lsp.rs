@@ -67,14 +67,19 @@ pub async fn run(args: LspArgs) -> Result<()> {
 }
 
 fn connect(file: &PathBuf) -> Result<(LspClient, PathBuf)> {
-    let abs_path = file.canonicalize()
+    let abs_path = file
+        .canonicalize()
         .with_context(|| format!("File not found: {}", file.display()))?;
 
-    let config = detect_server(&abs_path)
-        .ok_or_else(|| anyhow::anyhow!(
+    let config = detect_server(&abs_path).ok_or_else(|| {
+        anyhow::anyhow!(
             "No language server configured for '{}'",
-            abs_path.extension().and_then(|e| e.to_str()).unwrap_or("unknown")
-        ))?;
+            abs_path
+                .extension()
+                .and_then(|e| e.to_str())
+                .unwrap_or("unknown")
+        )
+    })?;
 
     let root = find_project_root(&abs_path, &config.root_markers);
     let client = LspClient::connect(&config, &root)?;
@@ -105,10 +110,13 @@ fn run_goto_def(args: GotoDefArgs) -> Result<()> {
     let (mut client, abs_path) = connect(&args.file)?;
     client.open_document(&abs_path)?;
 
-    let result = client.request("textDocument/definition", json!({
-        "textDocument": text_document_id(&abs_path),
-        "position": lsp_position(args.line, args.col)
-    }))?;
+    let result = client.request(
+        "textDocument/definition",
+        json!({
+            "textDocument": text_document_id(&abs_path),
+            "position": lsp_position(args.line, args.col)
+        }),
+    )?;
 
     let locations = json_to_location_list(result);
     print!("{}", format_locations(&locations, "definitions"));
@@ -119,11 +127,14 @@ fn run_references(args: ReferencesArgs) -> Result<()> {
     let (mut client, abs_path) = connect(&args.file)?;
     client.open_document(&abs_path)?;
 
-    let result = client.request("textDocument/references", json!({
-        "textDocument": text_document_id(&abs_path),
-        "position": lsp_position(args.line, args.col),
-        "context": { "includeDeclaration": true }
-    }))?;
+    let result = client.request(
+        "textDocument/references",
+        json!({
+            "textDocument": text_document_id(&abs_path),
+            "position": lsp_position(args.line, args.col),
+            "context": { "includeDeclaration": true }
+        }),
+    )?;
 
     let locations = json_to_location_list(result);
     print!("{}", format_locations(&locations, "references"));
@@ -134,10 +145,13 @@ fn run_hover(args: HoverArgs) -> Result<()> {
     let (mut client, abs_path) = connect(&args.file)?;
     client.open_document(&abs_path)?;
 
-    let result = client.request("textDocument/hover", json!({
-        "textDocument": text_document_id(&abs_path),
-        "position": lsp_position(args.line, args.col)
-    }))?;
+    let result = client.request(
+        "textDocument/hover",
+        json!({
+            "textDocument": text_document_id(&abs_path),
+            "position": lsp_position(args.line, args.col)
+        }),
+    )?;
 
     if result.is_null() {
         println!("No hover information available.");

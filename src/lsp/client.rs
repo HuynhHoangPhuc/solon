@@ -40,7 +40,11 @@ impl LspClient {
         let stdout = process.stdout.take().unwrap();
         let reader = BufReader::new(stdout);
 
-        let mut client = LspClient { process, stdin, reader };
+        let mut client = LspClient {
+            process,
+            stdin,
+            reader,
+        };
 
         // Send initialize request
         let init_params = json!({
@@ -158,14 +162,17 @@ impl LspClient {
         let ext = file_path.extension().and_then(|e| e.to_str()).unwrap_or("");
         let language_id = ext_to_language_id(ext);
 
-        self.send_notification("textDocument/didOpen", json!({
-            "textDocument": {
-                "uri": uri,
-                "languageId": language_id,
-                "version": 1,
-                "text": content
-            }
-        }))
+        self.send_notification(
+            "textDocument/didOpen",
+            json!({
+                "textDocument": {
+                    "uri": uri,
+                    "languageId": language_id,
+                    "version": 1,
+                    "text": content
+                }
+            }),
+        )
     }
 
     /// Get diagnostics for an open document (wait for publishDiagnostics notification).
@@ -177,7 +184,8 @@ impl LspClient {
         let max_msgs = 30;
         for _ in 0..max_msgs {
             let msg = self.read_message()?;
-            if msg.get("method").and_then(Value::as_str) == Some("textDocument/publishDiagnostics") {
+            if msg.get("method").and_then(Value::as_str) == Some("textDocument/publishDiagnostics")
+            {
                 if let Some(params) = msg.get("params") {
                     if params.get("uri").and_then(Value::as_str) == Some(&uri) {
                         let diags = params

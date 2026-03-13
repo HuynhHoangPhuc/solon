@@ -32,12 +32,18 @@ fn parse_range(s: &str) -> Result<(usize, Option<usize>)> {
     let start = if parts[0].is_empty() {
         1
     } else {
-        parts[0].parse::<usize>().map_err(|_| anyhow::anyhow!("Invalid start line '{}'", parts[0]))?
+        parts[0]
+            .parse::<usize>()
+            .map_err(|_| anyhow::anyhow!("Invalid start line '{}'", parts[0]))?
     };
     let end = if parts[1].is_empty() {
         None
     } else {
-        Some(parts[1].parse::<usize>().map_err(|_| anyhow::anyhow!("Invalid end line '{}'", parts[1]))?)
+        Some(
+            parts[1]
+                .parse::<usize>()
+                .map_err(|_| anyhow::anyhow!("Invalid end line '{}'", parts[1]))?,
+        )
     };
     Ok((start, end))
 }
@@ -52,8 +58,7 @@ pub fn run(args: ReadArgs) -> Result<()> {
         bail!("{} is a directory, not a file", path.display());
     }
 
-    let raw = fs::read(path)
-        .with_context(|| format!("Failed to read {}", path.display()))?;
+    let raw = fs::read(path).with_context(|| format!("Failed to read {}", path.display()))?;
 
     if is_binary(&raw) {
         bail!("{} appears to be a binary file", path.display());
@@ -88,7 +93,8 @@ pub fn run(args: ReadArgs) -> Result<()> {
         eprintln!(
             "Warning: output truncated to {} lines (file has {} lines total in range). \
              Use --lines to read specific ranges.",
-            args.chunk_size, selected_lines.len()
+            args.chunk_size,
+            selected_lines.len()
         );
     }
 

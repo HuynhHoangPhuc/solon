@@ -1,12 +1,13 @@
-use anyhow::{bail, Result};
 use super::hash::hash_to_cid;
+use anyhow::{bail, Result};
 
 /// Parse a line reference like "5#HH" into (line_number, cid)
 pub fn parse_line_ref(s: &str) -> Result<(usize, String)> {
     let Some(pos) = s.find('#') else {
         bail!("Invalid line reference '{s}': expected format LINE#HASH (e.g. 5#HH)");
     };
-    let line_num: usize = s[..pos].parse()
+    let line_num: usize = s[..pos]
+        .parse()
         .map_err(|_| anyhow::anyhow!("Invalid line number in reference '{s}'"))?;
     if line_num == 0 {
         bail!("Line numbers are 1-based; got 0 in reference '{s}'");

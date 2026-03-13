@@ -20,7 +20,10 @@ pub fn format_diagnostics(diags: &[Value], file_path: &str) -> String {
     if diags.is_empty() {
         return format!("{file_path}: No diagnostics.\n");
     }
-    diags.iter().map(|d| format_diagnostic_value(d, file_path)).collect()
+    diags
+        .iter()
+        .map(|d| format_diagnostic_value(d, file_path))
+        .collect()
 }
 
 /// Format a location value as `file:line:col`
@@ -38,7 +41,9 @@ pub fn format_locations(locs: &[Value], label: &str) -> String {
     if locs.is_empty() {
         return format!("No {label} found.\n");
     }
-    locs.iter().map(|l| format!("{}\n", format_location(l))).collect()
+    locs.iter()
+        .map(|l| format!("{}\n", format_location(l)))
+        .collect()
 }
 
 /// Format hover value, truncating long content
@@ -63,11 +68,15 @@ fn extract_hover_text(hover: &Value) -> String {
         }
     }
     if let Some(arr) = contents.as_array() {
-        return arr.iter().filter_map(|v| {
-            v.as_str()
-                .map(str::to_string)
-                .or_else(|| v.get("value").and_then(Value::as_str).map(str::to_string))
-        }).collect::<Vec<_>>().join("\n");
+        return arr
+            .iter()
+            .filter_map(|v| {
+                v.as_str()
+                    .map(str::to_string)
+                    .or_else(|| v.get("value").and_then(Value::as_str).map(str::to_string))
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
     }
     "(no hover content)".to_string()
 }

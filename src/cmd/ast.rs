@@ -109,7 +109,13 @@ fn run_replace(args: ReplaceArgs) -> Result<()> {
     let sg = require_sg()?;
     let timeout = Duration::from_secs(args.timeout);
 
-    let mut sg_args: Vec<&str> = vec!["run", "--pattern", &args.pattern, "--rewrite", &args.replacement];
+    let mut sg_args: Vec<&str> = vec![
+        "run",
+        "--pattern",
+        &args.pattern,
+        "--rewrite",
+        &args.replacement,
+    ];
     let lang_str;
     if let Some(ref l) = args.lang {
         sg_args.push("--lang");

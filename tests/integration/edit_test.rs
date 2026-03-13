@@ -6,7 +6,9 @@ use tempfile::TempDir;
 fn sl_bin() -> PathBuf {
     let mut path = std::env::current_exe().unwrap();
     path.pop();
-    if path.ends_with("deps") { path.pop(); }
+    if path.ends_with("deps") {
+        path.pop();
+    }
     path.push(if cfg!(windows) { "sl.exe" } else { "sl" });
     path
 }
@@ -50,12 +52,24 @@ fn replace_single_line_changes_content() {
     let path = dest.to_str().unwrap();
 
     let line_ref = get_line_ref(path, 1);
-    let (code, _, _) = run_sl(&["edit", path, &line_ref, "// replaced first line", "--no-backup"]);
+    let (code, _, _) = run_sl(&[
+        "edit",
+        path,
+        &line_ref,
+        "// replaced first line",
+        "--no-backup",
+    ]);
     assert_eq!(code, 0, "edit should succeed");
 
     let content = fs::read_to_string(&dest).unwrap();
-    assert!(content.contains("// replaced first line"), "file should contain new content");
-    assert!(!content.contains("use std::fmt;"), "old content should be gone");
+    assert!(
+        content.contains("// replaced first line"),
+        "file should contain new content"
+    );
+    assert!(
+        !content.contains("use std::fmt;"),
+        "old content should be gone"
+    );
 }
 
 #[test]
@@ -71,7 +85,10 @@ fn replace_roundtrip_verifiable_with_read() {
     let (code2, stdout, _) = run_sl(&["read", path, "--lines", "2:2"]);
     assert_eq!(code2, 0);
     let line = stdout.lines().next().unwrap();
-    assert!(line.contains("// line 2 replaced"), "read should show new content: {line}");
+    assert!(
+        line.contains("// line 2 replaced"),
+        "read should show new content: {line}"
+    );
 }
 
 #[test]
@@ -82,8 +99,10 @@ fn hash_mismatch_rejected() {
     // Use a wrong hash for line 1
     let (code, _, stderr) = run_sl(&["edit", path, "1#ZZ", "new content", "--no-backup"]);
     assert_ne!(code, 0, "edit with wrong hash should fail");
-    assert!(stderr.contains("Hash mismatch") || stderr.contains("mismatch"),
-        "expected hash mismatch error, got: {stderr}");
+    assert!(
+        stderr.contains("Hash mismatch") || stderr.contains("mismatch"),
+        "expected hash mismatch error, got: {stderr}"
+    );
 }
 
 #[test]
@@ -93,7 +112,12 @@ fn append_after_line_inserts_content() {
 
     let line_ref = get_line_ref(path, 1);
     let (code, _, _) = run_sl(&[
-        "edit", path, "--after", &line_ref, "// inserted after line 1", "--no-backup"
+        "edit",
+        path,
+        "--after",
+        &line_ref,
+        "// inserted after line 1",
+        "--no-backup",
     ]);
     assert_eq!(code, 0);
 
@@ -115,7 +139,11 @@ fn delete_removes_lines() {
     assert_eq!(code, 0);
 
     let new_line_count = fs::read_to_string(&dest).unwrap().lines().count();
-    assert_eq!(new_line_count, original_line_count - 1, "one line should be deleted");
+    assert_eq!(
+        new_line_count,
+        original_line_count - 1,
+        "one line should be deleted"
+    );
 }
 
 #[test]
@@ -127,6 +155,8 @@ fn edit_diff_output_shows_changes() {
     let (code, stdout, _) = run_sl(&["edit", path, &line_ref, "// changed", "--no-backup"]);
     assert_eq!(code, 0);
     // Diff output should contain + and - markers
-    assert!(stdout.contains('+') || stdout.contains('-') || stdout.contains("@@"),
-        "expected diff output, got: {stdout}");
+    assert!(
+        stdout.contains('+') || stdout.contains('-') || stdout.contains("@@"),
+        "expected diff output, got: {stdout}"
+    );
 }

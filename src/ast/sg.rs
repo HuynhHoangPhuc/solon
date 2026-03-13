@@ -29,7 +29,11 @@ fn dirs_home() -> Option<PathBuf> {
 }
 
 fn sg_binary_name() -> &'static str {
-    if cfg!(windows) { "sg.exe" } else { "sg" }
+    if cfg!(windows) {
+        "sg.exe"
+    } else {
+        "sg"
+    }
 }
 
 /// Return the download URL for the sg binary for the current platform

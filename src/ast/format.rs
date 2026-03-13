@@ -24,7 +24,11 @@ struct SgPos {
 
 /// Format sg JSON output as concise `file:line:col: matched_code` lines
 pub fn format_search_results(json_output: &str, max_results: usize) -> String {
-    let max = if max_results == 0 { DEFAULT_MAX_RESULTS } else { max_results };
+    let max = if max_results == 0 {
+        DEFAULT_MAX_RESULTS
+    } else {
+        max_results
+    };
 
     if json_output.trim().is_empty() {
         return "0 matches found.\n".to_string();
@@ -57,7 +61,10 @@ pub fn format_search_results(json_output: &str, max_results: usize) -> String {
     }
 
     if total > max {
-        out.push_str(&format!("... ({} more matches, use --max-results to see more)\n", total - max));
+        out.push_str(&format!(
+            "... ({} more matches, use --max-results to see more)\n",
+            total - max
+        ));
     } else {
         out.push_str(&format!("{total} match(es) found.\n"));
     }

@@ -9,7 +9,11 @@ pub fn classify_line(line: &str) -> bool {
 /// Compute a 2-char CID for a line.
 /// Seed: 0 for alphanumeric lines, line_number for blank/punctuation-only lines.
 pub fn compute_cid(line: &str, line_number: usize) -> [u8; 2] {
-    let seed = if classify_line(line) { 0 } else { line_number as u32 };
+    let seed = if classify_line(line) {
+        0
+    } else {
+        line_number as u32
+    };
     let hash = xxhash_rust::xxh32::xxh32(line.as_bytes(), seed);
     let index = (hash % 256) as usize;
     let high = index / 16;

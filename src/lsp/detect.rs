@@ -76,7 +76,10 @@ pub fn install_hint(config: &ServerConfig) -> String {
         "typescript" => "Run: npm install -g typescript-language-server typescript".to_string(),
         "python" => "Run: pip install pyright".to_string(),
         "go" => "Run: go install golang.org/x/tools/gopls@latest".to_string(),
-        "java" => "Install Eclipse JDT Language Server: https://github.com/eclipse-jdtls/eclipse.jdt.ls".to_string(),
+        "java" => {
+            "Install Eclipse JDT Language Server: https://github.com/eclipse-jdtls/eclipse.jdt.ls"
+                .to_string()
+        }
         lang => format!("Install language server for {lang}"),
     }
 }

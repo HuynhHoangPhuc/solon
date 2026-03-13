@@ -4,7 +4,11 @@ use anyhow::{bail, Result};
 #[derive(Debug)]
 pub enum EditOp {
     /// Replace lines start..=end (1-based) with new content lines
-    Replace { start: usize, end: usize, content: Vec<String> },
+    Replace {
+        start: usize,
+        end: usize,
+        content: Vec<String>,
+    },
     /// Insert content after `after` line (1-based)
     Append { after: usize, content: Vec<String> },
     /// Insert content before `before` line (1-based)
@@ -17,7 +21,11 @@ pub enum EditOp {
 pub fn apply_edit(lines: &mut Vec<String>, op: EditOp) -> Result<()> {
     let len = lines.len();
     match op {
-        EditOp::Replace { start, end, content } => {
+        EditOp::Replace {
+            start,
+            end,
+            content,
+        } => {
             if start == 0 || end == 0 || start > end {
                 bail!("Invalid range {start}:{end} for replace");
             }
@@ -208,19 +216,27 @@ fn compute_hunks(original: &[String], modified: &[String], context: usize) -> Ve
             match (oi, mi) {
                 (Some(i), Some(_)) => {
                     // Common line
-                    if orig_start == usize::MAX { orig_start = *i; }
-                    if mod_start == usize::MAX { mod_start = mi.unwrap(); }
+                    if orig_start == usize::MAX {
+                        orig_start = *i;
+                    }
+                    if mod_start == usize::MAX {
+                        mod_start = mi.unwrap();
+                    }
                     changes.push(Change::Context(original[*i].clone()));
                     orig_count += 1;
                     mod_count += 1;
                 }
                 (Some(i), None) => {
-                    if orig_start == usize::MAX { orig_start = *i; }
+                    if orig_start == usize::MAX {
+                        orig_start = *i;
+                    }
                     changes.push(Change::Removed(original[*i].clone()));
                     orig_count += 1;
                 }
                 (None, Some(j)) => {
-                    if mod_start == usize::MAX { mod_start = *j; }
+                    if mod_start == usize::MAX {
+                        mod_start = *j;
+                    }
                     changes.push(Change::Added(modified[*j].clone()));
                     mod_count += 1;
                 }
@@ -228,10 +244,20 @@ fn compute_hunks(original: &[String], modified: &[String], context: usize) -> Ve
             }
         }
 
-        if orig_start == usize::MAX { orig_start = 0; }
-        if mod_start == usize::MAX { mod_start = 0; }
+        if orig_start == usize::MAX {
+            orig_start = 0;
+        }
+        if mod_start == usize::MAX {
+            mod_start = 0;
+        }
 
-        hunks.push(Hunk { orig_start, mod_start, orig_count, mod_count, changes });
+        hunks.push(Hunk {
+            orig_start,
+            mod_start,
+            orig_count,
+            mod_count,
+            changes,
+        });
         op_idx = block_end;
     }
 
@@ -245,9 +271,18 @@ pub fn parse_content_escapes(s: &str) -> Vec<String> {
     while let Some(c) = chars.next() {
         if c == '\\' {
             match chars.peek() {
-                Some('n') => { chars.next(); result.push('\n'); }
-                Some('t') => { chars.next(); result.push('\t'); }
-                Some('\\') => { chars.next(); result.push('\\'); }
+                Some('n') => {
+                    chars.next();
+                    result.push('\n');
+                }
+                Some('t') => {
+                    chars.next();
+                    result.push('\t');
+                }
+                Some('\\') => {
+                    chars.next();
+                    result.push('\\');
+                }
                 _ => result.push('\\'),
             }
         } else {
@@ -268,36 +303,58 @@ mod tests {
     #[test]
     fn replace_single_line() {
         let mut buf = lines(&["a", "b", "c"]);
-        apply_edit(&mut buf, EditOp::Replace {
-            start: 2, end: 2, content: lines(&["B"])
-        }).unwrap();
+        apply_edit(
+            &mut buf,
+            EditOp::Replace {
+                start: 2,
+                end: 2,
+                content: lines(&["B"]),
+            },
+        )
+        .unwrap();
         assert_eq!(buf, lines(&["a", "B", "c"]));
     }
 
     #[test]
     fn replace_range() {
         let mut buf = lines(&["a", "b", "c", "d"]);
-        apply_edit(&mut buf, EditOp::Replace {
-            start: 2, end: 3, content: lines(&["X", "Y", "Z"])
-        }).unwrap();
+        apply_edit(
+            &mut buf,
+            EditOp::Replace {
+                start: 2,
+                end: 3,
+                content: lines(&["X", "Y", "Z"]),
+            },
+        )
+        .unwrap();
         assert_eq!(buf, lines(&["a", "X", "Y", "Z", "d"]));
     }
 
     #[test]
     fn append_after_line() {
         let mut buf = lines(&["a", "b", "c"]);
-        apply_edit(&mut buf, EditOp::Append {
-            after: 1, content: lines(&["new"])
-        }).unwrap();
+        apply_edit(
+            &mut buf,
+            EditOp::Append {
+                after: 1,
+                content: lines(&["new"]),
+            },
+        )
+        .unwrap();
         assert_eq!(buf, lines(&["a", "new", "b", "c"]));
     }
 
     #[test]
     fn prepend_before_line() {
         let mut buf = lines(&["a", "b", "c"]);
-        apply_edit(&mut buf, EditOp::Prepend {
-            before: 2, content: lines(&["new"])
-        }).unwrap();
+        apply_edit(
+            &mut buf,
+            EditOp::Prepend {
+                before: 2,
+                content: lines(&["new"]),
+            },
+        )
+        .unwrap();
         assert_eq!(buf, lines(&["a", "new", "b", "c"]));
     }
 
@@ -317,8 +374,14 @@ mod tests {
     #[test]
     fn replace_out_of_range_errors() {
         let mut buf = lines(&["a"]);
-        assert!(apply_edit(&mut buf, EditOp::Replace {
-            start: 1, end: 5, content: lines(&["x"])
-        }).is_err());
+        assert!(apply_edit(
+            &mut buf,
+            EditOp::Replace {
+                start: 1,
+                end: 5,
+                content: lines(&["x"])
+            }
+        )
+        .is_err());
     }
 }

@@ -73,8 +73,7 @@ pub fn run(args: EditArgs) -> Result<()> {
     };
 
     // Read file
-    let raw = fs::read(path)
-        .with_context(|| format!("Failed to read {}", path.display()))?;
+    let raw = fs::read(path).with_context(|| format!("Failed to read {}", path.display()))?;
     if is_binary(&raw) {
         bail!("{} appears to be a binary file", path.display());
     }
@@ -116,13 +115,26 @@ pub fn run(args: EditArgs) -> Result<()> {
 
     // Build and apply edit operation
     let op = if args.delete {
-        EditOp::Delete { start: start_line, end: end_line }
+        EditOp::Delete {
+            start: start_line,
+            end: end_line,
+        }
     } else if args.after {
-        EditOp::Append { after: start_line, content: new_content }
+        EditOp::Append {
+            after: start_line,
+            content: new_content,
+        }
     } else if args.before {
-        EditOp::Prepend { before: start_line, content: new_content }
+        EditOp::Prepend {
+            before: start_line,
+            content: new_content,
+        }
     } else {
-        EditOp::Replace { start: start_line, end: end_line, content: new_content }
+        EditOp::Replace {
+            start: start_line,
+            end: end_line,
+            content: new_content,
+        }
     };
 
     apply_edit(&mut modified, op)?;

@@ -80,7 +80,10 @@ mod tests {
     #[test]
     fn restores_crlf() {
         let normalized = "a\nb\n";
-        assert_eq!(restore_line_endings(normalized, LineEnding::CrLf), "a\r\nb\r\n");
+        assert_eq!(
+            restore_line_endings(normalized, LineEnding::CrLf),
+            "a\r\nb\r\n"
+        );
         assert_eq!(restore_line_endings(normalized, LineEnding::Lf), "a\nb\n");
     }
 
