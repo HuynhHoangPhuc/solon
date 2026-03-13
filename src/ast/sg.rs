@@ -115,12 +115,7 @@ pub fn run_sg(sg_path: &PathBuf, args: &[&str], timeout: Duration) -> Result<Str
 
     // Use a thread to enforce timeout
     let start = std::time::Instant::now();
-    let output = loop {
-        match child.wait_with_output() {
-            Ok(o) => break o,
-            Err(e) => return Err(e.into()),
-        }
-    };
+    let output = child.wait_with_output()?;
 
     if start.elapsed() > timeout {
         bail!("sg timed out after {}s", timeout.as_secs());

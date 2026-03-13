@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use clap::{Args, Subcommand};
 use serde_json::{json, Value};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::lsp::client::LspClient;
 use crate::lsp::detect::{detect_server, find_project_root};
@@ -66,7 +66,7 @@ pub async fn run(args: LspArgs) -> Result<()> {
     }
 }
 
-fn connect(file: &PathBuf) -> Result<(LspClient, PathBuf)> {
+fn connect(file: &Path) -> Result<(LspClient, PathBuf)> {
     let abs_path = file
         .canonicalize()
         .with_context(|| format!("File not found: {}", file.display()))?;
@@ -92,7 +92,7 @@ fn lsp_position(line: u32, col: u32) -> Value {
 }
 
 /// Build a LSP textDocumentIdentifier from an absolute path
-fn text_document_id(path: &PathBuf) -> Value {
+fn text_document_id(path: &Path) -> Value {
     let uri = format!("file://{}", path.display());
     json!({ "uri": uri })
 }
