@@ -4,3 +4,5 @@
 *.bak.bak
 .env
 .env.*
+.claude/
+plans/
