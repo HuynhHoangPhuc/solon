@@ -1,0 +1,6 @@
+/target/
+*.bak
+*.tmp
+*.bak.bak
+.env
+.env.*
