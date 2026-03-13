@@ -638,11 +638,11 @@ sl edit src/lib.rs 20#ZP "updated implementation"
 
 ## Environment Variables
 
-Currently no environment variables are used, but future versions may support:
+Currently no environment variables are used. The following are planned for future versions:
 
-- `SOLON_TIMEOUT` — Default timeout for AST/LSP queries (seconds)
-- `SOLON_CHUNK_SIZE` — Default chunk size for large file reads
-- `SOLON_LSP_DEBUG` — Enable LSP protocol logging (debug builds only)
+- `SOLON_TIMEOUT` — Default timeout for AST/LSP queries (seconds, proposed)
+- `SOLON_CHUNK_SIZE` — Default chunk size for large file reads (proposed)
+- `SOLON_LSP_DEBUG` — Enable LSP protocol logging (debug builds only, proposed)
 
 ---
 

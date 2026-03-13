@@ -769,7 +769,10 @@ Source Code (Rust)
 
 ## Future Architecture Improvements
 
-### Phase 2 (Potential)
+### Phase 2 (Proposed for v0.2+)
+
+**Note:** The following are architectural proposals for future versions and are not currently implemented in v0.1.0.
+
 1. **Daemon Mode** — Long-running `sl daemon` with connection pooling
 2. **Protocol Buffer** — Replace JSON-RPC with faster binary protocol
 3. **Embedded LSP** — Link rust-analyzer as library (not subprocess)

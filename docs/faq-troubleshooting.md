@@ -271,7 +271,7 @@ sl lsp diagnostics src/main.rs
 sl lsp hover src/main.rs 10 5
 ```
 
-Future: Daemon mode will keep server warm between queries.
+**Future:** Daemon mode (v2) will keep server warm between queries for faster repeated queries.
 
 #### Q: Can I specify which LSP server to use?
 **A:** Currently auto-detected from file extension. Future versions may allow explicit selection.
