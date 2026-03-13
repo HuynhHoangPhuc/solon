@@ -1,0 +1,12 @@
+[
+  {
+    "hook": "PreToolUse",
+    "tools": ["Glob", "Grep"],
+    "script": "hooks/scout-block.cjs"
+  },
+  {
+    "hook": "PreToolUse",
+    "tools": ["Read", "Bash"],
+    "script": "hooks/privacy-block.cjs"
+  }
+]
