@@ -1,0 +1,28 @@
+{
+  "plan": {
+    "namingFormat": "{date}-{issue}-{slug}",
+    "dateFormat": "YYMMDD-HHmm",
+    "issuePrefix": "SL-",
+    "reportsDir": "plans/reports"
+  },
+  "paths": {
+    "plans": "plans",
+    "docs": "docs"
+  },
+  "hooks": {
+    "session-init": true,
+    "subagent-init": true,
+    "scout-block": true,
+    "privacy-block": true,
+    "dev-rules-reminder": true,
+    "post-edit-simplify-reminder": false,
+    "usage-context-awareness": true,
+    "task-completed-handler": true,
+    "teammate-idle-handler": true
+  },
+  "locale": {
+    "thinkingLanguage": "en",
+    "responseLanguage": ""
+  },
+  "codingLevel": 5
+}

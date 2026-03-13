@@ -1,0 +1,29 @@
+# .slignore — Directories to block from Claude Code access
+# Syntax: gitignore-spec | Use ! prefix to allow specific paths (negation)
+# Copy to .claude/.slignore in your project to activate.
+
+# JS/TS — package deps and build outputs
+node_modules
+dist
+build
+.next
+.nuxt
+
+# Python — virtualenvs and bytecode cache
+__pycache__
+.venv
+venv
+
+# Go/PHP/Rust/Java
+vendor
+target
+
+# Version control
+.git
+
+# Test coverage reports
+coverage
+
+# Examples of negation (uncomment to allow):
+# !dist/assets          # allow specific subdirectory
+# !node_modules/.bin    # allow npm binaries
