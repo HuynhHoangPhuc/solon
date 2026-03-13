@@ -213,6 +213,48 @@ export interface ProjectInfo {
   timezone: string;
 }
 
+// Transcript parser types
+export interface TranscriptTool {
+  id: string;
+  name: string;
+  target: string | null;
+  status: 'running' | 'completed' | 'error';
+  startTime: Date;
+  endTime: Date | null;
+}
+
+export interface TranscriptAgent {
+  id: string;
+  type: string;
+  model: string | null;
+  description: string | null;
+  status: 'running' | 'completed';
+  startTime: Date;
+  endTime: Date | null;
+}
+
+export interface TranscriptTodo {
+  content: string;
+  status: string;
+  id?: string;
+  activeForm?: string | null;
+}
+
+export interface TranscriptData {
+  tools: TranscriptTool[];
+  agents: TranscriptAgent[];
+  todos: TranscriptTodo[];
+  sessionStart: Date | null;
+}
+
+// Config counter types
+export interface ConfigCounts {
+  claudeMdCount: number;
+  rulesCount: number;
+  mcpCount: number;
+  hooksCount: number;
+}
+
 // Scout block result
 export interface ScoutBlockResult {
   blocked: boolean;
