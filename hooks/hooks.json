@@ -30,7 +30,8 @@
       {
         "hooks": [
           { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks dev-rules" },
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks usage-awareness", "timeout": 30 }
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks usage-awareness", "timeout": 30 },
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks todo-enforcer", "timeout": 10 }
         ]
       }
     ],
@@ -53,13 +54,26 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks post-edit" }
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks post-edit" },
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks comment-slop-checker", "timeout": 5 }
         ]
       },
       {
         "matcher": "Bash|Edit|Write|MultiEdit|NotebookEdit",
         "hooks": [
           { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks usage-awareness", "timeout": 10 }
+        ]
+      },
+      {
+        "matcher": "Bash|Edit|Write|MultiEdit|NotebookEdit|Read|Glob|Grep",
+        "hooks": [
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks preemptive-compaction", "timeout": 5 }
+        ]
+      },
+      {
+        "matcher": "Bash|Glob|Grep|Read",
+        "hooks": [
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks tool-output-truncation", "timeout": 5 }
         ]
       }
     ],

@@ -27,4 +27,8 @@ func init() {
 	rootCmd.AddCommand(taskCompletedCmd)
 	rootCmd.AddCommand(teammateIdleCmd)
 	rootCmd.AddCommand(statuslineCmd)
+	rootCmd.AddCommand(preemptiveCompactionCmd)
+	rootCmd.AddCommand(toolOutputTruncationCmd)
+	rootCmd.AddCommand(todoEnforcerCmd)
+	rootCmd.AddCommand(commentSlopCheckerCmd)
 }
