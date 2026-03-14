@@ -38,13 +38,15 @@ fn edit_replace_single_line_changes_content() {
     let path = f.path().to_str().unwrap();
 
     let line_ref = get_line_ref(path, 1);
-    sl()
-        .args(["edit", path, &line_ref, "// replaced", "--no-backup"])
+    sl().args(["edit", path, &line_ref, "// replaced", "--no-backup"])
         .assert()
         .success();
 
     let content = fs::read_to_string(f.path()).unwrap();
-    assert!(content.contains("// replaced"), "expected new content in file");
+    assert!(
+        content.contains("// replaced"),
+        "expected new content in file"
+    );
     assert!(!content.contains("alpha"), "old content should be gone");
 }
 
@@ -58,10 +60,16 @@ fn edit_replace_range_updates_correct_lines() {
 
     let start_ref = get_line_ref(path, 2);
     let end_ref = get_line_ref(path, 3);
-    sl()
-        .args(["edit", path, &start_ref, &end_ref, "// merged", "--no-backup"])
-        .assert()
-        .success();
+    sl().args([
+        "edit",
+        path,
+        &start_ref,
+        &end_ref,
+        "// merged",
+        "--no-backup",
+    ])
+    .assert()
+    .success();
 
     let content = fs::read_to_string(f.path()).unwrap();
     // lines 2 and 3 replaced by one line "// merged"
@@ -81,15 +89,24 @@ fn edit_after_inserts_content_after_target() {
     let path = f.path().to_str().unwrap();
 
     let line_ref = get_line_ref(path, 1);
-    sl()
-        .args(["edit", path, "--after", &line_ref, "// inserted", "--no-backup"])
-        .assert()
-        .success();
+    sl().args([
+        "edit",
+        path,
+        "--after",
+        &line_ref,
+        "// inserted",
+        "--no-backup",
+    ])
+    .assert()
+    .success();
 
     let content = fs::read_to_string(f.path()).unwrap();
     let lines: Vec<&str> = content.lines().collect();
     assert_eq!(lines[0], "first", "line 1 should be unchanged");
-    assert_eq!(lines[1], "// inserted", "line 2 should be new inserted line");
+    assert_eq!(
+        lines[1], "// inserted",
+        "line 2 should be new inserted line"
+    );
     assert_eq!(lines[2], "second", "line 3 should be former line 2");
 }
 
@@ -102,15 +119,24 @@ fn edit_before_inserts_content_before_target() {
     let path = f.path().to_str().unwrap();
 
     let line_ref = get_line_ref(path, 2);
-    sl()
-        .args(["edit", path, "--before", &line_ref, "// before second", "--no-backup"])
-        .assert()
-        .success();
+    sl().args([
+        "edit",
+        path,
+        "--before",
+        &line_ref,
+        "// before second",
+        "--no-backup",
+    ])
+    .assert()
+    .success();
 
     let content = fs::read_to_string(f.path()).unwrap();
     let lines: Vec<&str> = content.lines().collect();
     assert_eq!(lines[0], "first");
-    assert_eq!(lines[1], "// before second", "inserted line should appear before 'second'");
+    assert_eq!(
+        lines[1], "// before second",
+        "inserted line should appear before 'second'"
+    );
     assert_eq!(lines[2], "second");
 }
 
@@ -125,15 +151,21 @@ fn edit_delete_removes_target_line() {
     let original_count = fs::read_to_string(f.path()).unwrap().lines().count();
     let line_ref = get_line_ref(path, 2);
 
-    sl()
-        .args(["edit", path, "--delete", &line_ref, "--no-backup"])
+    sl().args(["edit", path, "--delete", &line_ref, "--no-backup"])
         .assert()
         .success();
 
     let content = fs::read_to_string(f.path()).unwrap();
     let new_count = content.lines().count();
-    assert_eq!(new_count, original_count - 1, "line count should decrease by 1");
-    assert!(!content.contains("remove_me"), "deleted line should be gone");
+    assert_eq!(
+        new_count,
+        original_count - 1,
+        "line count should decrease by 1"
+    );
+    assert!(
+        !content.contains("remove_me"),
+        "deleted line should be gone"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -144,8 +176,7 @@ fn edit_wrong_hash_rejected_with_mismatch_error() {
     let f = make_temp_file(b"one\ntwo\nthree\n");
     let path = f.path().to_str().unwrap();
 
-    sl()
-        .args(["edit", path, "1#ZZ", "new content", "--no-backup"])
+    sl().args(["edit", path, "1#ZZ", "new content", "--no-backup"])
         .assert()
         .failure()
         .stderr(
@@ -165,8 +196,7 @@ fn edit_no_backup_creates_no_bak_file() {
     let bak_path = format!("{}.bak", path);
 
     let line_ref = get_line_ref(path, 1);
-    sl()
-        .args(["edit", path, &line_ref, "changed", "--no-backup"])
+    sl().args(["edit", path, &line_ref, "changed", "--no-backup"])
         .assert()
         .success();
 
@@ -185,15 +215,20 @@ fn edit_stdin_reads_content_from_stdin() {
     let path = f.path().to_str().unwrap();
 
     let line_ref = get_line_ref(path, 1);
-    sl()
-        .args(["edit", path, &line_ref, "--stdin", "--no-backup"])
+    sl().args(["edit", path, &line_ref, "--stdin", "--no-backup"])
         .write_stdin("from stdin\n")
         .assert()
         .success();
 
     let content = fs::read_to_string(f.path()).unwrap();
-    assert!(content.contains("from stdin"), "stdin content should be in file");
-    assert!(!content.contains("original line"), "original content should be replaced");
+    assert!(
+        content.contains("from stdin"),
+        "stdin content should be in file"
+    );
+    assert!(
+        !content.contains("original line"),
+        "original content should be replaced"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -205,8 +240,7 @@ fn edit_diff_output_contains_diff_markers() {
     let path = f.path().to_str().unwrap();
 
     let line_ref = get_line_ref(path, 2);
-    sl()
-        .args(["edit", path, &line_ref, "// changed", "--no-backup"])
+    sl().args(["edit", path, &line_ref, "// changed", "--no-backup"])
         .assert()
         .success()
         .stdout(

@@ -56,8 +56,7 @@ fn main() {
 #[ignore = "requires rust-analyzer — installed in CI via rustup component add rust-analyzer"]
 fn lsp_diagnostics_valid_file_exits_zero() {
     let (_dir, main_rs) = make_rust_project();
-    sl()
-        .args(["lsp", "diagnostics", main_rs.to_str().unwrap()])
+    sl().args(["lsp", "diagnostics", main_rs.to_str().unwrap()])
         .assert()
         .success();
 }
@@ -105,14 +104,7 @@ fn lsp_diagnostics_file_with_error_reports_diagnostic() {
 fn lsp_hover_on_fn_keyword_returns_info() {
     let (_dir, main_rs) = make_rust_project();
     // Line 5 col 1 — `fn` keyword of `fn main()`
-    sl()
-        .args([
-            "lsp",
-            "hover",
-            main_rs.to_str().unwrap(),
-            "5",
-            "1",
-        ])
+    sl().args(["lsp", "hover", main_rs.to_str().unwrap(), "5", "1"])
         .assert()
         .success();
     // Success is sufficient — hover may or may not return content for a keyword
@@ -127,13 +119,7 @@ fn lsp_goto_def_on_greet_call_returns_location() {
     let (_dir, main_rs) = make_rust_project();
     // Line 6, col 20 points to `greet` call inside `println!`
     let output = sl()
-        .args([
-            "lsp",
-            "goto-def",
-            main_rs.to_str().unwrap(),
-            "6",
-            "20",
-        ])
+        .args(["lsp", "goto-def", main_rs.to_str().unwrap(), "6", "20"])
         .assert()
         .success()
         .get_output()
@@ -157,13 +143,7 @@ fn lsp_references_on_greet_returns_locations() {
     let (_dir, main_rs) = make_rust_project();
     // Line 1, col 4 — `greet` in `fn greet(...)`
     let output = sl()
-        .args([
-            "lsp",
-            "references",
-            main_rs.to_str().unwrap(),
-            "1",
-            "4",
-        ])
+        .args(["lsp", "references", main_rs.to_str().unwrap(), "1", "4"])
         .assert()
         .success()
         .get_output()
@@ -188,8 +168,7 @@ fn lsp_unknown_file_extension_errors_gracefully() {
     let unknown = dir.path().join("data.xyz");
     fs::write(&unknown, "some content\n").unwrap();
 
-    sl()
-        .args(["lsp", "diagnostics", unknown.to_str().unwrap()])
+    sl().args(["lsp", "diagnostics", unknown.to_str().unwrap()])
         .assert()
         .failure()
         .stderr(

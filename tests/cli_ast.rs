@@ -45,20 +45,19 @@ fn main() {
 fn ast_search_finds_functions_in_rust_file() {
     let (dir, _file) = make_rust_tmpdir(SAMPLE_RS);
 
-    sl()
-        .args([
-            "ast",
-            "search",
-            "fn $NAME($$$ARGS)",
-            "--lang",
-            "rust",
-            "--path",
-            dir.path().to_str().unwrap(),
-        ])
-        .assert()
-        .success()
-        // Should find at least one of: add, multiply, main
-        .stdout(predicate::str::contains("add").or(predicate::str::contains("multiply")));
+    sl().args([
+        "ast",
+        "search",
+        "fn $NAME($$$ARGS)",
+        "--lang",
+        "rust",
+        "--path",
+        dir.path().to_str().unwrap(),
+    ])
+    .assert()
+    .success()
+    // Should find at least one of: add, multiply, main
+    .stdout(predicate::str::contains("add").or(predicate::str::contains("multiply")));
 }
 
 // ---------------------------------------------------------------------------
@@ -69,21 +68,20 @@ fn ast_search_finds_functions_in_rust_file() {
 fn ast_search_json_flag_produces_json_output() {
     let (dir, _file) = make_rust_tmpdir(SAMPLE_RS);
 
-    sl()
-        .args([
-            "ast",
-            "search",
-            "fn $NAME($$$ARGS)",
-            "--lang",
-            "rust",
-            "--path",
-            dir.path().to_str().unwrap(),
-            "--json",
-        ])
-        .assert()
-        .success()
-        // JSON output starts with [ or {
-        .stdout(predicate::str::starts_with("[").or(predicate::str::starts_with("{")));
+    sl().args([
+        "ast",
+        "search",
+        "fn $NAME($$$ARGS)",
+        "--lang",
+        "rust",
+        "--path",
+        dir.path().to_str().unwrap(),
+        "--json",
+    ])
+    .assert()
+    .success()
+    // JSON output starts with [ or {
+    .stdout(predicate::str::starts_with("[").or(predicate::str::starts_with("{")));
 }
 
 // ---------------------------------------------------------------------------
@@ -116,7 +114,10 @@ fn ast_search_max_results_limits_output() {
     // With max-results 1, the formatted output should mention only 1 match
     // The format_search_results function labels matches — count "Match" occurrences
     let match_count = text.matches("Match").count();
-    assert!(match_count <= 1, "expected at most 1 match block, got {match_count}:\n{text}");
+    assert!(
+        match_count <= 1,
+        "expected at most 1 match block, got {match_count}:\n{text}"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -160,19 +161,18 @@ fn ast_replace_preview_shows_replacement() {
     let (dir, _file) = make_rust_tmpdir(SAMPLE_RS);
 
     // Replace pattern: rename `add` calls to `sum`
-    sl()
-        .args([
-            "ast",
-            "replace",
-            "fn $NAME($$$ARGS)",
-            "fn renamed_$NAME($$$ARGS)",
-            "--lang",
-            "rust",
-            "--path",
-            dir.path().to_str().unwrap(),
-        ])
-        .assert()
-        .success();
+    sl().args([
+        "ast",
+        "replace",
+        "fn $NAME($$$ARGS)",
+        "fn renamed_$NAME($$$ARGS)",
+        "--lang",
+        "rust",
+        "--path",
+        dir.path().to_str().unwrap(),
+    ])
+    .assert()
+    .success();
     // Just verify the command exits 0 — preview output format varies by sg version
 }
 

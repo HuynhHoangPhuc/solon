@@ -22,8 +22,7 @@ fn make_temp_file(content: &[u8]) -> NamedTempFile {
 #[test]
 fn read_simple_file_produces_hashline_format() {
     let f = make_temp_file(b"hello\nworld\nfoo\n");
-    sl()
-        .args(["read", f.path().to_str().unwrap()])
+    sl().args(["read", f.path().to_str().unwrap()])
         .assert()
         .success()
         .stdout(predicate::str::contains("#").and(predicate::str::contains("|")));
@@ -44,9 +43,22 @@ fn read_line_range_returns_correct_slice() {
         .clone();
     let text = String::from_utf8_lossy(&output);
     let lines: Vec<&str> = text.lines().collect();
-    assert_eq!(lines.len(), 3, "expected 3 lines, got {}: {text}", lines.len());
-    assert!(lines[0].starts_with("2#"), "first line should start with '2#', got: {}", lines[0]);
-    assert!(lines[2].starts_with("4#"), "last line should start with '4#', got: {}", lines[2]);
+    assert_eq!(
+        lines.len(),
+        3,
+        "expected 3 lines, got {}: {text}",
+        lines.len()
+    );
+    assert!(
+        lines[0].starts_with("2#"),
+        "first line should start with '2#', got: {}",
+        lines[0]
+    );
+    assert!(
+        lines[2].starts_with("4#"),
+        "last line should start with '4#', got: {}",
+        lines[2]
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -73,8 +85,7 @@ fn read_chunk_size_truncates_output() {
 // ---------------------------------------------------------------------------
 #[test]
 fn read_nonexistent_file_exits_nonzero() {
-    sl()
-        .args(["read", "/tmp/definitely_does_not_exist_xyz_abc.rs"])
+    sl().args(["read", "/tmp/definitely_does_not_exist_xyz_abc.rs"])
         .assert()
         .failure()
         .stderr(predicate::str::contains("not found").or(predicate::str::contains("No such")));
@@ -87,8 +98,7 @@ fn read_nonexistent_file_exits_nonzero() {
 #[test]
 fn read_empty_file_exits_with_error() {
     let f = make_temp_file(b"");
-    sl()
-        .args(["read", f.path().to_str().unwrap()])
+    sl().args(["read", f.path().to_str().unwrap()])
         .assert()
         .failure()
         .stderr(predicate::str::contains("exceeds").or(predicate::str::contains("empty")));
@@ -112,7 +122,13 @@ fn read_bom_file_strips_bom_and_outputs_correct_content() {
         .clone();
     let text = String::from_utf8_lossy(&output);
     // Should not contain the raw BOM bytes in content part
-    assert!(text.contains("first line"), "expected 'first line' in output, got: {text}");
+    assert!(
+        text.contains("first line"),
+        "expected 'first line' in output, got: {text}"
+    );
     // BOM bytes must not appear in the output
-    assert!(!text.contains('\u{FEFF}'), "BOM character should be stripped");
+    assert!(
+        !text.contains('\u{FEFF}'),
+        "BOM character should be stripped"
+    );
 }
