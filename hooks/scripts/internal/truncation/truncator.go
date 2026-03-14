@@ -12,6 +12,34 @@ const (
 	DefaultTailLines = 30
 )
 
+// ToolBudget defines per-tool truncation limits.
+type ToolBudget struct {
+	MaxLines  int
+	HeadLines int
+	TailLines int
+}
+
+// ToolBudgets maps Claude Code tool names to their output budgets.
+// Tools not listed here use the default limits.
+var ToolBudgets = map[string]ToolBudget{
+	"Bash": {MaxLines: 500, HeadLines: 80, TailLines: 50},
+	"Grep": {MaxLines: 200, HeadLines: 40, TailLines: 20},
+	"Read": {MaxLines: 300, HeadLines: 60, TailLines: 30},
+	"Glob": {MaxLines: 150, HeadLines: 30, TailLines: 20},
+}
+
+// BudgetForTool returns the truncation budget for a tool, falling back to defaults.
+func BudgetForTool(toolName string) ToolBudget {
+	if b, ok := ToolBudgets[toolName]; ok {
+		return b
+	}
+	return ToolBudget{
+		MaxLines:  DefaultMaxLines,
+		HeadLines: DefaultHeadLines,
+		TailLines: DefaultTailLines,
+	}
+}
+
 // TruncateOutput trims output to headLines+tailLines if it exceeds maxLines.
 // Returns (result, wasChanged). Pure function, safe for concurrent use.
 func TruncateOutput(output string, maxLines, headLines, tailLines int) (string, bool) {

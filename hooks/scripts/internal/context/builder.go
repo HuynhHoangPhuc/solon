@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"solon-hooks/internal/compress"
 	"solon-hooks/internal/config"
 	"solon-hooks/internal/exec"
 	"solon-hooks/internal/hookio"
@@ -285,8 +286,18 @@ func BuildReminderContext(opts BuildReminderOpts) ReminderResult {
 	sections["naming"] = namingLines
 	lines = append(lines, namingLines...)
 
+	content := strings.Join(lines, "\n")
+
+	// Apply semantic compression if enabled
+	if config.IsHookEnabled("semantic-compression") {
+		if compressed, changed := compress.CompressText(content); changed {
+			content = compressed
+			lines = strings.Split(content, "\n")
+		}
+	}
+
 	return ReminderResult{
-		Content:  strings.Join(lines, "\n"),
+		Content:  content,
 		Lines:    lines,
 		Sections: sections,
 	}

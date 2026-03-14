@@ -41,11 +41,12 @@ func runToolOutputTruncation(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
+	budget := truncation.BudgetForTool(input.ToolName)
 	result, changed := truncation.TruncateOutput(
 		input.ToolOutput,
-		truncation.DefaultMaxLines,
-		truncation.DefaultHeadLines,
-		truncation.DefaultTailLines,
+		budget.MaxLines,
+		budget.HeadLines,
+		budget.TailLines,
 	)
 
 	if !changed {

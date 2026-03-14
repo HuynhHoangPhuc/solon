@@ -70,6 +70,7 @@ var DefaultConfig = hookio.SLConfig{
 		"wisdom-accumulation":         true,
 		"compaction-context-preservation": true,
 		"intent-gate":                 true,
+		"semantic-compression":         true,
 	},
 	CodingLevel: -1,
 }

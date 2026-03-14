@@ -15,9 +15,11 @@ import (
 )
 
 const (
-	compactionThreshold  = 78
-	compactionCooldownMs = 5 * 60 * 1000 // 5 minutes
-	compactionCooldownFile = "sl-compaction-reminded.json"
+	compactionWarnThreshold   = 65
+	compactionStrongThreshold = 75
+	compactionUrgentThreshold = 85
+	compactionCooldownMs      = 3 * 60 * 1000 // 3 minutes
+	compactionCooldownFile    = "sl-compaction-reminded.json"
 )
 
 var preemptiveCompactionCmd = &cobra.Command{
@@ -47,7 +49,7 @@ func runPreemptiveCompaction(cmd *cobra.Command, args []string) error {
 	}
 
 	percent, ok := slctx.ReadContextPercent(sessionID)
-	if !ok || percent < compactionThreshold {
+	if !ok || percent < compactionWarnThreshold {
 		hookio.WriteOutput(map[string]interface{}{"continue": true})
 		return nil
 	}
@@ -58,11 +60,10 @@ func runPreemptiveCompaction(cmd *cobra.Command, args []string) error {
 	}
 	writeCompactionCooldown()
 
+	msg := compactionMessage(percent)
 	hookio.WriteOutput(map[string]interface{}{
-		"continue": true,
-		"additionalContext": fmt.Sprintf(
-			"\n[Context Warning] Context window at %d%%. Consider running /compact soon to avoid overflow. "+
-				"Finish your current atomic task first, then compact.", percent),
+		"continue":          true,
+		"additionalContext": msg,
 	})
 	return nil
 }
@@ -88,4 +89,21 @@ func writeCompactionCooldown() {
 	path := filepath.Join(os.TempDir(), compactionCooldownFile)
 	data, _ := json.Marshal(compactionCooldownState{Timestamp: time.Now().UnixMilli()})
 	_ = os.WriteFile(path, data, 0644)
+}
+
+// compactionMessage returns escalating urgency messages based on context %.
+func compactionMessage(percent int) string {
+	switch {
+	case percent >= compactionUrgentThreshold:
+		return fmt.Sprintf(
+			"\n[URGENT] Context at %d%% — STOP current work. Run /compact NOW or session will overflow. "+
+				"Save any critical context to files before compacting.", percent)
+	case percent >= compactionStrongThreshold:
+		return fmt.Sprintf(
+			"\n[Context Warning] Context at %d%%. Finish current atomic task, then run /compact. "+
+				"Avoid spawning new subagents until compacted.", percent)
+	default:
+		return fmt.Sprintf(
+			"\n[Context Notice] Context at %d%%. Plan to /compact soon. Keep responses concise.", percent)
+	}
 }
