@@ -24,6 +24,12 @@
         "hooks": [
           { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks cook-reminder" }
         ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks wisdom-accumulator", "timeout": 10 }
+        ]
       }
     ],
     "UserPromptSubmit": [
