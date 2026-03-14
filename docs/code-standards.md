@@ -354,7 +354,7 @@ func init() {
 ```
 
 **Rules:**
-- 14 subcommands total (session, access control, dev guidance, notifications)
+- 20 subcommands total (session, access, intent, guidance, quality, token mgmt, knowledge, context, notifications)
 - Each subcommand reads JSON context from environment variables
 - Exit code 0 = allowed/success, non-zero = blocked/error
 - Errors output to stderr; results to stdout
@@ -763,5 +763,5 @@ cargo tarpaulin --out Html
 
 ---
 
-**Last Updated:** 2026-03-13
-**Standards Version:** 1.0
+**Last Updated:** 2026-03-14
+**Standards Version:** 1.1

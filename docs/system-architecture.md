@@ -375,103 +375,106 @@ pub fn format_hover(hover: &str) -> String
          │
     ┌────┴──────────────────┐
     │  hooks/hooks.json     │
-    │ (Lifecycle matchers)  │
+    │ (20 Lifecycle matchers)
     └────┬──────────────────┘
          │
          ▼
 ┌──────────────────────────────────┐
 │  solon-hooks Binary (Go)         │
 │  Location: hooks/scripts/bin/    │
-│  14 subcommands via Cobra        │
+│  20 subcommands via Cobra        │
 └──────────────────────────────────┘
          │
-    ┌────┴────┬──────┬─────────┐
-    │          │      │         │
-    ▼          ▼      ▼         ▼
-[Session] [Access] [Dev]    [Notify]
- Hooks    Control   Guides    Hooks
+    ┌────┴────┬──────┬──────────┬─────────┐
+    │          │      │          │         │
+    ▼          ▼      ▼          ▼         ▼
+[Session][Access][Intent][Token][Notify]
+ Hooks   Control  Gate   Mgmt   Hooks
 ```
 
-The hooks subsystem is now a **Go-compiled binary** (`solon-hooks`) invoked at specific Claude Code lifecycle events. No TypeScript runtime required.
+The hooks subsystem is now a **Go-compiled binary** (`solon-hooks`) invoked at specific Claude Code lifecycle events via 8+ event types. No TypeScript runtime required.
 
 ### Skills (5 total)
 
-Each skill wraps a `sl` subcommand:
+5 skills wrap `sl` subcommands: hashline-read, hashline-edit, ast-search, ast-replace, lsp-tools.
+See [API Reference](./api-reference.md) for detailed skill documentation and examples.
 
-#### 1. `skills/hashline-read`
-```markdown
-# Hashline Read
-Use `sl read` to annotate files with line hashes
+### Hook Intelligence Layer
 
-- `sl read FILE`
-- `sl read FILE --lines START:END`
-- `sl read FILE --chunk-size N`
-```
+The hooks subsystem implements three advanced intelligence systems:
 
-#### 2. `hashline-edit`
-```markdown
-# Hashline Edit
-Edit via hash-validated line references
+#### Wisdom Accumulation
+- **Trigger:** SubagentStop hook
+- **Function:** Extracts learnings and patterns from subagent output
+- **Storage:** `.wisdom.md` file (persistent across sessions)
+- **Recovery:** SubagentStart injects relevant wisdom into context
+- **Packages:** `internal/wisdom/` (ReadWisdom, AppendWisdom, PruneWisdom)
 
-- Replace: `sl edit FILE START#HASH END#HASH "content"`
-- Insert: `sl edit FILE LINE#HASH "content" --after/--before`
-- Delete: `sl edit FILE LINE#HASH --delete`
-```
+#### Compaction Context Preservation
+- **Trigger:** SessionStart hook (compact event)
+- **Function:** Preserves critical context when token limit approaches
+- **Strategy:** Injects recovery context to continue from exact state
+- **Method:** `compaction-context-preservation.go`
+- **Package:** `internal/plan/` (context builder)
 
-#### 3. `ast-search`
-```markdown
-# AST Search
-Semantic code search using ast-grep patterns
+#### Semantic Compression
+- **Trigger:** Context builder integration (not separate hook)
+- **Function:** Reduces token usage by 20-40% via semantic text compression
+- **Algorithm:** CompressText function preserves meaning while reducing size
+- **Package:** `internal/compress/` (115 LOC)
+- **Example:** Long explanations → concise summaries, code → annotations
 
-- `sl ast search PATTERN --lang LANG --path PATH`
-```
-
-#### 4. `ast-replace`
-```markdown
-# AST Replace
-Semantic code replace
-
-- `sl ast replace PATTERN REPLACEMENT --lang LANG --path PATH`
-```
-
-#### 5. `lsp-tools`
-```markdown
-# LSP Tools
-Language server queries: diagnostics, goto-def, references, hover
-
-- `sl lsp diagnostics FILE`
-- `sl lsp goto-def FILE LINE COL`
-- `sl lsp references FILE LINE COL`
-- `sl lsp hover FILE LINE COL`
-```
+#### Intent Gate Classification
+- **Trigger:** UserPromptSubmit hook
+- **Function:** Classifies user prompts into 7 categories (DEBUG/TEST/DEPLOY/REFACTOR/EXPLAIN/RESEARCH/IMPLEMENT)
+- **Output:** Strategy guidance customized to intent
+- **Package:** `internal/intent/` (171 LOC, 7-category classifier)
 
 ### Safety Hooks
 
-The hooks subsystem (previously TypeScript, now Go) is invoked via `solon-hooks` binary with 14 subcommands:
+The hooks subsystem is invoked via `solon-hooks` binary with 20 subcommands:
 
-**Session Lifecycle:**
-- `session-init` — Initialize session context (on startup/resume)
+**Session Lifecycle (4):**
+- `session-init` — Initialize session context (startup/resume/clear/compact)
 - `subagent-init` — Initialize subagent context
 - `team-context` — Populate team coordination details
-- `task-completed` — Handle task completion events
-- `teammate-idle` — Notify on teammate idle state
+- `cook-reminder` — Remind to review planning phase outputs
 
-**Access Control:**
+**Access Control (2):**
 - `privacy-block` — Blocks reading/editing of sensitive files (`.env*`, `.aws/`, `.ssh/`, `*.pem`, `secrets/`)
 - `scout-block` — Respects Claude Code's file visibility rules; filters output to permitted files only
 
-**Developer Guidance:**
+**Intent & Strategy (1):**
+- `intent-gate` — Classify user prompt intent (7 categories) and provide strategy guidance
+
+**Developer Guidance (3):**
 - `dev-rules` — Remind developer of critical rules before command submission
 - `usage-awareness` — Track token usage; alert on approaching limits
 - `descriptive-name` — Validate file names follow kebab-case conventions
 
-**Notifications & Context:**
+**Quality Assurance (3):**
 - `post-edit` — Post-edit validation and logging
-- `statusline` — Render status/progress information
-- `cook-reminder` — Remind to review planning phase outputs
-- `notify` — Send completion notifications
+- `comment-slop-checker` — Detect and report AI-generated comment patterns
+- `todo-continuation-enforcer` — Inject incomplete todo count into context
 
-All hooks are built from Go source in `hooks/scripts/cmd/` and compiled to single binary `hooks/scripts/bin/solon-hooks`.
+**Token Management (3):**
+- `preemptive-compaction` — Escalating urgency at 65%/75%/85% context usage
+- `tool-output-truncation` — Per-tool output budgets (Bash:500, Grep:200, Read:300, etc.)
+- Semantic compression — Integrated into context builder
+
+**Knowledge & Wisdom (1):**
+- `wisdom-accumulator` — Extract and store learnings from subagent output
+
+**Context Preservation (1):**
+- `compaction-context-preservation` — Inject recovery context on SessionStart(compact)
+
+**Notifications (2):**
+- `notify` — Send completion notifications (async)
+- `statusline` — Render status/progress information
+- `task-completed` — Handle task completion events
+- `teammate-idle` — Notify on teammate idle state
+
+All 20 hooks are built from Go source in `hooks/scripts/cmd/` and compiled to single binary `hooks/scripts/bin/solon-hooks`.
 
 ---
 
@@ -779,24 +782,7 @@ Source Code (Rust)
 
 ---
 
-## Future Architecture Improvements
-
-### Phase 2 (Proposed for v0.2+)
-
-**Note:** The following are architectural proposals for future versions and are not currently implemented in v0.1.0.
-
-1. **Daemon Mode** — Long-running `sl daemon` with connection pooling
-2. **Protocol Buffer** — Replace JSON-RPC with faster binary protocol
-3. **Embedded LSP** — Link rust-analyzer as library (not subprocess)
-4. **Incremental Indexing** — Cache AST/symbol tables across queries
-5. **Web UI** — Browser interface for previewing edits
-
-### Scalability
-- **Horizontal** — Multiple `sl` processes handle concurrent edits
-- **Vertical** — Optimize hash computation, AST parsing for large files
-- **Storage** — Use memory-mapped I/O for files >1 GB
-
 ---
 
-**Last Updated:** 2026-03-13
-**Architecture Version:** 1.0
+**Last Updated:** 2026-03-14
+**Architecture Version:** 1.1

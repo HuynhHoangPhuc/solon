@@ -576,14 +576,27 @@ Small Rust file for consistent testing across platforms.
 - Cross-compilation flags: `-trimpath -ldflags="-s -w"`
 - ~6-7 MB per platform (optimized)
 
-**Command Handlers:** `hooks/scripts/cmd/` (17 Go files)
-- Root: `root.go` — Cobra CLI setup, registers 15 subcommands
-- Session: `session-init.go`, `subagent-init.go`, `team-context.go`
+**Command Handlers:** `hooks/scripts/cmd/` (20 Go files)
+- Root: `root.go` — Cobra CLI setup, registers 20 subcommands
+- Session: `session-init.go`, `subagent-init.go`, `team-context.go`, `cook-reminder.go`
 - Access: `privacy-block.go`, `scout-block.go`
 - Intent: `intent-gate.go` — UserPromptSubmit hook classifying user intent into 7 categories
 - Developer: `dev-rules.go`, `usage-awareness.go`, `descriptive-name.go`, `post-edit.go`
-- Notifications: `notify.go`, `task-completed.go`, `teammate-idle.go`
-- Utilities: `statusline.go`, session helpers
+- Notifications: `notify.go`, `task-completed.go`, `teammate-idle.go`, `statusline.go`
+- Token Management: `preemptive-compaction.go`, `tool-output-truncation.go`, `semantic-compression.go`
+- Knowledge: `wisdom-accumulator.go`, `todo-continuation-enforcer.go`, `comment-slop-checker.go`
+- Context: `compaction-context-preservation.go`
+
+**Internal Packages:** `hooks/scripts/internal/` (9 packages, ~8,365 LOC)
+- `config/` — Configuration management and defaults
+- `plan/` — Planning context builder and accumulator
+- `privacy/` — Sensitive file pattern matching
+- `scout/` — File visibility and scope validation
+- `statusline/` — Progress and status line rendering
+- `wisdom/` — Wisdom accumulation and retrieval (ReadWisdom, AppendWisdom, PruneWisdom)
+- `intent/` — User intent classification (7 categories: DEBUG/TEST/DEPLOY/REFACTOR/EXPLAIN/RESEARCH/IMPLEMENT)
+- `compress/` — Semantic text compression (CompressText, 115 LOC)
+- `truncation/` — Output truncation with per-tool budgets (ToolBudgets map)
 
 **Dependencies:**
 - `github.com/spf13/cobra` — CLI framework
@@ -613,44 +626,24 @@ Each skill wraps a `sl` subcommand:
 - `SKILL.md` — Documentation
 - `index.js` — Handler: executes `sl lsp` (4 subcommands)
 
-### Hook Invocation
+### Hook Lifecycle Events
 
-**hooks/hooks.json** (~100 LOC) defines lifecycle matchers and commands:
+**hooks/hooks.json** (~150 LOC) defines lifecycle matchers and commands across 8+ events:
 
-```json
-{
-  "SessionStart": [
-    { "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks session-init" }
-  ],
-  "SubagentStart": [
-    { "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks subagent-init" },
-    { "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks team-context" }
-  ],
-  "PreToolUse": [
-    { "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks scout-block" },
-    { "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks privacy-block" }
-  ],
-  "UserPromptSubmit": [
-    { "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks intent-gate" }
-    // ... other UserPromptSubmit hooks
-  ]
-  // ... other hook events
-}
-```
+| Event | Hooks | Purpose |
+|-------|-------|---------|
+| SessionStart | session-init (startup\|resume\|clear\|compact) | Initialize session context & recovery |
+| SubagentStart | subagent-init, team-context | Initialize subagent & team coordination |
+| SubagentStop | cook-reminder (Plan matcher), wisdom-accumulator | Workflow reminders, knowledge preservation |
+| UserPromptSubmit | dev-rules, usage-awareness, todo-enforcer, intent-gate | Developer guidance & intent classification |
+| PreToolUse | scout-block, privacy-block (Write) | Access control & file visibility |
+| PostToolUse | post-edit (Edit/Write), comment-slop-checker | Edit validation & quality checks |
+| PostToolUse | preemptive-compaction, tool-output-truncation | Token management & context preservation |
+| Stop(*) | notify (async) | Completion notifications |
 
-Each hook event triggers execution of `solon-hooks <subcommand>` binary with context injected via environment variables.
+All 20 hooks configured in `.sl.json` and invoked via `solon-hooks <subcommand>` binary with context injected via environment variables.
 
-### Installation
-
-```bash
-#!/bin/bash
-# 1. Detect OS & architecture
-# 2. Download `sl` binary from GitHub Releases
-# 3. Verify SHA256 checksum
-# 4. Place in PATH or plugin directory
-# 5. Make executable
-# 6. Print success message
-```
+See [README.md](../README.md) for installation steps.
 
 ---
 
@@ -697,72 +690,7 @@ Each hook event triggers execution of `solon-hooks <subcommand>` binary with con
 
 ---
 
-## Key Algorithms & Techniques
-
-### CID Computation
-
-```rust
-// Input: line content + line number
-// 1. Classify line (alphanumeric vs blank)
-let seed = if classify_line(line) { 0 } else { line_number as u32 };
-
-// 2. Hash with xxhash32
-let hash = xxhash_rust::xxh32::xxh32(line.as_bytes(), seed);
-
-// 3. Map to 2 chars
-let index = (hash % 256) as usize;
-let high = index / 16;      // 0-15
-let low = index % 16;       // 0-15
-[ALPHABET[high], ALPHABET[low]]
-```
-
-**Properties:**
-- Deterministic: same input → same CID
-- Compact: 2 chars = 256 unique values
-- Differentiation: blank lines include line number in seed
-- Collision-free: within a file (256 possibilities per position)
-
-### Atomic File Writing
-
-```rust
-// 1. Generate new content
-let new_content = apply_edit(&lines)?;
-
-// 2. Restore original line endings
-let new_content = restore_line_endings(&new_content, &original_ending)?;
-
-// 3. Write to temp file
-let temp_path = path.with_extension("tmp");
-fs::write(&temp_path, &new_content)?;
-
-// 4. Atomic rename (POSIX & Windows)
-fs::rename(&temp_path, path)?;
-```
-
-**Guarantee:** No partial writes; file is either original or fully updated.
-
-### LSP Request/Response Pattern
-
-```rust
-// 1. Send JSON-RPC request
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "textDocument/definition",
-  "params": { "textDocument": { "uri": "..." }, "position": { "line": 0, "character": 0 } }
-}
-
-// 2. Read response (may need to read multiple frames for large responses)
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "result": { "uri": "...", "range": { "start": { "line": 5, "character": 3 }, ... } }
-}
-
-// 3. Parse + format for output
-location.uri -> file path
-location.range.start -> line:column
-```
+See [System Architecture](./system-architecture.md) for detailed algorithm descriptions.
 
 ---
 
@@ -821,119 +749,18 @@ location.range.start -> line:column
 
 ---
 
-## Future Enhancement Ideas
-
-### Phase 2 (v0.2+)
-1. **Daemon Mode** — Keep LSP server warm between queries
-2. **Caching** — Cache AST results for faster re-runs
-3. **Completion** — Add code completion via LSP
-4. **Multi-file Edit** — Atomic edits across multiple files
-5. **Custom Hooks** — Allow user-defined validation hooks
-
-### Phase 3 (v1.0+)
-1. **Web Dashboard** — Visual edit previews
-2. **Performance Optimizations** — Memory-mapped I/O for huge files
-3. **More Languages** — Native support for additional LSP servers
-4. **Incremental Indexing** — Persistent AST cache
-
----
-
 ## How to Extend
 
-### Adding a New Subcommand
+See [Code Standards](./code-standards.md) for detailed development guidelines.
 
-1. Create `src/cmd/newcmd.rs`:
-   ```rust
-   use clap::Args;
-
-   #[derive(Args)]
-   pub struct NewArgs { /* args */ }
-
-   pub fn run(args: NewArgs) -> Result<()> {
-       // Implementation
-   }
-   ```
-
-2. Update `src/cmd/mod.rs`:
-   ```rust
-   pub mod newcmd;
-   ```
-
-3. Update `src/main.rs`:
-   ```rust
-   enum Commands {
-       NewCmd(cmd::newcmd::NewArgs),
-       // ...
-   }
-   // And in match: Commands::NewCmd(args) => cmd::newcmd::run(args),
-   ```
-
-4. Add skill in `.claude-plugin/skills/newcmd/`
-
-### Adding a Language to LSP
-
-1. Update `lsp/detect.rs`:
-   ```rust
-   ".newlang" => ("newlang-language-server", vec![]),
-   ```
-
-2. Test with `sl lsp diagnostics file.newlang`
-
-### Adding a Test
-
-1. Add to relevant test module in source or `tests/integration/`:
-   ```rust
-   #[test]
-   fn test_description() {
-       // Arrange, Act, Assert
-   }
-   ```
-
-2. Run: `cargo test --test test_name`
+**Quick Steps:**
+- **New Subcommand:** Create `src/cmd/newcmd.rs`, update `cmd/mod.rs`, register in `main.rs`
+- **New LSP Language:** Add extension mapping in `lsp/detect.rs` and test
+- **New Test:** Add to relevant test module, run `cargo test`
 
 ---
 
-## Troubleshooting
-
-| Issue | Debug |
-|-------|-------|
-| Hash mismatch on edit | Verify file hasn't been modified; re-read file |
-| LSP server not found | Check PATH: `which rust-analyzer` |
-| AST no results | Verify pattern syntax with `sg` directly |
-| Plugin not loading | Check `.claude-plugin/plugin.json` format |
-| High memory usage | Check file size; use `--chunk-size` to limit output |
-| Slow edits on large file | Hashing is linear; files >100 MB may take seconds |
-
 ---
 
-## Getting Started
-
-### Build
-```bash
-cargo build --release
-./target/release/sl --help
-```
-
-### Test
-```bash
-cargo test
-```
-
-### Install Plugin
-```bash
-./scripts/install.sh
-```
-
-### Use in Claude Code
-```javascript
-// In Claude Code, use skills:
-await skills.hashline_read("src/main.rs")
-await skills.hashline_edit("src/main.rs", "5#MQ", "10#HW", "new content")
-await skills.ast_search("fn $NAME($$$ARGS)", { lang: "rust" })
-await skills.lsp_tools("diagnostics", "src/main.rs")
-```
-
----
-
-**Last Updated:** 2026-03-13
-**Document Version:** 1.0
+**Last Updated:** 2026-03-14
+**Document Version:** 1.1

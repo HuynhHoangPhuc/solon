@@ -10,7 +10,9 @@
 - **Hashline Editing** — Edit files by line reference with xxHash32 CIDs for validation
 - **AST-based Search & Replace** — Semantic code search via ast-grep integration
 - **Language Server Protocol (LSP)** — Code intelligence (diagnostics, goto-def, hover, references)
-- **Claude Code Plugin** — Skills for hashline-read, hashline-edit, ast-search, ast-replace, lsp-tools
+- **Claude Code Plugin** — 5 skills + 20 intelligent hooks
+- **Token Efficiency Hooks** — Preemptive compaction, per-tool output truncation, semantic compression (20-40% reduction)
+- **Agent Quality Hooks** — Intent gate classification, wisdom accumulation, todo enforcement, comment slop detection
 
 ## Quick Install
 
