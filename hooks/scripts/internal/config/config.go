@@ -67,6 +67,8 @@ var DefaultConfig = hookio.SLConfig{
 		"tool-output-truncation":      true,
 		"todo-continuation-enforcer":  true,
 		"comment-slop-checker":        true,
+		"wisdom-accumulation":         true,
+		"compaction-context-preservation": true,
 	},
 	CodingLevel: -1,
 }
