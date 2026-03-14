@@ -69,6 +69,7 @@ var DefaultConfig = hookio.SLConfig{
 		"comment-slop-checker":        true,
 		"wisdom-accumulation":         true,
 		"compaction-context-preservation": true,
+		"intent-gate":                 true,
 	},
 	CodingLevel: -1,
 }

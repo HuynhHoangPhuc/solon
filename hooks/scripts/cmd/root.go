@@ -32,4 +32,5 @@ func init() {
 	rootCmd.AddCommand(todoEnforcerCmd)
 	rootCmd.AddCommand(commentSlopCheckerCmd)
 	rootCmd.AddCommand(wisdomAccumulatorCmd)
+	rootCmd.AddCommand(intentGateCmd)
 }

@@ -576,10 +576,11 @@ Small Rust file for consistent testing across platforms.
 - Cross-compilation flags: `-trimpath -ldflags="-s -w"`
 - ~6-7 MB per platform (optimized)
 
-**Command Handlers:** `hooks/scripts/cmd/` (16 Go files)
-- Root: `root.go` — Cobra CLI setup, registers 14 subcommands
+**Command Handlers:** `hooks/scripts/cmd/` (17 Go files)
+- Root: `root.go` — Cobra CLI setup, registers 15 subcommands
 - Session: `session-init.go`, `subagent-init.go`, `team-context.go`
 - Access: `privacy-block.go`, `scout-block.go`
+- Intent: `intent-gate.go` — UserPromptSubmit hook classifying user intent into 7 categories
 - Developer: `dev-rules.go`, `usage-awareness.go`, `descriptive-name.go`, `post-edit.go`
 - Notifications: `notify.go`, `task-completed.go`, `teammate-idle.go`
 - Utilities: `statusline.go`, session helpers
@@ -614,7 +615,7 @@ Each skill wraps a `sl` subcommand:
 
 ### Hook Invocation
 
-**hooks/hooks.json** (90 LOC) defines lifecycle matchers and commands:
+**hooks/hooks.json** (~100 LOC) defines lifecycle matchers and commands:
 
 ```json
 {
@@ -628,8 +629,12 @@ Each skill wraps a `sl` subcommand:
   "PreToolUse": [
     { "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks scout-block" },
     { "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks privacy-block" }
+  ],
+  "UserPromptSubmit": [
+    { "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks intent-gate" }
+    // ... other UserPromptSubmit hooks
   ]
-  // ... 9 more hook events
+  // ... other hook events
 }
 ```
 
