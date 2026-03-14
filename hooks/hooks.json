@@ -3,9 +3,14 @@
   "hooks": {
     "SessionStart": [
       {
+        "hooks": [
+          { "type": "command", "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/ensure-binary.sh\"", "timeout": 60 }
+        ]
+      },
+      {
         "matcher": "startup|resume|clear|compact",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks session-init" }
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks session-init" }
         ]
       }
     ],
@@ -13,8 +18,8 @@
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks subagent-init" },
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks team-context" }
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks subagent-init" },
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks team-context" }
         ]
       }
     ],
@@ -22,23 +27,23 @@
       {
         "matcher": "Plan",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks cook-reminder" }
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks cook-reminder" }
         ]
       },
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks wisdom-accumulator", "timeout": 10 }
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks wisdom-accumulator", "timeout": 10 }
         ]
       }
     ],
     "UserPromptSubmit": [
       {
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks dev-rules" },
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks usage-awareness", "timeout": 30 },
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks todo-enforcer", "timeout": 10 },
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks intent-gate", "timeout": 5 }
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks dev-rules" },
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks usage-awareness", "timeout": 30 },
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks todo-enforcer", "timeout": 10 },
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks intent-gate", "timeout": 5 }
         ]
       }
     ],
@@ -46,14 +51,14 @@
       {
         "matcher": "Write",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks descriptive-name" }
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks descriptive-name" }
         ]
       },
       {
         "matcher": "Bash|Glob|Grep|Read|Edit|Write",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks scout-block" },
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks privacy-block" }
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks scout-block" },
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks privacy-block" }
         ]
       }
     ],
@@ -61,26 +66,26 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks post-edit" },
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks comment-slop-checker", "timeout": 5 }
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks post-edit" },
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks comment-slop-checker", "timeout": 5 }
         ]
       },
       {
         "matcher": "Bash|Edit|Write|MultiEdit|NotebookEdit",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks usage-awareness", "timeout": 10 }
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks usage-awareness", "timeout": 10 }
         ]
       },
       {
         "matcher": "Bash|Edit|Write|MultiEdit|NotebookEdit|Read|Glob|Grep",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks preemptive-compaction", "timeout": 5 }
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks preemptive-compaction", "timeout": 5 }
         ]
       },
       {
         "matcher": "Bash|Glob|Grep|Read",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks tool-output-truncation", "timeout": 5 }
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks tool-output-truncation", "timeout": 5 }
         ]
       }
     ],
@@ -88,21 +93,21 @@
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks notify", "async": true }
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks notify", "async": true }
         ]
       }
     ],
     "TaskCompleted": [
       {
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks task-completed" }
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks task-completed" }
         ]
       }
     ],
     "TeammateIdle": [
       {
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks teammate-idle" }
+          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks teammate-idle" }
         ]
       }
     ]

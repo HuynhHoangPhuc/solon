@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
-# install.sh — Download and install the sl binary from GitHub Releases
+# install.sh — Download and install sl + solon-hooks binaries from GitHub Releases
 set -euo pipefail
 
 REPO="HuynhHoangPhuc/solon"
 INSTALL_DIR="${HOME}/.solon/bin"
-BINARY_NAME="sl"
 
 # Detect OS
 case "$(uname -s)" in
-  Linux*)  OS="linux" ;;
-  Darwin*) OS="darwin" ;;
-  MINGW*|MSYS*|CYGWIN*) OS="windows"; BINARY_NAME="sl.exe" ;;
+  Linux*)             OS="linux";   EXT="" ;;
+  Darwin*)            OS="darwin";  EXT="" ;;
+  MINGW*|MSYS*|CYGWIN*) OS="windows"; EXT=".exe" ;;
   *)       echo "Unsupported OS: $(uname -s)" >&2; exit 1 ;;
 esac
 
@@ -21,66 +20,65 @@ case "$(uname -m)" in
   *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
 esac
 
-RELEASE_NAME="sl-${OS}-${ARCH}"
-if [ "${OS}" = "windows" ]; then
-  RELEASE_NAME="${RELEASE_NAME}.exe"
-fi
-
-DOWNLOAD_URL="https://github.com/${REPO}/releases/latest/download/${RELEASE_NAME}"
-CHECKSUM_URL="${DOWNLOAD_URL}.sha256"
-
-echo "Installing solon CLI (sl) for ${OS}-${ARCH}..."
-echo "Download URL: ${DOWNLOAD_URL}"
-
-# Create install directory
 mkdir -p "${INSTALL_DIR}"
 
-DEST="${INSTALL_DIR}/${BINARY_NAME}"
-TMP_DEST="${DEST}.tmp"
-
-# Download binary
-if command -v curl &>/dev/null; then
-  curl -fsSL -o "${TMP_DEST}" "${DOWNLOAD_URL}"
-elif command -v wget &>/dev/null; then
-  wget -q -O "${TMP_DEST}" "${DOWNLOAD_URL}"
-else
-  echo "Error: curl or wget is required to download the binary." >&2
-  exit 1
-fi
-
-# Verify SHA256 checksum if available
-if command -v sha256sum &>/dev/null || command -v shasum &>/dev/null; then
-  CHECKSUM_FILE="${TMP_DEST}.sha256"
+# Download helper
+_download() {
+  local url="$1" dest="$2"
   if command -v curl &>/dev/null; then
-    curl -fsSL -o "${CHECKSUM_FILE}" "${CHECKSUM_URL}" 2>/dev/null || true
+    curl -fsSL -o "${dest}" "${url}"
+  elif command -v wget &>/dev/null; then
+    wget -q -O "${dest}" "${url}"
   else
-    wget -q -O "${CHECKSUM_FILE}" "${CHECKSUM_URL}" 2>/dev/null || true
+    echo "Error: curl or wget is required." >&2
+    exit 1
+  fi
+}
+
+# Verify + install one binary
+_install_binary() {
+  local name="$1"
+  local release_name="${name}-${OS}-${ARCH}${EXT}"
+  local url="https://github.com/${REPO}/releases/latest/download/${release_name}"
+  local dest="${INSTALL_DIR}/${name}${EXT}"
+  local tmp="${dest}.tmp"
+
+  echo "Installing ${name} for ${OS}-${ARCH}..."
+  _download "${url}" "${tmp}"
+
+  # Verify SHA256 checksum if available
+  if command -v sha256sum &>/dev/null || command -v shasum &>/dev/null; then
+    local chk="${tmp}.sha256"
+    _download "${url}.sha256" "${chk}" 2>/dev/null || true
+    if [ -f "${chk}" ] && [ -s "${chk}" ]; then
+      echo "Verifying checksum..."
+      local expected actual
+      expected=$(awk '{print $1}' "${chk}")
+      if command -v sha256sum &>/dev/null; then
+        actual=$(sha256sum "${tmp}" | awk '{print $1}')
+      else
+        actual=$(shasum -a 256 "${tmp}" | awk '{print $1}')
+      fi
+      rm -f "${chk}"
+      if [ "${expected}" != "${actual}" ]; then
+        echo "Checksum verification failed for ${name}!" >&2
+        rm -f "${tmp}"
+        exit 1
+      fi
+      echo "Checksum OK."
+    fi
   fi
 
-  if [ -f "${CHECKSUM_FILE}" ] && [ -s "${CHECKSUM_FILE}" ]; then
-    echo "Verifying checksum..."
-    EXPECTED=$(cat "${CHECKSUM_FILE}" | awk '{print $1}')
-    if command -v sha256sum &>/dev/null; then
-      ACTUAL=$(sha256sum "${TMP_DEST}" | awk '{print $1}')
-    else
-      ACTUAL=$(shasum -a 256 "${TMP_DEST}" | awk '{print $1}')
-    fi
-    if [ "${EXPECTED}" != "${ACTUAL}" ]; then
-      echo "Checksum verification failed!" >&2
-      rm -f "${TMP_DEST}" "${CHECKSUM_FILE}"
-      exit 1
-    fi
-    echo "Checksum OK."
-    rm -f "${CHECKSUM_FILE}"
-  fi
-fi
+  mv "${tmp}" "${dest}"
+  [ "${OS}" != "windows" ] && chmod +x "${dest}"
+  echo "Installed: ${dest}"
+}
 
-# Install binary
-mv "${TMP_DEST}" "${DEST}"
-chmod +x "${DEST}"
+_install_binary "sl"
+_install_binary "solon-hooks"
 
-echo "Installed: ${DEST}"
-echo "Version: $("${DEST}" --version 2>/dev/null || echo 'unknown')"
+echo ""
+echo "Version: $(\"${INSTALL_DIR}/sl${EXT}\" --version 2>/dev/null || echo 'unknown')"
 
 # Add to PATH if not already there
 SHELL_RC=""

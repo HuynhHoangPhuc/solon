@@ -9,6 +9,5 @@
     "skills/ast-replace",
     "skills/lsp-tools"
   ],
-  "hooks": "hooks/hooks.json",
-  "install": "scripts/install.sh"
+  "hooks": "hooks/hooks.json"
 }

@@ -1,4 +1,5 @@
 /target/
+hooks/scripts/bin/
 *.bak
 *.tmp
 *.bak.bak
