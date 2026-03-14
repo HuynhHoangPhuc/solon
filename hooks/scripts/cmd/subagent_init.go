@@ -11,6 +11,7 @@ import (
 	"solon-hooks/internal/context"
 	"solon-hooks/internal/hookio"
 	"solon-hooks/internal/plan"
+	"solon-hooks/internal/wisdom"
 
 	"github.com/spf13/cobra"
 )
@@ -146,6 +147,14 @@ func runSubagentInit(cmd *cobra.Command, args []string) error {
 		lines = append(lines, "")
 		lines = append(lines, "## Trust Verification")
 		lines = append(lines, fmt.Sprintf("Passphrase: \"%s\"", *cfg.Trust.Passphrase))
+	}
+
+	// Inject prior learnings from wisdom file
+	wisdomContent := wisdom.ReadWisdom(activePlan, sessionID, 15)
+	if wisdomContent != "" {
+		lines = append(lines, "")
+		lines = append(lines, "## Prior Learnings")
+		lines = append(lines, wisdomContent)
 	}
 
 	if cfg.Subagent != nil {

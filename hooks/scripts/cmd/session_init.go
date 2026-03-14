@@ -124,16 +124,17 @@ func runSessionInit(cmd *cobra.Command, args []string) error {
 	}
 
 	writeSessionContext(sessionContextArgs{
-		source:         source,
-		projectType:    projectType,
-		packageManager: packageManager,
-		cfg:            cfg,
-		gitRoot:        gitRoot,
-		baseDir:        baseDir,
-		resolved:       resolved,
+		source:          source,
+		projectType:     projectType,
+		packageManager:  packageManager,
+		cfg:             cfg,
+		gitRoot:         gitRoot,
+		baseDir:         baseDir,
+		resolved:        resolved,
 		shadowedCleanup: shadowedCleanup,
-		team:           team,
-		codingLevel:    cfg.CodingLevel,
+		team:            team,
+		codingLevel:     cfg.CodingLevel,
+		sessionID:       sessionID,
 	})
 
 	return nil
@@ -250,6 +251,7 @@ type sessionContextArgs struct {
 	shadowedCleanup shadowedCleanupResult
 	team            *teamInfo
 	codingLevel     int
+	sessionID       string
 }
 
 func writeSessionContext(a sessionContextArgs) {
@@ -292,6 +294,17 @@ func writeSessionContext(a sessionContextArgs) {
 
 	if a.source == "compact" {
 		hookio.WriteContext("\nCONTEXT COMPACTED - APPROVAL STATE CHECK:\nIf you were waiting for user approval via AskUserQuestion, you MUST re-confirm before proceeding.\n")
+
+		if config.IsHookEnabled("compaction-context-preservation") {
+			planPath := os.Getenv("SL_ACTIVE_PLAN")
+			if planPath == "" && a.resolved.ResolvedBy == "session" {
+				planPath = a.resolved.Path
+			}
+			recovery := plan.BuildCompactionContext(planPath, a.sessionID)
+			if recovery != "" {
+				hookio.WriteContext("\n" + recovery + "\n")
+			}
+		}
 	}
 
 	guidelines := project.GetCodingLevelGuidelines(a.codingLevel, "")

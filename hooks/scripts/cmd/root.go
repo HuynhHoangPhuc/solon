@@ -31,4 +31,5 @@ func init() {
 	rootCmd.AddCommand(toolOutputTruncationCmd)
 	rootCmd.AddCommand(todoEnforcerCmd)
 	rootCmd.AddCommand(commentSlopCheckerCmd)
+	rootCmd.AddCommand(wisdomAccumulatorCmd)
 }
