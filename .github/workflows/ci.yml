@@ -111,7 +111,7 @@ jobs:
 
       - name: Install sg (ast-grep)
         run: |
-          if ! command -v sg &> /dev/null; then
+          if [ ! -f "$HOME/.cargo/bin/sg" ]; then
             cargo install ast-grep --locked
           fi
         shell: bash
