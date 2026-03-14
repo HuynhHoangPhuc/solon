@@ -277,26 +277,17 @@ impl Drop for LspClient {
     }
 }
 
-/// Convert a filesystem path to a `file://` URI string.
-/// On Windows, backslashes are replaced with forward slashes and a leading `/`
-/// is prepended so `C:/foo` becomes `file:///C:/foo`.
+/// Convert a filesystem path to a proper `file://` URI using the `url` crate.
+/// Handles Windows drive-letter paths and percent-encoding correctly.
 fn path_to_uri(path: &Path) -> String {
     let abs = if path.is_absolute() {
-        path.to_string_lossy().into_owned()
+        path.to_path_buf()
     } else {
-        std::env::current_dir()
-            .unwrap_or_default()
-            .join(path)
-            .to_string_lossy()
-            .into_owned()
+        std::env::current_dir().unwrap_or_default().join(path)
     };
-    let abs = abs.replace('\\', "/");
-    if abs.starts_with('/') {
-        format!("file://{abs}")
-    } else {
-        // Windows absolute path like C:/foo — needs file:///C:/foo
-        format!("file:///{abs}")
-    }
+    url::Url::from_file_path(&abs)
+        .map(|u| u.to_string())
+        .unwrap_or_else(|_| format!("file://{}", abs.display()))
 }
 
 fn ext_to_language_id(ext: &str) -> &'static str {
