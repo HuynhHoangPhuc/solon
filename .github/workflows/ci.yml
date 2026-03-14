@@ -107,11 +107,11 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.cargo/bin
-          key: ${{ runner.os }}-cargo-bin-ast-grep
+          key: ${{ runner.os }}-cargo-bin-ast-grep-v0.41
 
-      - name: Install sg (ast-grep)
+      - name: Install ast-grep
         run: |
-          if [ ! -f "$HOME/.cargo/bin/sg" ]; then
+          if [ ! -f "$HOME/.cargo/bin/ast-grep" ]; then
             cargo install ast-grep --locked
           fi
         shell: bash

@@ -3,22 +3,52 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::Duration;
 
-/// Look for `sg` binary in PATH, then in ~/.solon/bin/
+/// Look for the ast-grep binary in PATH and well-known locations.
+/// Checks `ast-grep` first (the full binary), then `sg` (which may be a stub
+/// that requires `ast-grep` to be in PATH itself).
 pub fn find_sg() -> Option<PathBuf> {
-    // Check PATH first
-    if let Ok(output) = Command::new("which").arg("sg").output() {
-        if output.status.success() {
-            let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
-            if !path.is_empty() {
-                return Some(PathBuf::from(path));
+    // Prefer `ast-grep` — it is the actual binary; `sg` is often a thin stub.
+    for name in &["ast-grep", "sg"] {
+        if let Some(path) = which_binary(name) {
+            return Some(path);
+        }
+    }
+    // Check ~/.cargo/bin/ explicitly (may not be in PATH in all environments)
+    if let Some(home) = dirs_home() {
+        for name in &["ast-grep", "sg"] {
+            let p = home.join(".cargo").join("bin").join(if cfg!(windows) {
+                format!("{name}.exe")
+            } else {
+                name.to_string()
+            });
+            if p.exists() {
+                return Some(p);
             }
         }
     }
-    // Check ~/.solon/bin/sg
+    // Check ~/.solon/bin/sg (downloaded by solon itself)
     if let Some(home) = dirs_home() {
         let local = home.join(".solon").join("bin").join(sg_binary_name());
         if local.exists() {
             return Some(local);
+        }
+    }
+    None
+}
+
+fn which_binary(name: &str) -> Option<PathBuf> {
+    let cmd = if cfg!(windows) { "where" } else { "which" };
+    if let Ok(output) = Command::new(cmd).arg(name).output() {
+        if output.status.success() {
+            let path = String::from_utf8_lossy(&output.stdout)
+                .lines()
+                .next()
+                .unwrap_or("")
+                .trim()
+                .to_string();
+            if !path.is_empty() {
+                return Some(PathBuf::from(path));
+            }
         }
     }
     None
