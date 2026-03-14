@@ -1,3 +1,4 @@
 {"ts":"2026-03-13T07:39:28.377Z","hook":"scout-block","tool":"","dur":3,"status":"ok","exit":0,"error":""}
 {"ts":"2026-03-13T09:06:18.389Z","hook":"scout-block","tool":"","dur":2,"status":"ok","exit":0,"error":""}
 {"ts":"2026-03-13T09:08:00.185Z","hook":"scout-block","tool":"Read","dur":2,"status":"ok","exit":0,"error":""}
+{"ts":"2026-03-13T15:40:40Z","hook":"scout-block","tool":"Glob","dur":0,"status":"block","exit":2,"error":""}

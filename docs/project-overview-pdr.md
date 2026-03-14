@@ -69,7 +69,7 @@ Enable Claude Code to reliably edit files at scale by:
 - `sl lsp hover file.rs 5 10` — Show type/docstring info
 
 ### 5. Claude Code Plugin
-Exposes all 4 commands as skills + 2 safety hooks:
+Exposes all 4 commands as skills + comprehensive hooks system:
 
 **5 Skills:**
 1. `hashline-read` — `sl read` wrapper
@@ -78,9 +78,13 @@ Exposes all 4 commands as skills + 2 safety hooks:
 4. `ast-replace` — `sl ast replace` wrapper
 5. `lsp-tools` — `sl lsp` wrapper (all 4 queries)
 
-**2 Safety Hooks:**
-1. `privacy-block.cjs` — Prevents reading sensitive files (.env, .aws/, etc.)
-2. `scout-block.cjs` — Filters output to respect user's file visibility rules
+**14 Hooks (Go binary):**
+- **Session Lifecycle:** `session-init`, `subagent-init`, `team-context`, `task-completed`, `teammate-idle`
+- **Access Control:** `privacy-block`, `scout-block`
+- **Developer Guidance:** `dev-rules`, `usage-awareness`, `descriptive-name`, `post-edit`
+- **Notifications:** `notify`, `statusline`, `cook-reminder`
+
+All hooks implemented in Go binary (`solon-hooks`) compiled for darwin-arm64, darwin-amd64, linux-amd64.
 
 ---
 
@@ -102,6 +106,9 @@ Exposes all 4 commands as skills + 2 safety hooks:
 | F10 | LSP hover query | ✅ Complete |
 | F11 | Claude Code plugin integration | ✅ Complete |
 | F12 | Safety hooks (privacy + scout) | ✅ Complete |
+| F13 | Session lifecycle management hooks | ✅ Complete |
+| F14 | Developer guidance hooks (rules, awareness) | ✅ Complete |
+| F15 | Team coordination hooks | ✅ Complete |
 
 ### Non-Functional Requirements
 
@@ -155,21 +162,27 @@ Exposes all 4 commands as skills + 2 safety hooks:
 ## Architecture Overview
 
 ```
-┌─────────────────────────────────────┐
-│     Claude Code Plugin (JS)         │
-│  5 Skills + 2 Safety Hooks         │
-└────────────────────┬────────────────┘
-                     │ calls
-                     ▼
-        ┌────────────────────────┐
-        │  Solon CLI (`sl`)      │
-        │   Rust Binary (1.8 MB) │
-        └────────────────────────┘
-                     │
-        ┌────────────┴────────────────┬─────────────┐
-        ▼                             ▼             ▼
-   ┌─────────┐                  ┌─────────┐   ┌─────────┐
-   │ Hashline│                  │AST-Grep │   │ LSP     │
+┌──────────────────────────────────────────────────────┐
+│           Claude Code Plugin (.claude-plugin/)       │
+├──────────────────────────────────────────────────────┤
+│  5 Skills (Rust CLI)  │  14 Hooks (Go Binary)       │
+│  - hashline-read      │  - session-init             │
+│  - hashline-edit      │  - subagent-init            │
+│  - ast-search         │  - team-context             │
+│  - ast-replace        │  - privacy-block            │
+│  - lsp-tools          │  - scout-block              │
+│                       │  - dev-rules + 8 more       │
+└──────────┬─────────────────────────────┬─────────────┘
+           │ executes                    │ executes
+           ▼                             ▼
+  ┌────────────────────┐      ┌─────────────────────┐
+  │ Solon CLI (`sl`)   │      │ Solon Hooks Binary  │
+  │ Rust (1.8 MB)      │      │ Go (6-7 MB/platform)│
+  └──────────┬─────────┘      └─────────────────────┘
+             │
+  ┌──────────┴──────────────┬─────────────┐
+  ▼                         ▼             ▼
+Hashline              AST-Grep         LSP
    │Protocol │                  │ (sg bin)│   │ Client  │
    ├─────────┤                  ├─────────┤   ├─────────┤
    │ • Read  │                  │Search   │   │Diagnos. │

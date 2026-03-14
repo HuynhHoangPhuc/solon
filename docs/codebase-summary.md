@@ -563,23 +563,30 @@ Small Rust file for consistent testing across platforms.
 
 ## Plugin Architecture
 
-### Plugin Manifest (`.claude-plugin/plugin.json`)
+### Hooks Subsystem Structure
 
-```json
-{
-  "name": "solon",
-  "version": "0.1.0",
-  "description": "Hashline read/edit, AST-grep, LSP tools for Claude Code",
-  "skills": [
-    "skills/hashline-read",
-    "skills/hashline-edit",
-    "skills/ast-search",
-    "skills/ast-replace",
-    "skills/lsp-tools"
-  ],
-  "hooks": "hooks/hooks.json"
-}
-```
+**Location:** `hooks/scripts/` (Go project, separate from main codebase)
+
+**Entry Point:** `hooks/scripts/main.go` (13 LOC)
+- Imports Cobra root command
+- Invokes `cmd.Execute()`
+
+**Binary:** `hooks/scripts/bin/solon-hooks`
+- Built via `make build-all` for darwin-arm64, darwin-amd64, linux-amd64
+- Cross-compilation flags: `-trimpath -ldflags="-s -w"`
+- ~6-7 MB per platform (optimized)
+
+**Command Handlers:** `hooks/scripts/cmd/` (16 Go files)
+- Root: `root.go` — Cobra CLI setup, registers 14 subcommands
+- Session: `session-init.go`, `subagent-init.go`, `team-context.go`
+- Access: `privacy-block.go`, `scout-block.go`
+- Developer: `dev-rules.go`, `usage-awareness.go`, `descriptive-name.go`, `post-edit.go`
+- Notifications: `notify.go`, `task-completed.go`, `teammate-idle.go`
+- Utilities: `statusline.go`, session helpers
+
+**Dependencies:**
+- `github.com/spf13/cobra` — CLI framework
+- `github.com/sabhiram/go-gitignore` — .gitignore parsing
 
 ### Skills (5 total)
 
@@ -605,29 +612,30 @@ Each skill wraps a `sl` subcommand:
 - `SKILL.md` — Documentation
 - `index.js` — Handler: executes `sl lsp` (4 subcommands)
 
-### Safety Hooks (2 total)
+### Hook Invocation
 
-**hooks/hooks.json**
+**hooks/hooks.json** (90 LOC) defines lifecycle matchers and commands:
+
 ```json
 {
-  "before": [
-    "hooks/privacy-block.cjs",
-    "hooks/scout-block.cjs"
+  "SessionStart": [
+    { "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks session-init" }
+  ],
+  "SubagentStart": [
+    { "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks subagent-init" },
+    { "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks team-context" }
+  ],
+  "PreToolUse": [
+    { "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks scout-block" },
+    { "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks privacy-block" }
   ]
+  // ... 9 more hook events
 }
 ```
 
-**hooks/privacy-block.cjs (110 LOC)**
-- Blocks sensitive file patterns: `.env*`, `.aws/`, `.ssh/`, `*.pem`, `secrets/`
-- Returns user-friendly error message
-- Prevents accidental exposure of secrets
+Each hook event triggers execution of `solon-hooks <subcommand>` binary with context injected via environment variables.
 
-**hooks/scout-block.cjs (80 LOC)**
-- Integrates with Claude Code's file visibility rules
-- Filters output to respect user workspace boundaries
-- Prevents leaking files outside permitted scope
-
-### Installation Script (`scripts/install.sh`)
+### Installation
 
 ```bash
 #!/bin/bash

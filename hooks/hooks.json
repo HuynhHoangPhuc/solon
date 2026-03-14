@@ -5,7 +5,7 @@
       {
         "matcher": "startup|resume|clear|compact",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/run.sh hooks/session-init.ts" }
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks session-init" }
         ]
       }
     ],
@@ -13,8 +13,8 @@
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/run.sh hooks/subagent-init.ts" },
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/run.sh hooks/team-context-inject.ts" }
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks subagent-init" },
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks team-context" }
         ]
       }
     ],
@@ -22,15 +22,15 @@
       {
         "matcher": "Plan",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/run.sh hooks/cook-after-plan-reminder.ts" }
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks cook-reminder" }
         ]
       }
     ],
     "UserPromptSubmit": [
       {
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/run.sh hooks/dev-rules-reminder.ts" },
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/run.sh hooks/usage-context-awareness.ts", "timeout": 30 }
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks dev-rules" },
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks usage-awareness", "timeout": 30 }
         ]
       }
     ],
@@ -38,14 +38,14 @@
       {
         "matcher": "Write",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/run.sh hooks/descriptive-name.ts" }
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks descriptive-name" }
         ]
       },
       {
         "matcher": "Bash|Glob|Grep|Read|Edit|Write",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/run.sh hooks/scout-block.ts" },
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/run.sh hooks/privacy-block.ts" }
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks scout-block" },
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks privacy-block" }
         ]
       }
     ],
@@ -53,13 +53,13 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/run.sh hooks/post-edit-simplify-reminder.ts" }
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks post-edit" }
         ]
       },
       {
         "matcher": "Bash|Edit|Write|MultiEdit|NotebookEdit",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/run.sh hooks/usage-context-awareness.ts", "timeout": 10 }
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks usage-awareness", "timeout": 10 }
         ]
       }
     ],
@@ -67,21 +67,21 @@
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/run.sh notifications/notify.ts", "async": true }
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks notify", "async": true }
         ]
       }
     ],
     "TaskCompleted": [
       {
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/run.sh hooks/task-completed-handler.ts" }
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks task-completed" }
         ]
       }
     ],
     "TeammateIdle": [
       {
         "hooks": [
-          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/run.sh hooks/teammate-idle-handler.ts" }
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/bin/solon-hooks teammate-idle" }
         ]
       }
     ]

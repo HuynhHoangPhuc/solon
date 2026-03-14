@@ -364,7 +364,7 @@ pub fn format_hover(hover: &str) -> String
 
 ---
 
-## Plugin Layer
+## Hooks Subsystem
 
 ### Architecture
 
@@ -372,25 +372,27 @@ pub fn format_hover(hover: &str) -> String
 ┌──────────────────────────────────────────────┐
 │     Claude Code Plugin (.claude-plugin/)     │
 └──────────────────────────────────────────────┘
-         │              │              │
-    ┌────┴────┐    ┌────┴────┐    ┌───┴─────┐
-    │ Skills  │    │  Hooks  │    │Install  │
-    │ (5 JS)  │    │(2 CJS)  │    │ Script  │
-    └────┬────┘    └────┬────┘    └───┬─────┘
-         │              │              │
-    ┌────┴────────────┬─┴──────────────┴────┐
-    │                 │                      │
-    ▼                 ▼                      ▼
-[Skill Handlers] [Safety Hooks]      [Binary Download]
-    │                 │                      │
-    └─────────────────┼──────────────────────┘
-                      │
-                      ▼
-         ┌─────────────────────────┐
-         │   Solon CLI (sl)        │
-         │   Binary in PATH        │
-         └─────────────────────────┘
+         │
+    ┌────┴──────────────────┐
+    │  hooks/hooks.json     │
+    │ (Lifecycle matchers)  │
+    └────┬──────────────────┘
+         │
+         ▼
+┌──────────────────────────────────┐
+│  solon-hooks Binary (Go)         │
+│  Location: hooks/scripts/bin/    │
+│  14 subcommands via Cobra        │
+└──────────────────────────────────┘
+         │
+    ┌────┴────┬──────┬─────────┐
+    │          │      │         │
+    ▼          ▼      ▼         ▼
+[Session] [Access] [Dev]    [Notify]
+ Hooks    Control   Guides    Hooks
 ```
+
+The hooks subsystem is now a **Go-compiled binary** (`solon-hooks`) invoked at specific Claude Code lifecycle events. No TypeScript runtime required.
 
 ### Skills (5 total)
 
@@ -443,23 +445,33 @@ Language server queries: diagnostics, goto-def, references, hover
 - `sl lsp hover FILE LINE COL`
 ```
 
-### Safety Hooks (2 total)
+### Safety Hooks
 
-#### 1. `hooks/privacy-block.cjs`
-Blocks reading/editing of sensitive files:
-- `.env`, `.env.*`
-- `.aws/`, `.ssh/`
-- `secrets/`, `credentials/`
-- `.git/`, node_modules/
-- `*.pem`, `*.key`
+The hooks subsystem (previously TypeScript, now Go) is invoked via `solon-hooks` binary with 14 subcommands:
 
-Returns user-friendly error: *"This file is protected for privacy/security reasons."*
+**Session Lifecycle:**
+- `session-init` — Initialize session context (on startup/resume)
+- `subagent-init` — Initialize subagent context
+- `team-context` — Populate team coordination details
+- `task-completed` — Handle task completion events
+- `teammate-idle` — Notify on teammate idle state
 
-#### 2. `hooks/scout-block.cjs`
-Respects Claude Code's file visibility rules:
-- Reads `.scoutignore` or scout config
-- Filters output to only files user can access
-- Prevents exposing files outside workspace
+**Access Control:**
+- `privacy-block` — Blocks reading/editing of sensitive files (`.env*`, `.aws/`, `.ssh/`, `*.pem`, `secrets/`)
+- `scout-block` — Respects Claude Code's file visibility rules; filters output to permitted files only
+
+**Developer Guidance:**
+- `dev-rules` — Remind developer of critical rules before command submission
+- `usage-awareness` — Track token usage; alert on approaching limits
+- `descriptive-name` — Validate file names follow kebab-case conventions
+
+**Notifications & Context:**
+- `post-edit` — Post-edit validation and logging
+- `statusline` — Render status/progress information
+- `cook-reminder` — Remind to review planning phase outputs
+- `notify` — Send completion notifications
+
+All hooks are built from Go source in `hooks/scripts/cmd/` and compiled to single binary `hooks/scripts/bin/solon-hooks`.
 
 ---
 

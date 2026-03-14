@@ -1,0 +1,2 @@
+bin/solon-hooks*
+!bin/.gitkeep

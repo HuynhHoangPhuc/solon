@@ -257,9 +257,18 @@ use crate::hashline::validate::parse_line_ref;
 │   ├── ast-replace/
 │   └── lsp-tools/
 ├── hooks/
-│   ├── hooks.json
-│   ├── privacy-block.cjs        # Privacy hook
-│   └── scout-block.cjs          # Scout hook
+│   ├── hooks.json               # Hook lifecycle matchers
+│   └── scripts/                 # Go hooks subsystem
+│       ├── main.go              # Entry point
+│       ├── cmd/                 # 14 subcommand handlers
+│       ├── internal/            # Internal packages
+│       ├── go.mod / go.sum      # Go dependencies
+│       ├── Makefile             # Build targets
+│       └── bin/                 # Compiled binaries
+│           ├── solon-hooks      # Current platform
+│           ├── solon-hooks-darwin-amd64
+│           ├── solon-hooks-darwin-arm64
+│           └── solon-hooks-linux-amd64
 └── scripts/
     └── install.sh               # Installation script
 ```
@@ -303,37 +312,52 @@ module.exports = {
 - Throw `Error` for validation failures
 - Return parsed/formatted output
 
-### Safety Hooks
+### Hooks Subsystem (Go)
 
-**Privacy Hook Pattern:**
+**Location:** `hooks/scripts/` — Self-contained Go project
 
-```javascript
-// hooks/privacy-block.cjs
-module.exports = {
-  name: 'privacy-block',
+**Build:**
+```bash
+cd hooks/scripts
+make build              # Build for current platform
+make build-all         # Cross-compile for darwin-arm64, darwin-amd64, linux-amd64
+make test              # Run tests
+make clean             # Remove binaries
+```
 
-  shouldAllow(context) {
-    const { filePath, operation } = context;
+**Subcommand Pattern (Cobra):**
 
-    // Block sensitive patterns
-    const sensitive = /\.(env|pem|key)$|\.aws\/|\.ssh\/|secrets\//;
-    if (sensitive.test(filePath)) {
-      return {
-        allowed: false,
-        reason: 'This file is protected for privacy/security reasons.'
-      };
-    }
+Each subcommand handler in `cmd/` follows this pattern:
 
-    return { allowed: true };
-  }
-};
+```go
+// cmd/privacy-block.go
+package cmd
+
+import "github.com/spf13/cobra"
+
+var privacyBlockCmd = &cobra.Command{
+  Use:   "privacy-block",
+  Short: "Blocks reading/editing of sensitive files",
+  RunE:  runPrivacyBlock,
+}
+
+func runPrivacyBlock(cmd *cobra.Command, args []string) error {
+  // Read context from env: CLAUDE_CONTEXT_*, SOLON_*
+  // Validate file paths
+  // Return JSON output on stdout
+  return nil
+}
+
+func init() {
+  rootCmd.AddCommand(privacyBlockCmd)
+}
 ```
 
 **Rules:**
-- Return `{ allowed: boolean, reason?: string }`
-- Provide clear reason for blocking
-- Check before execution, not after
-- Cache decisions if possible (performance)
+- 14 subcommands total (session, access control, dev guidance, notifications)
+- Each subcommand reads JSON context from environment variables
+- Exit code 0 = allowed/success, non-zero = blocked/error
+- Errors output to stderr; results to stdout
 
 ### Installation Script
 
