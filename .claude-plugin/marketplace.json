@@ -1,0 +1,27 @@
+{
+  "name": "solon",
+  "owner": {
+    "name": "HuynhHoangPhuc"
+  },
+  "metadata": {
+    "description": "Hashline editing, AST-grep search, and LSP tools for Claude Code",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "solon",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/HuynhHoangPhuc/solon.git"
+      },
+      "description": "Hashline read/edit, AST-grep, LSP tools for Claude Code",
+      "version": "0.1.0",
+      "author": {
+        "name": "HuynhHoangPhuc"
+      },
+      "license": "Apache-2.0",
+      "keywords": ["editor", "ast", "lsp", "hashline", "code-intelligence", "hooks"],
+      "category": "developer-tools"
+    }
+  ]
+}

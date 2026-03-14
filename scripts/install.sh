@@ -2,7 +2,7 @@
 # install.sh — Download and install the sl binary from GitHub Releases
 set -euo pipefail
 
-REPO="solon-dev/solon"
+REPO="HuynhHoangPhuc/solon"
 INSTALL_DIR="${HOME}/.solon/bin"
 BINARY_NAME="sl"
 
