@@ -277,7 +277,9 @@ impl Drop for LspClient {
     }
 }
 
-/// Convert a filesystem path to a `file://` URI string
+/// Convert a filesystem path to a `file://` URI string.
+/// On Windows, backslashes are replaced with forward slashes and a leading `/`
+/// is prepended so `C:/foo` becomes `file:///C:/foo`.
 fn path_to_uri(path: &Path) -> String {
     let abs = if path.is_absolute() {
         path.to_string_lossy().into_owned()
@@ -288,7 +290,13 @@ fn path_to_uri(path: &Path) -> String {
             .to_string_lossy()
             .into_owned()
     };
-    format!("file://{abs}")
+    let abs = abs.replace('\\', "/");
+    if abs.starts_with('/') {
+        format!("file://{abs}")
+    } else {
+        // Windows absolute path like C:/foo — needs file:///C:/foo
+        format!("file:///{abs}")
+    }
 }
 
 fn ext_to_language_id(ext: &str) -> &'static str {
