@@ -94,7 +94,8 @@ mod tests {
 
     #[test]
     fn search_results_single_ndjson_match() {
-        let ndjson = r#"{"file":"src/main.rs","range":{"start":{"line":4,"column":2}},"text":"let x = 1;"}"#;
+        let ndjson =
+            r#"{"file":"src/main.rs","range":{"start":{"line":4,"column":2}},"text":"let x = 1;"}"#;
         let result = format_search_results(ndjson, 0);
         assert!(result.contains("src/main.rs:5:3: let x = 1;"));
         assert!(result.contains("1 match(es) found."));
@@ -119,7 +120,10 @@ mod tests {
 
     #[test]
     fn search_results_invalid_json() {
-        assert_eq!(format_search_results("not json at all", 0), "0 matches found.\n");
+        assert_eq!(
+            format_search_results("not json at all", 0),
+            "0 matches found.\n"
+        );
     }
 
     #[test]

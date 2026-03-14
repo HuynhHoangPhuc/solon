@@ -214,6 +214,9 @@ mod tests {
     #[test]
     fn install_hint_java() {
         let cfg = detect_server(Path::new("Main.java")).unwrap();
-        assert!(install_hint(&cfg).contains("eclipse") || install_hint(&cfg).to_lowercase().contains("jdt"));
+        assert!(
+            install_hint(&cfg).contains("eclipse")
+                || install_hint(&cfg).to_lowercase().contains("jdt")
+        );
     }
 }

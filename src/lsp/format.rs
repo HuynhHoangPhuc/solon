@@ -90,24 +90,28 @@ mod tests {
 
     #[test]
     fn diagnostic_value_error_severity() {
-        let diag = json!({"range":{"start":{"line":2,"character":4}},"severity":1,"message":"type error"});
+        let diag =
+            json!({"range":{"start":{"line":2,"character":4}},"severity":1,"message":"type error"});
         let result = format_diagnostic_value(&diag, "src/main.rs");
         assert_eq!(result, "src/main.rs:3:5: error: type error\n");
     }
 
     #[test]
     fn diagnostic_value_warning_severity() {
-        let diag = json!({"range":{"start":{"line":0,"character":0}},"severity":2,"message":"unused var"});
+        let diag =
+            json!({"range":{"start":{"line":0,"character":0}},"severity":2,"message":"unused var"});
         let result = format_diagnostic_value(&diag, "lib.rs");
         assert!(result.contains("warning"));
     }
 
     #[test]
     fn diagnostic_value_info_and_hint() {
-        let info_diag = json!({"range":{"start":{"line":0,"character":0}},"severity":3,"message":"info"});
+        let info_diag =
+            json!({"range":{"start":{"line":0,"character":0}},"severity":3,"message":"info"});
         assert!(format_diagnostic_value(&info_diag, "f.rs").contains("info"));
 
-        let hint_diag = json!({"range":{"start":{"line":0,"character":0}},"severity":4,"message":"hint"});
+        let hint_diag =
+            json!({"range":{"start":{"line":0,"character":0}},"severity":4,"message":"hint"});
         assert!(format_diagnostic_value(&hint_diag, "f.rs").contains("hint"));
     }
 
