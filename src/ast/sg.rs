@@ -4,13 +4,15 @@ use std::process::{Command, Stdio};
 use std::time::Duration;
 
 /// Look for the ast-grep binary in PATH and well-known locations.
-/// Checks `ast-grep` first (the full binary), then `sg` (which may be a stub
-/// that requires `ast-grep` to be in PATH itself).
+/// Checks `ast-grep` first (the full binary), then `sg`.
+/// Each candidate is validated with `--version` to skip broken stubs.
 pub fn find_sg() -> Option<PathBuf> {
     // Prefer `ast-grep` — it is the actual binary; `sg` is often a thin stub.
     for name in &["ast-grep", "sg"] {
         if let Some(path) = which_binary(name) {
-            return Some(path);
+            if is_working_binary(&path) {
+                return Some(path);
+            }
         }
     }
     // Check ~/.cargo/bin/ explicitly (may not be in PATH in all environments)
@@ -21,7 +23,7 @@ pub fn find_sg() -> Option<PathBuf> {
             } else {
                 name.to_string()
             });
-            if p.exists() {
+            if p.exists() && is_working_binary(&p) {
                 return Some(p);
             }
         }
@@ -29,11 +31,22 @@ pub fn find_sg() -> Option<PathBuf> {
     // Check ~/.solon/bin/sg (downloaded by solon itself)
     if let Some(home) = dirs_home() {
         let local = home.join(".solon").join("bin").join(sg_binary_name());
-        if local.exists() {
+        if local.exists() && is_working_binary(&local) {
             return Some(local);
         }
     }
     None
+}
+
+/// Quick check: run the binary with `--version` to verify it's not a broken stub.
+fn is_working_binary(path: &PathBuf) -> bool {
+    Command::new(path)
+        .arg("--version")
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false)
 }
 
 fn which_binary(name: &str) -> Option<PathBuf> {
@@ -135,6 +148,10 @@ pub fn download_sg() -> Result<PathBuf> {
 
 /// Run the sg binary with the given args, returning stdout as a String.
 /// Times out after `timeout` duration.
+///
+/// ast-grep uses grep-like exit codes: exit 1 means "matches found" (not an
+/// error).  We treat a non-zero exit as failure only when stderr contains a
+/// real error message.
 pub fn run_sg(sg_path: &PathBuf, args: &[&str], timeout: Duration) -> Result<String> {
     let child = Command::new(sg_path)
         .args(args)
@@ -153,7 +170,12 @@ pub fn run_sg(sg_path: &PathBuf, args: &[&str], timeout: Duration) -> Result<Str
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        bail!("sg failed: {stderr}");
+        let stderr_trimmed = stderr.trim();
+        // ast-grep exits 1 when matches are found (grep-like behaviour).
+        // Only treat it as an error if stderr has actual content.
+        if !stderr_trimmed.is_empty() {
+            bail!("sg failed: {stderr}");
+        }
     }
 
     Ok(String::from_utf8_lossy(&output.stdout).into_owned())

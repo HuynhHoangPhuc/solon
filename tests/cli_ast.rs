@@ -15,8 +15,9 @@ fn sl() -> Command {
 }
 
 /// Create a temporary directory containing a single Rust source file.
+/// Uses a non-dotted prefix so ast-grep doesn't skip it as a hidden directory.
 fn make_rust_tmpdir(src: &str) -> (TempDir, std::path::PathBuf) {
-    let dir = TempDir::new().unwrap();
+    let dir = Builder::new().prefix("solon_test_").tempdir().unwrap();
     let file = dir.path().join("sample.rs");
     let mut f = std::fs::File::create(&file).unwrap();
     f.write_all(src.as_bytes()).unwrap();
@@ -48,7 +49,7 @@ fn ast_search_finds_functions_in_rust_file() {
     sl().args([
         "ast",
         "search",
-        "fn $NAME($$$ARGS)",
+        "fn $NAME",
         "--lang",
         "rust",
         "--path",
@@ -71,7 +72,7 @@ fn ast_search_json_flag_produces_json_output() {
     sl().args([
         "ast",
         "search",
-        "fn $NAME($$$ARGS)",
+        "fn $NAME",
         "--lang",
         "rust",
         "--path",
@@ -96,7 +97,7 @@ fn ast_search_max_results_limits_output() {
         .args([
             "ast",
             "search",
-            "fn $NAME($$$ARGS)",
+            "fn $NAME",
             "--lang",
             "rust",
             "--path",
@@ -164,8 +165,8 @@ fn ast_replace_preview_shows_replacement() {
     sl().args([
         "ast",
         "replace",
-        "fn $NAME($$$ARGS)",
-        "fn renamed_$NAME($$$ARGS)",
+        "fn $NAME",
+        "fn renamed_$NAME",
         "--lang",
         "rust",
         "--path",
@@ -182,7 +183,7 @@ fn ast_replace_preview_shows_replacement() {
 #[test]
 #[ignore = "requires sg (ast-grep) binary — installed in CI"]
 fn ast_search_across_multiple_files() {
-    let dir = TempDir::new().unwrap();
+    let dir = Builder::new().prefix("solon_test_").tempdir().unwrap();
 
     // Write two Rust files
     for (name, src) in [
@@ -198,7 +199,7 @@ fn ast_search_across_multiple_files() {
         .args([
             "ast",
             "search",
-            "fn $NAME($$$ARGS)",
+            "fn $NAME",
             "--lang",
             "rust",
             "--path",
