@@ -29,8 +29,18 @@ pub fn format_diagnostics(diags: &[Value], file_path: &str) -> String {
 /// Format a location value as `file:line:col`
 pub fn format_location(loc: &Value) -> String {
     let uri = loc["uri"].as_str().unwrap_or("");
-    // Strip "file://" prefix for display
-    let path = uri.strip_prefix("file://").unwrap_or(uri);
+    // Strip "file://" prefix for display, keeping the leading "/" for absolute paths
+    let path = if let Some(rest) = uri.strip_prefix("file://") {
+        // On Windows: file:///C:/... → C:/..., on Unix: file:///home/... → /home/...
+        if rest.starts_with('/') && rest.len() > 2 && rest.as_bytes()[2] == b':' {
+            // Windows drive letter: skip the leading "/"
+            &rest[1..]
+        } else {
+            rest
+        }
+    } else {
+        uri
+    };
     let line = loc["range"]["start"]["line"].as_u64().unwrap_or(0) + 1;
     let col = loc["range"]["start"]["character"].as_u64().unwrap_or(0) + 1;
     format!("{path}:{line}:{col}")

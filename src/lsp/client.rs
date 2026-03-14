@@ -279,7 +279,7 @@ impl Drop for LspClient {
 
 /// Convert a filesystem path to a proper `file://` URI using the `url` crate.
 /// Handles Windows drive-letter paths and percent-encoding correctly.
-fn path_to_uri(path: &Path) -> String {
+pub fn path_to_uri(path: &Path) -> String {
     let abs = if path.is_absolute() {
         path.to_path_buf()
     } else {

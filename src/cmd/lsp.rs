@@ -3,7 +3,7 @@ use clap::{Args, Subcommand};
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 
-use crate::lsp::client::LspClient;
+use crate::lsp::client::{path_to_uri, LspClient};
 use crate::lsp::detect::{detect_server, find_project_root};
 use crate::lsp::format::{format_diagnostics, format_hover, format_locations};
 
@@ -93,8 +93,7 @@ fn lsp_position(line: u32, col: u32) -> Value {
 
 /// Build a LSP textDocumentIdentifier from an absolute path
 fn text_document_id(path: &Path) -> Value {
-    let uri = format!("file://{}", path.display());
-    json!({ "uri": uri })
+    json!({ "uri": path_to_uri(path) })
 }
 
 fn run_diagnostics(args: DiagnosticsArgs) -> Result<()> {
