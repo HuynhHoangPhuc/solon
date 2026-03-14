@@ -9,6 +9,12 @@ use predicates::prelude::*;
 use std::fs;
 use tempfile::{Builder, TempDir};
 
+/// LSP diagnostics tests hang on Windows due to missing poll() support in the
+/// stdio read path. Set SOLON_SKIP_LSP_DIAG=1 to skip them.
+fn skip_lsp_diag() -> bool {
+    std::env::var("SOLON_SKIP_LSP_DIAG").is_ok_and(|v| !v.is_empty())
+}
+
 fn sl() -> Command {
     Command::cargo_bin("sl").expect("sl binary not found")
 }
@@ -55,6 +61,9 @@ fn main() {
 #[test]
 #[ignore = "requires rust-analyzer — installed in CI via rustup component add rust-analyzer"]
 fn lsp_diagnostics_valid_file_exits_zero() {
+    if skip_lsp_diag() {
+        return;
+    }
     let (_dir, main_rs) = make_rust_project();
     sl().args(["lsp", "diagnostics", main_rs.to_str().unwrap()])
         .assert()
@@ -67,6 +76,9 @@ fn lsp_diagnostics_valid_file_exits_zero() {
 #[test]
 #[ignore = "requires rust-analyzer — installed in CI via rustup component add rust-analyzer"]
 fn lsp_diagnostics_file_with_error_reports_diagnostic() {
+    if skip_lsp_diag() {
+        return;
+    }
     let dir = Builder::new().prefix("solon_test_").tempdir().unwrap();
 
     fs::write(
