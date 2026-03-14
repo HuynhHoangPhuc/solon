@@ -114,6 +114,7 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: '1.26'
+          cache-dependency-path: hooks/scripts/go.sum
 
       - name: Run go vet
         run: go vet ./...
@@ -124,11 +125,3 @@ jobs:
       - name: Build all targets
         run: make build-all
         continue-on-error: true  # Make may not be available in all environments
-
-      - name: Upload artifacts
-        if: success()
-        uses: actions/upload-artifact@v7
-        with:
-          name: solon-hooks-binaries
-          path: hooks/scripts/bin/solon-hooks-*
-          if-no-files-found: ignore
