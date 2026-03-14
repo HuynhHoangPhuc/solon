@@ -151,10 +151,9 @@ impl LspClient {
     }
 
     #[cfg(not(unix))]
-    fn poll_readable(_stdout: &ChildStdout, timeout: std::time::Duration) -> bool {
-        // On non-Unix platforms, just proceed (no timeout enforcement).
-        // The message limit in get_diagnostics still prevents infinite loops.
-        std::thread::sleep(timeout);
+    fn poll_readable(_stdout: &ChildStdout, _timeout: std::time::Duration) -> bool {
+        // Cannot poll on Windows — fall back to blocking read.
+        // get_diagnostics uses the original single-batch behavior on Windows.
         true
     }
 
@@ -209,15 +208,17 @@ impl LspClient {
     /// Get diagnostics for an open document (wait for publishDiagnostics notification).
     /// Returns raw JSON diagnostic objects.
     ///
-    /// rust-analyzer often sends an initial empty diagnostics batch before the
-    /// real analysis completes. After receiving an empty batch we continue
-    /// reading (up to a limit) to catch a subsequent non-empty update.
+    /// On Unix: rust-analyzer often sends an initial empty diagnostics batch
+    /// before the real analysis completes. We use poll() to keep reading until
+    /// a non-empty batch arrives or the timeout expires.
+    ///
+    /// On Windows: no poll available, so we return the first batch received.
     pub fn get_diagnostics(&mut self, file_path: &Path) -> Result<Vec<JsonValue>> {
         let uri = path_to_uri(file_path);
+        let can_poll = cfg!(unix);
 
         let max_msgs = 50;
         let mut last_diags: Option<Vec<JsonValue>> = None;
-        // After first empty diagnostics, allow extra messages for the real batch
         let mut remaining_after_empty: Option<usize> = None;
 
         for _ in 0..max_msgs {
@@ -230,7 +231,7 @@ impl LspClient {
 
             let msg = match self.read_message_timeout(std::time::Duration::from_secs(10)) {
                 Ok(m) => m,
-                Err(_) => break, // timeout — no more messages coming
+                Err(_) => break,
             };
 
             if msg.get("method").and_then(Value::as_str) == Some("textDocument/publishDiagnostics")
@@ -245,8 +246,11 @@ impl LspClient {
                         if !diags.is_empty() {
                             return Ok(diags);
                         }
+                        // On Windows, return immediately (can't poll for more)
+                        if !can_poll {
+                            return Ok(diags);
+                        }
                         last_diags = Some(diags);
-                        // Give the server 20 more messages to send the real batch
                         if remaining_after_empty.is_none() {
                             remaining_after_empty = Some(20);
                         }
