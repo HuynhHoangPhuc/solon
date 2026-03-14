@@ -127,6 +127,37 @@ impl LspClient {
         }
     }
 
+    /// Like `read_message` but gives up after `timeout` if no data arrives.
+    fn read_message_timeout(&mut self, timeout: std::time::Duration) -> Result<Value> {
+        if !Self::poll_readable(self.reader.get_ref(), timeout) {
+            bail!("Timed out waiting for LSP message");
+        }
+        self.read_message()
+    }
+
+    /// Returns true if the ChildStdout fd has data ready within the given timeout.
+    #[cfg(unix)]
+    fn poll_readable(stdout: &ChildStdout, timeout: std::time::Duration) -> bool {
+        use std::os::unix::io::AsRawFd;
+        let fd = stdout.as_raw_fd();
+        let mut poll_fd = libc::pollfd {
+            fd,
+            events: libc::POLLIN,
+            revents: 0,
+        };
+        let millis = timeout.as_millis().min(i32::MAX as u128) as i32;
+        let ret = unsafe { libc::poll(&mut poll_fd as *mut _, 1, millis) };
+        ret > 0 && (poll_fd.revents & libc::POLLIN) != 0
+    }
+
+    #[cfg(not(unix))]
+    fn poll_readable(_stdout: &ChildStdout, timeout: std::time::Duration) -> bool {
+        // On non-Unix platforms, just proceed (no timeout enforcement).
+        // The message limit in get_diagnostics still prevents infinite loops.
+        std::thread::sleep(timeout);
+        true
+    }
+
     fn read_message(&mut self) -> Result<Value> {
         let mut content_length = 0usize;
 
@@ -177,13 +208,31 @@ impl LspClient {
 
     /// Get diagnostics for an open document (wait for publishDiagnostics notification).
     /// Returns raw JSON diagnostic objects.
+    ///
+    /// rust-analyzer often sends an initial empty diagnostics batch before the
+    /// real analysis completes. After receiving an empty batch we continue
+    /// reading (up to a limit) to catch a subsequent non-empty update.
     pub fn get_diagnostics(&mut self, file_path: &Path) -> Result<Vec<JsonValue>> {
         let uri = path_to_uri(file_path);
 
-        // Wait for publishDiagnostics notification (with timeout simulation via message limit)
-        let max_msgs = 30;
+        let max_msgs = 50;
+        let mut last_diags: Option<Vec<JsonValue>> = None;
+        // After first empty diagnostics, allow extra messages for the real batch
+        let mut remaining_after_empty: Option<usize> = None;
+
         for _ in 0..max_msgs {
-            let msg = self.read_message()?;
+            if let Some(ref mut r) = remaining_after_empty {
+                if *r == 0 {
+                    break;
+                }
+                *r -= 1;
+            }
+
+            let msg = match self.read_message_timeout(std::time::Duration::from_secs(10)) {
+                Ok(m) => m,
+                Err(_) => break, // timeout — no more messages coming
+            };
+
             if msg.get("method").and_then(Value::as_str) == Some("textDocument/publishDiagnostics")
             {
                 if let Some(params) = msg.get("params") {
@@ -193,12 +242,19 @@ impl LspClient {
                             .and_then(Value::as_array)
                             .cloned()
                             .unwrap_or_default();
-                        return Ok(diags);
+                        if !diags.is_empty() {
+                            return Ok(diags);
+                        }
+                        last_diags = Some(diags);
+                        // Give the server 20 more messages to send the real batch
+                        if remaining_after_empty.is_none() {
+                            remaining_after_empty = Some(20);
+                        }
                     }
                 }
             }
         }
-        Ok(vec![]) // No diagnostics received in time
+        Ok(last_diags.unwrap_or_default())
     }
 
     /// Graceful shutdown
