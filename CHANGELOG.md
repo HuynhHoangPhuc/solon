@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.1.1] - 2026-03-14
+
+### Added
+- Full test coverage: 67 Rust unit tests, 15 Rust integration tests, 89 Go tests across 19 packages
+- CI: Go test job, sg + rust-analyzer install for integration tests
+- Release workflow: `solon-hooks` binary cross-compiled for 5 targets (linux-x64, linux-arm64, darwin-x64, darwin-arm64, windows-x64) with SHA256 checksums
+- Makefile: `build-linux-arm64` and `build-windows-amd64` cross-compile targets
+
+---
+
 ## [0.1.0] - 2026-03-14
 
 ### Added
