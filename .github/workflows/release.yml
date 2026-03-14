@@ -77,9 +77,80 @@ jobs:
             ${{ matrix.name }}
             ${{ matrix.name }}.sha256
 
+  build-hooks:
+    name: Build hooks ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: hooks/scripts
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            goos: linux
+            goarch: amd64
+            name: solon-hooks-linux-x64
+          - os: ubuntu-latest
+            goos: linux
+            goarch: arm64
+            name: solon-hooks-linux-arm64
+          - os: macos-latest
+            goos: darwin
+            goarch: amd64
+            name: solon-hooks-darwin-x64
+          - os: macos-latest
+            goos: darwin
+            goarch: arm64
+            name: solon-hooks-darwin-arm64
+          - os: windows-latest
+            goos: windows
+            goarch: amd64
+            name: solon-hooks-windows-x64.exe
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+          cache-dependency-path: hooks/scripts/go.sum
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: go build -trimpath -ldflags="-s -w" -o ../../${{ matrix.name }} .
+
+      - name: SHA256 (Unix)
+        if: matrix.os != 'windows-latest'
+        working-directory: .
+        run: |
+          if command -v sha256sum &> /dev/null; then
+            sha256sum ${{ matrix.name }} > ${{ matrix.name }}.sha256
+          else
+            shasum -a 256 ${{ matrix.name }} > ${{ matrix.name }}.sha256
+          fi
+
+      - name: SHA256 (Windows)
+        if: matrix.os == 'windows-latest'
+        working-directory: .
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash "${{ matrix.name }}" -Algorithm SHA256).Hash.ToLower()
+          "$hash  ${{ matrix.name }}" | Out-File -Encoding ascii "${{ matrix.name }}.sha256"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.name }}
+          path: |
+            ${{ matrix.name }}
+            ${{ matrix.name }}.sha256
+
   release:
     name: Create GitHub Release
-    needs: build
+    needs: [build, build-hooks]
     runs-on: ubuntu-latest
     permissions:
       contents: write

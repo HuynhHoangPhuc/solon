@@ -90,6 +90,8 @@ jobs:
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rust-analyzer
 
       - name: Cache cargo registry
         uses: actions/cache@v5
@@ -101,8 +103,21 @@ jobs:
           key: ${{ runner.os }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-build-
 
-      - name: Run tests
-        run: cargo test
+      - name: Cache cargo installs
+        uses: actions/cache@v5
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-cargo-bin-ast-grep
+
+      - name: Install sg (ast-grep)
+        run: |
+          if ! command -v sg &> /dev/null; then
+            cargo install ast-grep --locked
+          fi
+        shell: bash
+
+      - name: Run tests (including ignored — sg and rust-analyzer available)
+        run: cargo test -- --include-ignored
 
   go-hooks:
     name: Go Hooks Tests
