@@ -1,5 +1,10 @@
 {
   "name": "solon",
-  "version": "0.1.4",
-  "description": "Hashline read/edit, AST-grep, LSP tools for Claude Code"
+  "description": "Hashline read/edit, AST-grep, LSP tools for Claude Code",
+  "version": "0.1.5",
+  "author": { "name": "HuynhHoangPhuc" },
+  "homepage": "https://github.com/HuynhHoangPhuc/solon",
+  "repository": "https://github.com/HuynhHoangPhuc/solon",
+  "license": "Apache-2.0",
+  "keywords": ["editor", "ast", "lsp", "hashline", "code-intelligence", "hooks"]
 }
