@@ -4,8 +4,7 @@
       {
         "matcher": "startup|resume|clear|compact",
         "hooks": [
-          { "type": "command", "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/ensure-binary.sh\"", "timeout": 60 },
-          { "type": "command", "command": "${HOME}/.solon/bin/solon-hooks session-init" }
+          { "type": "command", "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/ensure-binary.sh\" && ${HOME}/.solon/bin/solon-hooks session-init", "timeout": 60 }
         ]
       }
     ],
