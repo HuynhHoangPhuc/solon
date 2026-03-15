@@ -5,17 +5,17 @@
   },
   "metadata": {
     "description": "Hashline editing, AST-grep search, and LSP tools for Claude Code",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "plugins": [
     {
       "name": "solon",
       "source": {
         "source": "url",
-        "url": "https://github.com/HuynhHoangPhuc/solon.git"
+        "url": "https://github.com/HuynhHoangPhuc/solon-plugin.git"
       },
       "description": "Hashline read/edit, AST-grep, LSP tools for Claude Code",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "author": {
         "name": "HuynhHoangPhuc"
       },
