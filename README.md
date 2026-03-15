@@ -3,7 +3,7 @@
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Rust 1.70+](https://img.shields.io/badge/rust-1.70+-orange.svg)](https://www.rust-lang.org)
 
-**Solon v0.1.0** — A Rust CLI tool for precise, hash-validated file editing with semantic code search and language server protocol support.
+**Solon v0.2.0** — A Rust CLI tool and workflow engine for precise, hash-validated file editing with semantic code search, language server protocol support, and full development workflow orchestration.
 
 ## Features
 
