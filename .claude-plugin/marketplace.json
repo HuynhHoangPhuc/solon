@@ -7,7 +7,7 @@
     {
       "name": "solon",
       "description": "Hashline read/edit, AST-grep, LSP tools for Claude Code",
-      "version": "0.1.6",
+      "version": "0.1.7",
       "source": "./",
       "author": {
         "name": "HuynhHoangPhuc"

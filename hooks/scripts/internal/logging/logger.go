@@ -1,5 +1,5 @@
 // Package logging provides structured JSONL logging for hook scripts.
-// Log file: hooks/scripts/.logs/hook-log.jsonl
+// Log file: ~/.solon/logs/hook-log.jsonl
 // Rotation: keep last 500 lines when file exceeds 1000 lines.
 // All errors fail silently — never crash a hook.
 package logging
@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"time"
 )
@@ -18,20 +17,18 @@ const (
 	truncateTo = 500
 )
 
-// logDir is resolved relative to this file's location at init time.
+// logDir uses $HOME/.solon/logs/ for a stable, absolute log location.
+// Previous approach used runtime.Caller(0) which returns module-relative
+// paths in compiled binaries, causing spurious solon-hooks/ dirs in CWD.
 var logDir string
 var logFile string
 
 func init() {
-	// Resolve .logs/ relative to this source file's package directory,
-	// which sits at internal/logging/ inside hooks/scripts/.
-	// We walk up two levels: logging/ → internal/ → hooks/scripts/
-	_, filename, _, ok := runtime.Caller(0)
-	if ok {
-		scriptsDir := filepath.Join(filepath.Dir(filename), "..", "..")
-		logDir = filepath.Join(scriptsDir, ".logs")
-	} else {
+	home, err := os.UserHomeDir()
+	if err != nil {
 		logDir = ".logs"
+	} else {
+		logDir = filepath.Join(home, ".solon", "logs")
 	}
 	logFile = filepath.Join(logDir, "hook-log.jsonl")
 }
