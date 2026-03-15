@@ -1,13 +1,5 @@
 {
   "name": "solon",
   "version": "0.1.0",
-  "description": "Hashline read/edit, AST-grep, LSP tools for Claude Code",
-  "skills": [
-    "skills/hashline-read",
-    "skills/hashline-edit",
-    "skills/ast-search",
-    "skills/ast-replace",
-    "skills/lsp-tools"
-  ],
-  "hooks": "hooks/hooks.json"
+  "description": "Hashline read/edit, AST-grep, LSP tools for Claude Code"
 }

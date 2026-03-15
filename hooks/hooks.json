@@ -1,5 +1,4 @@
 {
-  "description": "Solon hooks: lifecycle management, access control, context awareness",
   "hooks": {
     "SessionStart": [
       {
