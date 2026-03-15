@@ -225,8 +225,8 @@ Documentation contributions are welcome! When contributing:
 ## Version
 
 - **Documentation Version:** 1.0
-- **Solon Version:** 0.1.0
-- **Last Updated:** 2026-03-13
+- **Solon Version:** 0.1.5
+- **Last Updated:** 2026-03-15
 
 ---
 
