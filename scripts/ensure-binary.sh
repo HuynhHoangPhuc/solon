@@ -2,8 +2,8 @@
 # ensure-binary.sh — Idempotent: download sl + solon-hooks to ~/.solon/bin/ on first run
 # Fast no-op when both binaries already exist
 
-# Workaround: Claude Code cache creates recursive solon/0.1.x/ nesting (bug).
-# CLAUDE_PLUGIN_ROOT points to cache dir — remove nested copy if present.
+# Defense-in-depth: remove any recursive solon/ nesting in plugin cache.
+# Root cause fixed in marketplace.json (source: "./" prevents re-cloning).
 if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -d "${CLAUDE_PLUGIN_ROOT}/solon" ]; then
   rm -rf "${CLAUDE_PLUGIN_ROOT}/solon"
 fi

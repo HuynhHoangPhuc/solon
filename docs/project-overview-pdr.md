@@ -4,7 +4,7 @@
 
 **Solon** is a Rust-based CLI tool and Claude Code plugin that enables precise, hash-validated file editing with integrated code intelligence. It combines hashline-based line reference, AST-based semantic search/replace, and LSP-based diagnostics into a unified toolset for Claude Code.
 
-**Version:** 0.1.5
+**Version:** 0.1.6
 **Status:** Implemented & Tested (27 unit + 11 integration tests passing)
 **License:** Apache-2.0
 
