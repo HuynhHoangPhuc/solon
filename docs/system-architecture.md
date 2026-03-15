@@ -478,6 +478,48 @@ All 20 hooks are built from Go source in `hooks/scripts/cmd/` and compiled to si
 
 ---
 
+## Orchestration Subsystem
+
+### Binaries
+
+| Binary | Language | Role |
+|--------|----------|------|
+| `sl` | Rust | File editing — hashline read/edit, AST search/replace, LSP queries |
+| `solon-hooks` | Go | Event handlers — 20 Claude Code lifecycle hooks |
+| `sc` | Go | Orchestration — plan, task, workflow, report management |
+
+### `sc` Subcommands
+
+| Group | Subcommand | Description |
+|-------|------------|-------------|
+| plan | `plan resolve` | Resolve active plan path via session or branch |
+| plan | `plan scaffold` | Create plan directory from template |
+| plan | `plan validate` | Validate plan completeness |
+| plan | `plan archive` | Archive completed plan |
+| plan | `plan red-team` | Generate adversarial questions for a plan |
+| task | `task hydrate` | Extract structured tasks from phase files |
+| task | `task sync` | Mark phase checkboxes as completed |
+| workflow | `workflow status` | Show phase completion progress |
+| report | `report index` | Index report files in a plan |
+
+### Interaction Model
+
+```
+Claude Code lifecycle event
+    │
+    ├─→ solon-hooks (Go binary)   — session/access/intent/token/notify hooks
+    │       └─→ calls sc plan resolve  — deterministic plan path lookup
+    │
+    └─→ Skills (/solon:plan, /solon:cook, etc.)
+            └─→ calls sc task hydrate / sc workflow status / sc report index
+```
+
+- **Hooks call `sc`** for plan resolution and context injection into Claude's context window.
+- **Skills call `sc`** for deterministic, side-effect-free plan operations (no LLM needed).
+- `sc` is stateless; session state lives in `/tmp/sl-session-{id}.json` managed by `session` package.
+
+---
+
 ## Data Flow Diagrams
 
 ### Read Flow

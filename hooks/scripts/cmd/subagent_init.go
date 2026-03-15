@@ -9,6 +9,7 @@ import (
 
 	"solon-hooks/internal/config"
 	"solon-hooks/internal/context"
+	slexec "solon-hooks/internal/exec"
 	"solon-hooks/internal/hookio"
 	"solon-hooks/internal/plan"
 	"solon-hooks/internal/wisdom"
@@ -115,6 +116,14 @@ func runSubagentInit(cmd *cobra.Command, args []string) error {
 	}
 	lines = append(lines, fmt.Sprintf("- Reports: %s", reportsPath))
 	lines = append(lines, fmt.Sprintf("- Paths: %s/ | %s/", plansPath, docsPath))
+
+	// Inject workflow progress from sc binary if available
+	if activePlan != "" {
+		if progress := fetchWorkflowProgress(activePlan); progress != "" {
+			lines = append(lines, fmt.Sprintf("- %s", progress))
+		}
+	}
+
 	lines = append(lines, "")
 
 	hasThinking := effectiveThinking != "" && effectiveThinking != responseLang
@@ -172,4 +181,32 @@ func runSubagentInit(cmd *cobra.Command, args []string) error {
 		},
 	}
 	return json.NewEncoder(os.Stdout).Encode(output)
+}
+
+// fetchWorkflowProgress calls `sc workflow status <planDir>` and returns a
+// brief progress string. Returns "" if sc is not found or the call fails.
+func fetchWorkflowProgress(planDir string) string {
+	scPath := findSCBinary()
+	if scPath == "" {
+		return ""
+	}
+	output := slexec.ExecFileSafe(scPath, []string{"workflow", "status", planDir}, 5000)
+	if output == "" {
+		return ""
+	}
+	var result struct {
+		Progress int `json:"progress"`
+		Phases   struct {
+			Total     int `json:"total"`
+			Completed int `json:"completed"`
+		} `json:"phases"`
+	}
+	if err := json.Unmarshal([]byte(output), &result); err != nil {
+		return ""
+	}
+	if result.Phases.Total == 0 {
+		return ""
+	}
+	return fmt.Sprintf("Plan progress: %d%% (%d/%d phases complete)",
+		result.Progress, result.Phases.Completed, result.Phases.Total)
 }

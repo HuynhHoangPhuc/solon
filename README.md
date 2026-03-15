@@ -13,6 +13,7 @@
 - **Claude Code Plugin** — 5 skills + 20 intelligent hooks
 - **Token Efficiency Hooks** — Preemptive compaction, per-tool output truncation, semantic compression (20-40% reduction)
 - **Agent Quality Hooks** — Intent gate classification, wisdom accumulation, todo enforcement, comment slop detection
+- **Workflow Engine** — Full development workflow: brainstorm → plan → cook → test → review via `sc` binary
 
 ## Quick Install
 
@@ -80,6 +81,18 @@ sl lsp references src/main.rs 15 5
 
 # Hover information
 sl lsp hover src/main.rs 20 0
+```
+
+### Workflow Commands
+```bash
+# Scaffold a new plan
+sc plan scaffold --slug my-feature --mode fast
+
+# Extract tasks from phases
+sc task hydrate plans/YYMMDD-my-feature
+
+# Check progress
+sc workflow status plans/YYMMDD-my-feature
 ```
 
 ## Documentation

@@ -28,9 +28,10 @@ esac
 
 SL_BIN="${INSTALL_DIR}/sl${EXT}"
 HOOKS_BIN="${INSTALL_DIR}/solon-hooks${EXT}"
+SC_BIN="${INSTALL_DIR}/sc${EXT}"
 
-# Fast no-op: both binaries exist
-if [ -x "${SL_BIN}" ] && [ -x "${HOOKS_BIN}" ]; then
+# Fast no-op: all binaries exist
+if [ -x "${SL_BIN}" ] && [ -x "${HOOKS_BIN}" ] && [ -x "${SC_BIN}" ]; then
   exit 0
 fi
 
@@ -88,7 +89,8 @@ _install_binary() {
 }
 
 failed=0
-_install_binary "sl" "${SL_BIN}"           || failed=1
+_install_binary "sl" "${SL_BIN}"             || failed=1
 _install_binary "solon-hooks" "${HOOKS_BIN}" || failed=1
+_install_binary "sc" "${SC_BIN}"             || failed=1
 
 exit ${failed}

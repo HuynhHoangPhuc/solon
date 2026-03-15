@@ -125,3 +125,30 @@ jobs:
       - name: Build all targets
         run: make build-all
         continue-on-error: true  # Make may not be available in all environments
+
+  go-sc:
+    name: Go sc Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: core
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.26'
+          cache-dependency-path: core/go.sum
+
+      - name: Build
+        run: go build ./...
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Run tests
+        run: go test ./...

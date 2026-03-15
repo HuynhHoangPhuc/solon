@@ -45,11 +45,11 @@ func runCookReminder(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	hookio.WriteContext("MUST invoke /cook --auto skill before implementing the plan\n")
+	hookio.WriteContext("MUST invoke /solon:cook --auto skill before implementing the plan\n")
 	if planPath != "" {
-		hookio.WriteContext("Best Practice: Run /clear then /cook " + filepath.Join(planPath, "plan.md") + "\n")
+		hookio.WriteContext("Best Practice: Run /clear then /solon:cook " + filepath.Join(planPath, "plan.md") + "\n")
 	} else {
-		hookio.WriteContext("Best Practice: Run /clear then /cook {full-absolute-path-to-plan.md}\n")
+		hookio.WriteContext("Best Practice: Run /clear then /solon:cook {full-absolute-path-to-plan.md}\n")
 	}
 	return nil
 }

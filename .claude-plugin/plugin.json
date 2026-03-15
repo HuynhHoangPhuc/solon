@@ -1,10 +1,62 @@
 {
   "name": "solon",
-  "description": "Hashline read/edit, AST-grep, LSP tools for Claude Code",
-  "version": "0.1.7",
+  "description": "Hashline read/edit, AST-grep, LSP tools, and workflow skills for Claude Code",
+  "version": "0.1.9",
   "author": { "name": "HuynhHoangPhuc" },
   "homepage": "https://github.com/HuynhHoangPhuc/solon",
   "repository": "https://github.com/HuynhHoangPhuc/solon",
   "license": "Apache-2.0",
-  "keywords": ["editor", "ast", "lsp", "hashline", "code-intelligence", "hooks"]
+  "keywords": ["editor", "ast", "lsp", "hashline", "code-intelligence", "hooks", "planning", "brainstorm"],
+  "skills": [
+    {
+      "name": "hashline-read",
+      "description": "Read files with hashline annotations for reliable line-range editing",
+      "path": "skills/hashline-read/SKILL.md"
+    },
+    {
+      "name": "hashline-edit",
+      "description": "Edit files using hashline line references for reliable, hash-validated edits",
+      "path": "skills/hashline-edit/SKILL.md"
+    },
+    {
+      "name": "ast-search",
+      "description": "Search code semantically using AST patterns across the codebase",
+      "path": "skills/ast-search/SKILL.md"
+    },
+    {
+      "name": "ast-replace",
+      "description": "Replace code patterns using AST-aware structural transformations",
+      "path": "skills/ast-replace/SKILL.md"
+    },
+    {
+      "name": "lsp-tools",
+      "description": "LSP diagnostics, hover, references, and code actions via language servers",
+      "path": "skills/lsp-tools/SKILL.md"
+    },
+    {
+      "name": "brainstorm",
+      "description": "Brainstorm solutions with trade-off analysis, research delegation, and structured debate",
+      "path": "skills/brainstorm/SKILL.md"
+    },
+    {
+      "name": "plan",
+      "description": "Create detailed implementation plans with configurable workflow modes (fast/hard/parallel/two)",
+      "path": "skills/plan/SKILL.md"
+    },
+    {
+      "name": "cook",
+      "description": "Execute plan phases end-to-end with progress tracking, quality gates, and agent delegation",
+      "path": "skills/cook/SKILL.md"
+    },
+    {
+      "name": "test",
+      "description": "Delegate test suite execution to tester agent with plan-aware context and structured reporting",
+      "path": "skills/test/SKILL.md"
+    },
+    {
+      "name": "review",
+      "description": "Delegate code review to code-reviewer agent with severity levels and plan compliance checks",
+      "path": "skills/review/SKILL.md"
+    }
+  ]
 }

@@ -1,15 +1,17 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
+	osexec "os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
 
 	"solon-hooks/internal/config"
+	slexec "solon-hooks/internal/exec"
 	"solon-hooks/internal/hookio"
 	"solon-hooks/internal/plan"
 	"solon-hooks/internal/project"
@@ -54,7 +56,13 @@ func runSessionInit(cmd *cobra.Command, args []string) error {
 	packageManager := project.DetectPackageManager(cfg.Project.PackageManager)
 	framework := project.DetectFramework(cfg.Project.Framework)
 
-	resolved := plan.ResolvePlanPath(sessionID, &cfg)
+	resolvedPtr := resolveWithSC(sessionID)
+	var resolved hookio.PlanResolution
+	if resolvedPtr != nil {
+		resolved = *resolvedPtr
+	} else {
+		resolved = plan.ResolvePlanPath(sessionID, &cfg)
+	}
 
 	if sessionID != "" {
 		activePlan := resolved.Path
@@ -322,7 +330,7 @@ func writeSessionContext(a sessionContextArgs) {
 
 // detectNodeVersion runs `node --version` and returns the result, or "N/A".
 func detectNodeVersion() string {
-	out, err := exec.Command("node", "--version").Output()
+	out, err := osexec.Command("node", "--version").Output()
 	if err != nil || len(out) == 0 {
 		return "N/A"
 	}
@@ -361,4 +369,47 @@ func firstOf(vals ...string) string {
 // unixMillis returns the current Unix timestamp in milliseconds.
 func unixMillis() int64 {
 	return time.Now().UnixMilli()
+}
+
+// resolveWithSC attempts to resolve the active plan via the sc binary.
+// Returns nil if sc is not found or the call fails (graceful degradation).
+func resolveWithSC(sessionID string) *hookio.PlanResolution {
+	scPath := findSCBinary()
+	if scPath == "" {
+		return nil
+	}
+	env := ""
+	if sessionID != "" {
+		env = "SL_SESSION_ID=" + sessionID + " "
+	}
+	output := slexec.ExecSafe(env+scPath+" plan resolve", "", 5000)
+	if output == "" {
+		return nil
+	}
+	var result struct {
+		Path       string `json:"path"`
+		ResolvedBy string `json:"resolvedBy"`
+	}
+	if err := json.Unmarshal([]byte(output), &result); err != nil {
+		return nil
+	}
+	if result.Path == "" {
+		return nil
+	}
+	return &hookio.PlanResolution{Path: result.Path, ResolvedBy: result.ResolvedBy}
+}
+
+// findSCBinary returns the path to the sc binary, or "" if not found.
+func findSCBinary() string {
+	home, _ := os.UserHomeDir()
+	candidates := []string{
+		filepath.Join(home, ".solon", "bin", "sc"),
+		"sc",
+	}
+	for _, c := range candidates {
+		if _, err := osexec.LookPath(c); err == nil {
+			return c
+		}
+	}
+	return ""
 }

@@ -266,6 +266,34 @@ sl read file.rs
 
 ---
 
+## Workflow
+
+The full development workflow chains five skills in sequence:
+
+| Step | Skill | Description |
+|------|-------|-------------|
+| 1 | `/solon:brainstorm` | Generate ideas and problem framing for a feature |
+| 2 | `/solon:plan` | Create a structured implementation plan with phase files |
+| 3 | `/solon:cook` | Execute the plan phase by phase via subagents |
+| 4 | `/solon:test` | Run tests and validate implementation quality |
+| 5 | `/solon:review` | Code review, cleanup, and final sign-off |
+
+Each skill reads from and writes to the active plan directory resolved by `sc plan resolve`.
+
+### `sc` CLI Quick Reference
+
+| Subcommand | Description |
+|------------|-------------|
+| `sc plan scaffold --slug <name> --mode fast` | Create a new plan directory |
+| `sc plan resolve` | Print active plan path (session → branch fallback) |
+| `sc plan validate <dir>` | Check plan completeness and todo counts |
+| `sc task hydrate <dir>` | Extract task list from phase files |
+| `sc task sync <dir> --phases 1,2` | Mark phases as completed |
+| `sc workflow status <dir>` | Show progress (completed/pending/in-progress) |
+| `sc report index <dir>` | List report files in a plan |
+
+---
+
 ## Common Workflows
 
 ### Scenario 1: Fix a Bug in a Specific Function
