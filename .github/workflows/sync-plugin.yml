@@ -19,7 +19,6 @@ jobs:
           mkdir -p dist/.claude-plugin dist/hooks dist/scripts
           cp -r skills dist/
           cp .claude-plugin/plugin.json dist/.claude-plugin/
-          cp .claude-plugin/marketplace.json dist/.claude-plugin/
           cp hooks/hooks.json dist/hooks/
           cp scripts/ensure-binary.sh dist/scripts/
           cp scripts/install.sh dist/scripts/
