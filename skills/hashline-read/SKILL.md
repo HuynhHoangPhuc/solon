@@ -1,5 +1,5 @@
 ---
-name: hashline-read
+name: sl:hashline-read
 description: Read files with hashline annotations for reliable line-range editing
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: plan
+name: sl:plan
 description: "Plan implementations, design architectures, create technical roadmaps with detailed phases. Use for feature planning, system design, solution architecture, implementation strategy."
 argument-hint: "[task description] [--fast|--hard|--parallel|--two]"
 ---

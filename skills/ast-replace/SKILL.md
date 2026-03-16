@@ -1,5 +1,5 @@
 ---
-name: ast-replace
+name: sl:ast-replace
 description: Semantic code replacement using ast-grep patterns with safe preview mode
 ---
 

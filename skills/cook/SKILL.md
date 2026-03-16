@@ -1,5 +1,5 @@
 ---
-name: cook
+name: sl:cook
 description: "Execute plan phases with progress tracking and quality gates. Use after /solon:plan to implement a full plan end-to-end."
 argument-hint: "<plan-dir>/plan.md [--auto] [--parallel] [--no-test]"
 ---

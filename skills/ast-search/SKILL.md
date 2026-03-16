@@ -1,5 +1,5 @@
 ---
-name: ast-search
+name: sl:ast-search
 description: Semantic code search using ast-grep tree-sitter patterns
 ---
 

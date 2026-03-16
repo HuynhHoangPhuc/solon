@@ -1,5 +1,5 @@
 ---
-name: review
+name: sl:review
 description: "Delegate code review to code-reviewer agent with plan-aware context. Use after /solon:cook or standalone for code quality review."
 argument-hint: "[--plan <plan-dir>]"
 ---

@@ -1,5 +1,5 @@
 ---
-name: hashline-edit
+name: sl:hashline-edit
 description: Edit files using hashline line references for reliable, hash-validated edits
 ---
 

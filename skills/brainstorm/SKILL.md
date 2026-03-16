@@ -1,5 +1,5 @@
 ---
-name: brainstorm
+name: sl:brainstorm
 description: "Brainstorm solutions with trade-off analysis, research delegation, and structured debate. Use for ideation, architecture decisions, technical debates, feature exploration, feasibility assessment."
 argument-hint: "[topic or problem]"
 ---

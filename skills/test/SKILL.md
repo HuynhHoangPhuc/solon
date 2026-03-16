@@ -1,5 +1,5 @@
 ---
-name: test
+name: sl:test
 description: "Delegate testing to tester agent with plan-aware context. Use after /solon:cook or standalone to run test suites."
 argument-hint: "[--plan <plan-dir>]"
 ---

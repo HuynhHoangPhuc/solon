@@ -1,5 +1,5 @@
 ---
-name: lsp-tools
+name: sl:lsp-tools
 description: LSP-powered diagnostics, goto-definition, references, and hover info
 ---
 
