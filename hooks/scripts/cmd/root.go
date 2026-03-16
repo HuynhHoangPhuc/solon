@@ -33,4 +33,5 @@ func init() {
 	rootCmd.AddCommand(commentSlopCheckerCmd)
 	rootCmd.AddCommand(wisdomAccumulatorCmd)
 	rootCmd.AddCommand(intentGateCmd)
+	rootCmd.AddCommand(versionCmd)
 }

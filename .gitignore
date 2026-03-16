@@ -1,5 +1,7 @@
 /target/
 hooks/scripts/bin/
+core/bin/
+dist/
 *.bak
 *.tmp
 *.bak.bak

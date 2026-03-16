@@ -1,13 +1,13 @@
-BINARY  := solon-hooks
+BINARY  := sc
 OUTDIR  := bin
 
 # Read version from plugin.json, default to "dev"
-VERSION := $(shell grep '"version"' ../../.claude-plugin/plugin.json 2>/dev/null | head -1 | sed 's/.*"version": *"\([^"]*\)".*/v\1/')
+VERSION := $(shell grep '"version"' ../.claude-plugin/plugin.json 2>/dev/null | head -1 | sed 's/.*"version": *"\([^"]*\)".*/v\1/')
 ifeq ($(VERSION),)
   VERSION := dev
 endif
 
-GOFLAGS := -trimpath -ldflags="-s -w -X solon-hooks/cmd.Version=$(VERSION)"
+GOFLAGS := -trimpath -ldflags="-s -w -X solon-core/cmd.Version=$(VERSION)"
 
 .PHONY: build build-darwin-arm64 build-darwin-amd64 build-linux-amd64 build-linux-arm64 build-windows-amd64 build-all clean test
 

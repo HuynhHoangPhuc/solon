@@ -121,7 +121,7 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: 0
-        run: go build -trimpath -ldflags="-s -w" -o ../../${{ matrix.name }} .
+        run: go build -trimpath -ldflags="-s -w -X solon-hooks/cmd.Version=${{ github.ref_name }}" -o ../../${{ matrix.name }} .
 
       - name: SHA256 (Unix)
         if: matrix.os != 'windows-latest'
@@ -160,7 +160,7 @@ jobs:
           - os: ubuntu-latest
             goos: linux
             goarch: amd64
-            name: sc-linux-amd64
+            name: sc-linux-x64
           - os: ubuntu-latest
             goos: linux
             goarch: arm64
@@ -168,7 +168,7 @@ jobs:
           - os: macos-latest
             goos: darwin
             goarch: amd64
-            name: sc-darwin-amd64
+            name: sc-darwin-x64
           - os: macos-latest
             goos: darwin
             goarch: arm64
@@ -176,7 +176,7 @@ jobs:
           - os: windows-latest
             goos: windows
             goarch: amd64
-            name: sc-windows-amd64.exe
+            name: sc-windows-x64.exe
 
     steps:
       - uses: actions/checkout@v6
@@ -192,7 +192,7 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: 0
-        run: go build -trimpath -ldflags="-s -w" -o ../${{ matrix.name }} .
+        run: go build -trimpath -ldflags="-s -w -X solon-core/cmd.Version=${{ github.ref_name }}" -o ../${{ matrix.name }} .
 
       - name: SHA256 (Unix)
         if: matrix.os != 'windows-latest'
