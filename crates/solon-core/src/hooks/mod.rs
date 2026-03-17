@@ -1641,14 +1641,12 @@ pub fn find_sc_binary() -> Option<String> {
             .to_string(),
         "sc".to_string(),
     ];
-    candidates
-        .into_iter()
-        .find(|c| {
-            std::process::Command::new(c)
-                .arg("--version")
-                .output()
-                .is_ok()
-        })
+    candidates.into_iter().find(|c| {
+        std::process::Command::new(c)
+            .arg("--version")
+            .output()
+            .is_ok()
+    })
 }
 
 #[cfg(test)]

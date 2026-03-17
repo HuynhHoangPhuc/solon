@@ -237,9 +237,7 @@ fn extract_from_command(cmd: &str) -> Vec<String> {
         if command_name.is_empty() {
             command_name = token;
             let lower = command_name.to_lowercase();
-            if command_keywords.contains(lower.as_str())
-                || fs_commands.contains(lower.as_str())
-            {
+            if command_keywords.contains(lower.as_str()) || fs_commands.contains(lower.as_str()) {
                 continue;
             }
         }
@@ -280,12 +278,8 @@ fn normalize_extracted_path(p: &str) -> String {
             s = s[1..s.len() - 1].to_string();
         }
     }
-    s = s
-        .trim_start_matches(['`', '(', '{', '['])
-        .to_string();
-    s = s
-        .trim_end_matches(['`', ')', '}', ']', ';'])
-        .to_string();
+    s = s.trim_start_matches(['`', '(', '{', '[']).to_string();
+    s = s.trim_end_matches(['`', ')', '}', ']', ';']).to_string();
     s = s.replace('\\', "/");
     if s.len() > 1 && s.ends_with('/') {
         s.pop();
