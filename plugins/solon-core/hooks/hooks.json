@@ -36,7 +36,7 @@
         "hooks": [
           { "type": "command", "command": "${HOME}/.solon/bin/sl hook dev-rules" },
           { "type": "command", "command": "${HOME}/.solon/bin/sl hook usage-awareness", "timeout": 30 },
-          { "type": "command", "command": "${HOME}/.solon/bin/sl hook todo-enforcer", "timeout": 10 },
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook todo-continuation-enforcer", "timeout": 10 },
           { "type": "command", "command": "${HOME}/.solon/bin/sl hook intent-gate", "timeout": 5 }
         ]
       }
