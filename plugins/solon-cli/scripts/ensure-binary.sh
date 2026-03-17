@@ -122,7 +122,16 @@ RELEASE_NAME="sl-${OS}-${ARCH}${EXT}"
 URL="https://github.com/${REPO}/releases/download/${TARGET}/${RELEASE_NAME}"
 TMP="${SL_BIN}.tmp"
 
-_download "${URL}" "${TMP}" || { echo "[solon] Failed to download sl from ${URL}" >&2; rm -f "${TMP}"; exit 1; }
+if ! _download "${URL}" "${TMP}"; then
+  rm -f "${TMP}"
+  # Download failed — fall back to existing binary if available
+  if [ -x "${SL_BIN}" ]; then
+    echo "[solon] Download failed, keeping existing sl ${LOCAL_VERSION}" >&2
+    _success
+  fi
+  echo "[solon] Failed to download sl from ${URL}" >&2
+  exit 1
+fi
 _verify_checksum "${TMP}" "${URL}" || { echo "[solon] Checksum verification failed" >&2; exit 1; }
 mv "${TMP}" "${SL_BIN}"
 if [ "${OS}" = "windows" ]; then
