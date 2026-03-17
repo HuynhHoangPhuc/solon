@@ -3,7 +3,7 @@ members = ["crates/solon-common", "crates/solon-cli", "crates/solon-core"]
 
 [package]
 name = "solon"
-version = "0.4.3"
+version = "0.4.4"
 edition = "2021"
 description = "Solon — Rust CLI and workflow engine for Claude Code"
 license = "Apache-2.0"

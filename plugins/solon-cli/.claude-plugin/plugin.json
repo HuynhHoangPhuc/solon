@@ -1,7 +1,7 @@
 {
   "name": "solon-cli",
   "description": "Hashline read/edit, AST-grep, LSP tools for Claude Code",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "author": { "name": "HuynhHoangPhuc" },
   "homepage": "https://github.com/HuynhHoangPhuc/solon",
   "repository": "https://github.com/HuynhHoangPhuc/solon",
