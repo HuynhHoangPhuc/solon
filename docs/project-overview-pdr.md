@@ -78,7 +78,7 @@ Exposes all 4 commands as skills + comprehensive hooks system:
 4. `ast-replace` — `sl ast replace` wrapper
 5. `lsp-tools` — `sl lsp` wrapper (all 4 queries)
 
-**20 Hooks (Go binary):**
+**20 Hooks (built into sl binary):**
 - **Session Lifecycle:** `session-init`, `subagent-init`, `team-context`, `cook-reminder`
 - **Access Control:** `privacy-block`, `scout-block`
 - **Intent & Strategy:** `intent-gate` (7-category classifier)
@@ -89,7 +89,7 @@ Exposes all 4 commands as skills + comprehensive hooks system:
 - **Context Preservation:** `compaction-context-preservation`
 - **Notifications:** `notify`, `statusline`, `task-completed`, `teammate-idle`
 
-All hooks implemented in Go binary (`solon-hooks`) compiled for darwin-arm64, darwin-amd64, linux-amd64.
+All hooks implemented in Rust binary (`sl`) compiled for darwin-arm64, darwin-amd64, linux-amd64.
 
 ---
 

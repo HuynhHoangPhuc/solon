@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# release.sh — Build all binaries and create a GitHub release
+# release.sh — Build sl binary and create a GitHub release
 # Usage: ./scripts/release.sh [--dry-run]
 #
-# Reads version from .claude-plugin/plugin.json, builds sl + solon-hooks + sc
-# for all platforms, then creates a GitHub release with all artifacts.
+# Reads version from marketplace.json, builds sl for all platforms,
+# then creates a GitHub release with all artifacts.
 
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-PLUGIN_JSON="${ROOT}/.claude-plugin/plugin.json"
+MARKETPLACE_JSON="${ROOT}/.claude-plugin/marketplace.json"
 DRY_RUN=false
 
 [ "${1:-}" = "--dry-run" ] && DRY_RUN=true
 
 # --- Read version ---
-VERSION=$(grep '"version"' "${PLUGIN_JSON}" | head -1 | sed 's/.*"version": *"\([^"]*\)".*/\1/')
+VERSION=$(grep '"version"' "${MARKETPLACE_JSON}" | head -1 | sed 's/.*"version": *"\([^"]*\)".*/\1/')
 if [ -z "${VERSION}" ]; then
-  echo "Error: could not read version from ${PLUGIN_JSON}" >&2
+  echo "Error: could not read version from ${MARKETPLACE_JSON}" >&2
   exit 1
 fi
 TAG="v${VERSION}"
@@ -29,7 +29,7 @@ mkdir -p "${DIST}"
 # --- Build sl (Rust) ---
 echo "Building sl..."
 cd "${ROOT}"
-# Ensure Cargo.toml version matches plugin.json
+# Ensure Cargo.toml version matches
 CARGO_VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
 if [ "${CARGO_VERSION}" != "${VERSION}" ]; then
   echo "Updating Cargo.toml version: ${CARGO_VERSION} -> ${VERSION}"
@@ -60,18 +60,6 @@ if cargo build --release --target x86_64-pc-windows-gnu 2>/dev/null; then
 else
   echo "  Skipping sl-windows-x64 (cross-compile target not installed)"
 fi
-
-# --- Build solon-hooks (Go) ---
-echo "Building solon-hooks..."
-cd "${ROOT}/hooks/scripts"
-make build-all
-cp bin/solon-hooks-* "${DIST}/"
-
-# --- Build sc (Go) ---
-echo "Building sc..."
-cd "${ROOT}/core"
-make build-all
-cp bin/sc-* "${DIST}/"
 
 # --- Generate checksums ---
 echo "Generating checksums..."

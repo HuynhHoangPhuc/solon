@@ -278,19 +278,19 @@ The full development workflow chains five skills in sequence:
 | 4 | `/solon:test` | Run tests and validate implementation quality |
 | 5 | `/solon:review` | Code review, cleanup, and final sign-off |
 
-Each skill reads from and writes to the active plan directory resolved by `sc plan resolve`.
+Each skill reads from and writes to the active plan directory resolved by `sl plan resolve`.
 
 ### `sc` CLI Quick Reference
 
 | Subcommand | Description |
 |------------|-------------|
-| `sc plan scaffold --slug <name> --mode fast` | Create a new plan directory |
-| `sc plan resolve` | Print active plan path (session → branch fallback) |
-| `sc plan validate <dir>` | Check plan completeness and todo counts |
-| `sc task hydrate <dir>` | Extract task list from phase files |
-| `sc task sync <dir> --phases 1,2` | Mark phases as completed |
-| `sc workflow status <dir>` | Show progress (completed/pending/in-progress) |
-| `sc report index <dir>` | List report files in a plan |
+| `sl plan scaffold --slug <name> --mode fast` | Create a new plan directory |
+| `sl plan resolve` | Print active plan path (session → branch fallback) |
+| `sl plan validate <dir>` | Check plan completeness and todo counts |
+| `sl task hydrate <dir>` | Extract task list from phase files |
+| `sl task sync <dir> --phases 1,2` | Mark phases as completed |
+| `sl workflow status <dir>` | Show progress (completed/pending/in-progress) |
+| `sl report index <dir>` | List report files in a plan |
 
 ---
 

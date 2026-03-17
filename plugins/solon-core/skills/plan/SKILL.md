@@ -59,9 +59,9 @@ Load: `references/workflow-modes.md` for auto-detection logic and per-mode workf
 No research. Scout → Plan → Hydrate.
 
 1. Read `docs/` (codebase-summary.md, code-standards.md, system-architecture.md)
-2. Run `sc plan scaffold --slug <slug> --mode fast` to create plan directory
+2. Run `sl plan scaffold --slug <slug> --mode fast` to create plan directory
 3. Fill plan.md and phase files with content
-4. Run `sc task hydrate <plan-dir>` to create tasks
+4. Run `sl task hydrate <plan-dir>` to create tasks
 5. Output cook reminder: `Ready to implement. Run: /solon:cook --auto {planDir}/plan.md`
 
 ### Hard Mode
@@ -70,11 +70,11 @@ Research → Scout → Plan → Red Team → Validate → Hydrate.
 
 1. Spawn max 2 `researcher` agents in parallel (different aspects, max 3 searches each)
 2. Read codebase docs; scout if stale/missing
-3. Run `sc plan scaffold --slug <slug> --mode hard`
+3. Run `sl plan scaffold --slug <slug> --mode hard`
 4. Fill plan.md and phase files using research findings
-5. Run `sc plan red-team <plan-dir>` — evaluate prompt output with adversarial reviewers
-6. Run `sc plan validate <plan-dir>` — interview user with critical questions
-7. Run `sc task hydrate <plan-dir>`
+5. Run `sl plan red-team <plan-dir>` — evaluate prompt output with adversarial reviewers
+6. Run `sl plan validate <plan-dir>` — interview user with critical questions
+7. Run `sl task hydrate <plan-dir>`
 8. Output cook reminder: `Ready to implement. Run: /solon:cook {planDir}/plan.md`
 
 ### Parallel Mode
@@ -84,9 +84,9 @@ Same as Hard + file ownership per phase + dependency matrix.
 1. Same as Hard steps 1-4
 2. Each phase in plan gets **exclusive file ownership** (no overlap between phases)
 3. Plan includes dependency matrix (which phases run concurrently vs sequentially)
-4. Run `sc plan red-team <plan-dir>`
-5. Run `sc plan validate <plan-dir>`
-6. Run `sc task hydrate <plan-dir>` — parallel groups have no `addBlockedBy`
+4. Run `sl plan red-team <plan-dir>`
+5. Run `sl plan validate <plan-dir>`
+6. Run `sl task hydrate <plan-dir>` — parallel groups have no `addBlockedBy`
 7. Output cook reminder: `Ready to implement. Run: /solon:cook --parallel {planDir}/plan.md`
 
 ### Two-Approach Mode
@@ -96,11 +96,11 @@ Research → 2 approaches → User picks → Red Team → Validate → Hydrate.
 1. Spawn 2+ `researcher` agents for different angles
 2. Design 2 complete implementation approaches with trade-offs
 3. Use `AskUserQuestion` to present approaches — user selects one
-4. Run `sc plan scaffold --slug <slug> --mode two`
+4. Run `sl plan scaffold --slug <slug> --mode two`
 5. Fill plan files for selected approach only
-6. Run `sc plan red-team <plan-dir>`
-7. Run `sc plan validate <plan-dir>`
-8. Run `sc task hydrate <plan-dir>`
+6. Run `sl plan red-team <plan-dir>`
+7. Run `sl plan validate <plan-dir>`
+8. Run `sl task hydrate <plan-dir>`
 9. Output cook reminder: `Ready to implement. Run: /solon:cook {planDir}/plan.md`
 
 ## Core Responsibilities
@@ -130,11 +130,11 @@ Load: `references/output-standards.md`
 2. **Mode Detection** → Auto-detect or use explicit flag
 3. **Research Phase** → Spawn researchers (skip in fast mode)
 4. **Codebase Analysis** → Read docs, scout if needed
-5. **Plan Scaffolding** → `sc plan scaffold --slug <slug> --mode <mode>`
+5. **Plan Scaffolding** → `sl plan scaffold --slug <slug> --mode <mode>`
 6. **Plan Documentation** → Fill content into scaffolded files
-7. **Red Team Review** → `sc plan red-team <plan-dir>` (hard/parallel/two modes)
-8. **Validation** → `sc plan validate <plan-dir>` (hard/parallel/two modes)
-9. **Hydrate Tasks** → `sc task hydrate <plan-dir>` (unless `--no-tasks`)
+7. **Red Team Review** → `sl plan red-team <plan-dir>` (hard/parallel/two modes)
+8. **Validation** → `sl plan validate <plan-dir>` (hard/parallel/two modes)
+9. **Hydrate Tasks** → `sl task hydrate <plan-dir>` (unless `--no-tasks`)
 10. **Cook Reminder** → Output command with absolute path (MANDATORY)
 
 ## Active Plan State
@@ -144,7 +144,7 @@ Check `## Plan Context` injected by hooks:
 - **"Suggested: {path}"** → Ask if activate or create new
 - **"Plan: none"** → Create new using `Plan dir:` from `## Naming`
 
-After creating plan: run `sc workflow status <plan-dir>` to verify structure.
+After creating plan: run `sl workflow status <plan-dir>` to verify structure.
 
 **IMPORTANT:** Always create plans in the CURRENT WORKING PROJECT DIRECTORY. Never in user home dir.
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# install.sh — Download and install sl + solon-hooks binaries from GitHub Releases
+# install.sh — Download and install the sl binary from GitHub Releases
 set -euo pipefail
 
 REPO="HuynhHoangPhuc/solon"
@@ -75,7 +75,6 @@ _install_binary() {
 }
 
 _install_binary "sl"
-_install_binary "solon-hooks"
 
 echo ""
 echo "Version: $(\"${INSTALL_DIR}/sl${EXT}\" --version 2>/dev/null || echo 'unknown')"

@@ -18,9 +18,9 @@ Use `AskUserQuestion` if detection is uncertain.
 No research. Scout → Plan → Hydrate.
 
 1. Read codebase docs (codebase-summary.md, code-standards.md, system-architecture.md)
-2. `sc plan scaffold --slug <slug> --mode fast`
+2. `sl plan scaffold --slug <slug> --mode fast`
 3. Fill plan.md and phase files
-4. `sc task hydrate <plan-dir>`
+4. `sl task hydrate <plan-dir>`
 5. **Cook reminder:** `Ready to implement. Run: /solon:cook --auto {absolute-plan-path}/plan.md`
 
 **Why `--auto` cook flag?** Fast planning pairs with fast execution — skip review gates.
@@ -31,11 +31,11 @@ Research → Scout → Plan → Red Team → Validate → Hydrate.
 
 1. Spawn max 2 `researcher` agents in parallel (different aspects, max 3 searches each)
 2. Read codebase docs; scout if stale/missing
-3. `sc plan scaffold --slug <slug> --mode hard`
+3. `sl plan scaffold --slug <slug> --mode hard`
 4. Fill plan files using research findings
-5. `sc plan red-team <plan-dir>` → evaluate with adversarial reviewers
-6. `sc plan validate <plan-dir>` → interview user
-7. `sc task hydrate <plan-dir>`
+5. `sl plan red-team <plan-dir>` → evaluate with adversarial reviewers
+6. `sl plan validate <plan-dir>` → interview user
+7. `sl task hydrate <plan-dir>`
 8. **Cook reminder:** `Ready to implement. Run: /solon:cook {absolute-plan-path}/plan.md`
 
 ## Parallel Mode (`--parallel`)
@@ -45,9 +45,9 @@ Same as Hard + file ownership + dependency matrix.
 1. Steps 1-4 from Hard mode
 2. Each phase gets **exclusive file ownership** (no file in two phases)
 3. Plan includes dependency matrix (concurrent vs sequential)
-4. `sc plan red-team <plan-dir>`
-5. `sc plan validate <plan-dir>`
-6. `sc task hydrate <plan-dir>` — parallel phases have no `addBlockedBy`
+4. `sl plan red-team <plan-dir>`
+5. `sl plan validate <plan-dir>`
+6. `sl task hydrate <plan-dir>` — parallel phases have no `addBlockedBy`
 7. **Cook reminder:** `Ready to implement. Run: /solon:cook --parallel {absolute-plan-path}/plan.md`
 
 ### Parallel Phase Requirements
@@ -62,11 +62,11 @@ Research → 2 approaches → User selects → Red Team → Validate → Hydrate
 1. Spawn 2+ `researcher` agents for different angles
 2. Design 2 complete approaches with clear trade-offs
 3. `AskUserQuestion` — user selects approach
-4. `sc plan scaffold --slug <slug> --mode two`
+4. `sl plan scaffold --slug <slug> --mode two`
 5. Fill plan files for selected approach only
-6. `sc plan red-team <plan-dir>`
-7. `sc plan validate <plan-dir>`
-8. `sc task hydrate <plan-dir>`
+6. `sl plan red-team <plan-dir>`
+7. `sl plan validate <plan-dir>`
+8. `sl task hydrate <plan-dir>`
 9. **Cook reminder:** `Ready to implement. Run: /solon:cook {absolute-plan-path}/plan.md`
 
 ## Task Hydration Per Mode

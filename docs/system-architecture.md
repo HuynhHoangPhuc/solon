@@ -376,7 +376,7 @@ pub fn format_hover(hover: &str) -> String
 **solon-core** (`plugins/solon-core/`)
 - 5 skills for workflow operations
 - 9 agent definitions
-- Hooks system (hooks.json + Go subcommands in hooks/scripts/bin/)
+- Hooks system (hooks.json + Rust subcommands in )
 - Registered in marketplace
 
 Both plugins referenced in `.claude-plugin/marketplace.json`.
@@ -388,13 +388,13 @@ Both plugins referenced in `.claude-plugin/marketplace.json`.
 ```
 hooks.json (lifecycle matchers)
     │
-    └─→ solon-hooks binary (Go, in hooks/scripts/bin/)
-        ├─ 20 Cobra subcommands
+    └─→ sl hook binary (Go, in )
+        ├─ 20 Clap subcommands
         ├─ Session, access, intent, token management
         └─ Notifications and quality checks
 ```
 
-The hooks subsystem is a **Go binary** invoked by Claude Code at lifecycle events via hooks.json matchers. No TypeScript runtime required.
+The hooks subsystem is a **Rust binary** invoked by Claude Code at lifecycle events via hooks.json matchers. No TypeScript runtime required.
 
 See [API Reference](./api-reference.md) for detailed skill documentation and examples.
 
@@ -427,11 +427,11 @@ The hooks subsystem implements three advanced intelligence systems:
 - **Trigger:** UserPromptSubmit hook
 - **Function:** Classifies user prompts into 7 categories (DEBUG/TEST/DEPLOY/REFACTOR/EXPLAIN/RESEARCH/IMPLEMENT)
 - **Output:** Strategy guidance customized to intent
-- **Package:** `plugins/solon-core/hooks/scripts/internal/intent/` (171 LOC, 7-category classifier)
+- **Package:** `plugins/solon-core/crates/solon-core/src/hooks/internal/intent/` (171 LOC, 7-category classifier)
 
 ### 20 Hooks (Go Subcommands)
 
-Invoked via `plugins/solon-core/hooks/scripts/bin/solon-hooks` binary with subcommand pattern.
+Invoked via `crates/solon-core/src/hooks/` binary with subcommand pattern.
 
 **Session Lifecycle (4):**
 - `session-init` — Initialize session context (startup/resume/clear/compact)
@@ -473,7 +473,7 @@ Invoked via `plugins/solon-core/hooks/scripts/bin/solon-hooks` binary with subco
 - `task-completed` — Handle task completion events
 - `teammate-idle` — Notify on teammate idle state
 
-All 20 hooks built from Go source in `plugins/solon-core/hooks/scripts/cmd/` and compiled to single binary `plugins/solon-core/hooks/scripts/bin/solon-hooks`.
+All 20 hooks built from Rust source in `crates/solon-core/src/hooks/` and compiled to single binary `crates/solon-core/src/hooks/`.
 
 ---
 
@@ -485,7 +485,7 @@ All 20 hooks built from Go source in `plugins/solon-core/hooks/scripts/cmd/` and
 |--------|----------|------|
 | `sl` | Rust | File editing (hashline read/edit, AST search/replace, LSP queries) + workflow commands |
 
-**All workflow commands** (plan, task, workflow, report) are now Rust functions called via `sl` subcommands. No separate Go binary for orchestration.
+**All workflow commands** (plan, task, workflow, report) are now Rust functions called via `sl` subcommands. No separate Rust binary for orchestration.
 
 ### `sl` Commands
 
@@ -513,7 +513,7 @@ Claude Code lifecycle event
         └─→ Call sl binary for file ops or workflow ops
 ```
 
-- **Hooks** (JavaScript + Go subcommands in hooks/) call `sl` for plan resolution and context.
+- **Hooks** (Rust hooks in crates/solon-core/src/hooks/) call `sl` for plan resolution and context.
 - **Skills** (JavaScript) wrap `sl` subcommands for LLM exposure.
 - All state is **stateless and file-based**; no daemon processes.
 

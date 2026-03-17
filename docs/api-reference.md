@@ -882,34 +882,34 @@ The `sc` binary provides orchestration commands for plan lifecycle management. A
 
 | Subcommand | Flags | Output |
 |------------|-------|--------|
-| `sc plan resolve` | `--session <id>` | `{path, resolvedBy, absolute, planFile, phases}` |
-| `sc plan scaffold` | `--slug <name>` `--mode fast\|hard\|parallel\|two` `--phases <n>` | `{planDir, mode, filesCreated}` |
-| `sc plan validate <dir>` | — | `{valid, planDir, errors, warnings, stats}` |
-| `sc plan archive <dir>` | — | `{archived, destination}` |
-| `sc plan red-team <dir>` | `--min <n>` `--max <n>` | `{questions: [...]}` |
+| `sl plan resolve` | `--session <id>` | `{path, resolvedBy, absolute, planFile, phases}` |
+| `sl plan scaffold` | `--slug <name>` `--mode fast\|hard\|parallel\|two` `--phases <n>` | `{planDir, mode, filesCreated}` |
+| `sl plan validate <dir>` | — | `{valid, planDir, errors, warnings, stats}` |
+| `sl plan archive <dir>` | — | `{archived, destination}` |
+| `sl plan red-team <dir>` | `--min <n>` `--max <n>` | `{questions: [...]}` |
 
 ### Task Commands
 
 | Subcommand | Flags | Output |
 |------------|-------|--------|
-| `sc task hydrate <dir>` | — | `{planDir, taskCount, tasks: [{phase, title, blockedBy, ...}]}` |
-| `sc task sync <dir>` | `--phases <n,n,...>` | `{filesModified, checkboxesUpdated, details}` |
+| `sl task hydrate <dir>` | — | `{planDir, taskCount, tasks: [{phase, title, blockedBy, ...}]}` |
+| `sl task sync <dir>` | `--phases <n,n,...>` | `{filesModified, checkboxesUpdated, details}` |
 
 ### Workflow Commands
 
 | Subcommand | Flags | Output |
 |------------|-------|--------|
-| `sc workflow status <dir>` | `--detail` | `{status, progress, phases: {total, completed, inProgress, pending}}` |
+| `sl workflow status <dir>` | `--detail` | `{status, progress, phases: {total, completed, inProgress, pending}}` |
 
 ### Report Commands
 
 | Subcommand | Flags | Output |
 |------------|-------|--------|
-| `sc report index <dir>` | — | `{planDir, reports: [{file, type, date}], count}` |
+| `sl report index <dir>` | — | `{planDir, reports: [{file, type, date}], count}` |
 
 ### Resolution Strategy
 
-`sc plan resolve` uses a cascading strategy:
+`sl plan resolve` uses a cascading strategy:
 1. **session** — reads `/tmp/sl-session-{id}.json` for `activePlan`
 2. **branch** — extracts slug from current git branch, scans plans dir for match
 

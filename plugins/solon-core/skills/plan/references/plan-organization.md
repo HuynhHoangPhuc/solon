@@ -16,7 +16,7 @@ Use `Plan dir:` from `## Naming` section injected by hooks for the full computed
 └── phase-04-write-tests.md
 ```
 
-After `sc plan scaffold --slug <slug> --mode <mode>`, templates are created. Fill in content.
+After `sl plan scaffold --slug <slug> --mode <mode>`, templates are created. Fill in content.
 
 **ALWAYS** create plans in the CURRENT WORKING PROJECT DIRECTORY. Never in `~` or user home.
 

@@ -576,13 +576,13 @@ Small Rust file for consistent testing across platforms.
 **solon-core Plugin** (`plugins/solon-core/.claude-plugin/`)
 - 5 skills for workflow operations
 - 9 agents for planning, cooking, testing, reviewing
-- Hooks system (20 hooks in hooks.json + Go binary)
+- Hooks system (20 hooks in hooks.json + Rust binary)
 
 ### Hooks Subsystem (solon-core)
 
 **Location:** `plugins/solon-core/hooks/`
 
-**Binary:** `plugins/solon-core/hooks/scripts/bin/solon-hooks` (Go, 20 subcommands)
+**Binary:** `plugins/solon-core/sl hook` (Rust, 20 subcommands)
 
 **Hook Categories (20 total):**
 - Session lifecycle (4): session-init, subagent-init, team-context, cook-reminder

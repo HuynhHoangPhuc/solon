@@ -59,11 +59,8 @@
 │   │   └── .claude-plugin/
 │   └── solon-core/             # Plugin wrapper (5 skills + hooks)
 │       ├── .claude-plugin/
-│       └── hooks/              # Go hooks subsystem
-│           ├── scripts/        # Go source code
-│           │   ├── cmd/        # 20 subcommand handlers
-│           │   └── internal/   # Helper packages
-│           └── hooks.json      # Lifecycle matchers
+│       └── hooks/
+│           └── hooks.json      # Lifecycle matchers (20 hooks → sl hook)
 └── .claude-plugin/marketplace.json  # Plugin marketplace registration
 ```
 
@@ -280,11 +277,8 @@ plugins/solon-core/.claude-plugin/
 ├── plugin.json                  # Plugin metadata
 ├── skills/                      # 5 Workflow skills
 ├── agents/                      # 9 Agent definitions
-├── hooks/                       # Hooks system
-│   ├── hooks.json              # Lifecycle matchers (20 hooks)
-│   └── scripts/                # Go hooks subsystem
-│       ├── cmd/                # 20 subcommand handlers
-│       └── internal/           # Helper packages
+├── hooks/
+│   └── hooks.json              # Lifecycle matchers (20 hooks → sl hook)
 └── scripts/
     └── install.sh              # Installation script
 ```
@@ -328,50 +322,29 @@ module.exports = {
 - Throw `Error` for validation failures
 - Return parsed/formatted output
 
-### Hooks Subsystem (Go)
+### Hooks Subsystem (Rust)
 
-**Location:** `plugins/solon-core/hooks/scripts/` — Self-contained Go project
+**Location:** `crates/solon-core/src/hooks/` — Built into the `sl` binary
 
-**Build:**
-```bash
-cd plugins/solon-core/hooks/scripts
-make build              # Build for current platform
-make build-all         # Cross-compile for darwin-arm64, darwin-amd64, linux-amd64
-make test              # Run tests
-make clean             # Remove binaries
-```
+**Build:** `cargo build --workspace` (hooks compile as part of solon-core crate)
 
-**Subcommand Pattern (Cobra):**
+**Subcommand Pattern (Clap):**
 
-Each subcommand handler in `cmd/` follows this pattern:
+Each hook handler in `hooks/` exports a `run()` function dispatched via `sl hook <name>`:
 
-```go
-// cmd/privacy-block.go
-package cmd
-
-import "github.com/spf13/cobra"
-
-var privacyBlockCmd = &cobra.Command{
-  Use:   "privacy-block",
-  Short: "Blocks reading/editing of sensitive files",
-  RunE:  runPrivacyBlock,
-}
-
-func runPrivacyBlock(cmd *cobra.Command, args []string) error {
-  // Read context from env: CLAUDE_CONTEXT_*, SOLON_*
-  // Validate file paths
-  // Return JSON output on stdout
-  return nil
-}
-
-func init() {
-  rootCmd.AddCommand(privacyBlockCmd)
+```rust
+// hooks/privacy_block.rs
+pub fn run() -> anyhow::Result<()> {
+    let input = crate::hooks::read_hook_input()?;
+    // Validate file paths against sensitive patterns
+    // Return JSON output on stdout
+    Ok(())
 }
 ```
 
 **Rules:**
-- 20 subcommands total (session, access, intent, guidance, quality, token mgmt, knowledge, context, notifications)
-- Each subcommand reads JSON context from environment variables
+- 20 subcommands dispatched via `cmd/hook.rs` Clap enum
+- Each hook reads JSON from stdin + env vars (CLAUDE_CONTEXT_*, SOLON_*)
 - Exit code 0 = allowed/success, non-zero = blocked/error
 - Errors output to stderr; results to stdout
 

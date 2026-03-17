@@ -59,4 +59,4 @@ After all agents complete:
 - Document conflicting recommendations — note them as trade-offs
 - Identify codebase constraints early (existing patterns to follow)
 - Note security implications discovered during research
-- Pass report paths to `sc plan scaffold` or planner for context
+- Pass report paths to `sl plan scaffold` or planner for context

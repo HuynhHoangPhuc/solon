@@ -58,7 +58,7 @@ For each phase in dependency order:
    - Python: `python -m py_compile` or `ruff check`
 5. Mark phase done:
    ```bash
-   sc task sync <plan-dir> --completed <phase-num>
+   sl task sync <plan-dir> --completed <phase-num>
    ```
 6. Update task: `TaskUpdate(status: "completed")`
 7. **Review gate** (skip if `--auto` and quality ≥ 9.5):
