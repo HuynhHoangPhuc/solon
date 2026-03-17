@@ -1,17 +1,20 @@
 {
   "name": "solon",
-  "owner": {
-    "name": "HuynhHoangPhuc"
-  },
+  "owner": { "name": "HuynhHoangPhuc" },
   "plugins": [
     {
-      "name": "solon",
+      "name": "solon-cli",
+      "source": "./plugins/solon-cli",
       "description": "Hashline read/edit, AST-grep, LSP tools for Claude Code",
       "version": "0.3.0",
-      "source": "./",
-      "author": {
-        "name": "HuynhHoangPhuc"
-      }
+      "author": { "name": "HuynhHoangPhuc" }
+    },
+    {
+      "name": "solon-core",
+      "source": "./plugins/solon-core",
+      "description": "Workflow orchestration, planning, hooks for Claude Code",
+      "version": "0.3.0",
+      "author": { "name": "HuynhHoangPhuc" }
     }
   ]
 }

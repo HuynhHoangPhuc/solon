@@ -2,10 +2,12 @@
 
 ## Codebase Overview
 
-**Total Lines:** ~1,801 LOC (Rust)
-**Binary Size:** ~1.8 MB (optimized release)
+**Workspace:** 3 Rust crates + root binary
+**Total Lines:** ~2,200 LOC (Rust, excluding plugins)
+**Binary Size:** ~2.5 MB (optimized release, all subsystems)
 **Test Coverage:** 27 unit + 11 integration tests
-**Compilation Time:** ~30s (clean build)
+**Compilation Time:** ~35s (clean build)
+**Plugins:** 2 (solon-cli, solon-core)
 
 ---
 
@@ -34,34 +36,42 @@
 
 ### Code Organization
 
-#### Directory Structure
+#### Directory Structure (Workspace)
 
 ```
-src/
-├── main.rs              # CLI entry point, subcommand dispatch
-├── cmd/                 # Command handlers (read, edit, ast, lsp)
-│   ├── mod.rs
-│   ├── read.rs
-│   ├── edit.rs
-│   ├── ast.rs
-│   └── lsp.rs
-├── hashline/            # Core hashline protocol
-│   ├── mod.rs
-│   ├── hash.rs          # CID computation
-│   ├── format.rs        # Line annotation
-│   ├── validate.rs      # Hash verification
-│   ├── edit.rs          # Edit operations
-│   └── canonicalize.rs  # Line endings, BOM
-├── ast/                 # AST-grep integration
-│   ├── mod.rs
-│   ├── sg.rs            # Binary wrapper
-│   └── format.rs        # Result formatting
-└── lsp/                 # LSP client
-    ├── mod.rs
-    ├── client.rs        # JSON-RPC protocol
-    ├── detect.rs        # Server detection
-    └── format.rs        # Response formatting
+.
+├── Cargo.toml                  # Workspace definition
+├── src/main.rs                 # Root binary entry point
+├── crates/
+│   ├── solon-common/           # Shared types & utilities
+│   │   └── src/
+│   ├── solon-cli/              # File operations (hashline, ast, lsp)
+│   │   └── src/
+│   │       ├── cmd/            # read, edit, ast, lsp commands
+│   │       ├── hashline/       # Core hashline protocol
+│   │       ├── ast/            # AST-grep integration
+│   │       └── lsp/            # LSP client
+│   └── solon-core/             # Workflow & orchestration
+│       └── src/
+│           └── cmd/            # plan, task, workflow, report
+├── plugins/
+│   ├── solon-cli/              # Plugin wrapper (5 skills)
+│   │   └── .claude-plugin/
+│   └── solon-core/             # Plugin wrapper (5 skills + hooks)
+│       ├── .claude-plugin/
+│       └── hooks/              # Go hooks subsystem
+│           ├── scripts/        # Go source code
+│           │   ├── cmd/        # 20 subcommand handlers
+│           │   └── internal/   # Helper packages
+│           └── hooks.json      # Lifecycle matchers
+└── .claude-plugin/marketplace.json  # Plugin marketplace registration
 ```
+
+**Workspace Crates:**
+- **solon-common**: Shared types, errors, utilities
+- **solon-cli**: File operations (read, edit, ast, lsp)
+- **solon-core**: Workflow operations (plan, task, workflow, report)
+- **Root binary** (`sl`): Dispatches to crates
 
 #### Module Boundaries
 
@@ -241,36 +251,42 @@ use crate::hashline::validate::parse_line_ref;
 
 ---
 
-## Plugin (JavaScript/Node) Standards
+## Plugin Architecture (2 Plugins)
 
-### Structure
+### Marketplace Registration
+
+**File:** `.claude-plugin/marketplace.json`
+- Registers both plugins in a single marketplace
+- solon-cli: file operations (5 skills)
+- solon-core: workflow operations (5 skills + agents + hooks)
+
+### solon-cli Plugin Structure
 
 ```
-.claude-plugin/
+plugins/solon-cli/.claude-plugin/
 ├── plugin.json                  # Plugin metadata
-├── skills/                      # Skill implementations
-│   ├── hashline-read/
-│   │   ├── SKILL.md
-│   │   └── index.js
-│   ├── hashline-edit/
-│   ├── ast-search/
-│   ├── ast-replace/
-│   └── lsp-tools/
-├── hooks/
-│   ├── hooks.json               # Hook lifecycle matchers
-│   └── scripts/                 # Go hooks subsystem
-│       ├── main.go              # Entry point
-│       ├── cmd/                 # 14 subcommand handlers
-│       ├── internal/            # Internal packages
-│       ├── go.mod / go.sum      # Go dependencies
-│       ├── Makefile             # Build targets
-│       └── bin/                 # Compiled binaries
-│           ├── solon-hooks      # Current platform
-│           ├── solon-hooks-darwin-amd64
-│           ├── solon-hooks-darwin-arm64
-│           └── solon-hooks-linux-amd64
+└── skills/                      # 5 Skills
+    ├── hashline-read/          {SKILL.md, index.js}
+    ├── hashline-edit/
+    ├── ast-search/
+    ├── ast-replace/
+    └── lsp-tools/
+```
+
+### solon-core Plugin Structure
+
+```
+plugins/solon-core/.claude-plugin/
+├── plugin.json                  # Plugin metadata
+├── skills/                      # 5 Workflow skills
+├── agents/                      # 9 Agent definitions
+├── hooks/                       # Hooks system
+│   ├── hooks.json              # Lifecycle matchers (20 hooks)
+│   └── scripts/                # Go hooks subsystem
+│       ├── cmd/                # 20 subcommand handlers
+│       └── internal/           # Helper packages
 └── scripts/
-    └── install.sh               # Installation script
+    └── install.sh              # Installation script
 ```
 
 ### Skill Implementation
@@ -314,11 +330,11 @@ module.exports = {
 
 ### Hooks Subsystem (Go)
 
-**Location:** `hooks/scripts/` — Self-contained Go project
+**Location:** `plugins/solon-core/hooks/scripts/` — Self-contained Go project
 
 **Build:**
 ```bash
-cd hooks/scripts
+cd plugins/solon-core/hooks/scripts
 make build              # Build for current platform
 make build-all         # Cross-compile for darwin-arm64, darwin-amd64, linux-amd64
 make test              # Run tests
@@ -763,5 +779,5 @@ cargo tarpaulin --out Html
 
 ---
 
-**Last Updated:** 2026-03-14
-**Standards Version:** 1.1
+**Last Updated:** 2026-03-17
+**Standards Version:** 1.2 (Rust workspace + dual-plugin marketplace)

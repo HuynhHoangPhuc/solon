@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# ensure-binary.sh — Install or update sl + solon-hooks + sc binaries
+# ensure-binary.sh — Install or update the sl binary.
 # Compares plugin.json version against installed version; updates when outdated.
-# Fast no-op when binaries exist and version matches. No network call for checks.
+# Fast no-op when binary exists and version matches. No network call for checks.
 
 # Defense-in-depth: remove any recursive solon/ nesting in plugin cache.
 if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -d "${CLAUDE_PLUGIN_ROOT}/solon" ]; then
@@ -46,8 +46,6 @@ case "$(uname -m)" in
 esac
 
 SL_BIN="${INSTALL_DIR}/sl${EXT}"
-HOOKS_BIN="${INSTALL_DIR}/solon-hooks${EXT}"
-SC_BIN="${INSTALL_DIR}/sc${EXT}"
 
 mkdir -p "${INSTALL_DIR}"
 
@@ -106,12 +104,11 @@ LOCAL_VERSION=""
 [ -f "${VERSION_FILE}" ] && LOCAL_VERSION=$(cat "${VERSION_FILE}" 2>/dev/null)
 
 ALL_EXIST=true
-[ -x "${SL_BIN}" ] && [ -x "${HOOKS_BIN}" ] && [ -x "${SC_BIN}" ] || ALL_EXIST=false
+[ -x "${SL_BIN}" ] || ALL_EXIST=false
 
 # Determine target version: plugin.json (local) or GitHub API (fallback)
 TARGET="${EXPECTED_VERSION}"
 if [ -z "${TARGET}" ]; then
-  # No plugin.json available — fetch from GitHub API
   if command -v curl &>/dev/null; then
     TARGET=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null \
       | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
@@ -122,26 +119,22 @@ if [ -z "${TARGET}" ]; then
 fi
 
 if [ -z "${TARGET}" ]; then
-  # Can't determine version — if binaries exist, skip; otherwise fail
   [ "${ALL_EXIST}" = true ] && exit 0
   echo "[solon] Error: could not determine target version" >&2
   exit 1
 fi
 
-# Fast no-op: all binaries exist and version matches
+# Fast no-op: binary exists and version matches
 if [ "${ALL_EXIST}" = true ] && [ "${LOCAL_VERSION}" = "${TARGET}" ]; then
   exit 0
 fi
 
-# Install or update
 if [ "${ALL_EXIST}" = true ] && [ -n "${LOCAL_VERSION}" ]; then
-  echo "[solon] Updating binaries: ${LOCAL_VERSION} -> ${TARGET}" >&2
+  echo "[solon] Updating sl binary: ${LOCAL_VERSION} -> ${TARGET}" >&2
 fi
 
 failed=0
-_install_binary "sl"          "${SL_BIN}"    "${TARGET}" || failed=1
-_install_binary "solon-hooks" "${HOOKS_BIN}" "${TARGET}" || failed=1
-_install_binary "sc"          "${SC_BIN}"    "${TARGET}" || failed=1
+_install_binary "sl" "${SL_BIN}" "${TARGET}" || failed=1
 
 if [ "${failed}" -eq 0 ]; then
   echo "${TARGET}" > "${VERSION_FILE}"

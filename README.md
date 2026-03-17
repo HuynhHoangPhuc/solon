@@ -3,17 +3,17 @@
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Rust 1.70+](https://img.shields.io/badge/rust-1.70+-orange.svg)](https://www.rust-lang.org)
 
-**Solon v0.2.0** — A Rust CLI tool and workflow engine for precise, hash-validated file editing with semantic code search, language server protocol support, and full development workflow orchestration.
+**Solon v0.3.0** — A Rust CLI tool and workflow engine for precise, hash-validated file editing with semantic code search, language server protocol support, and full development workflow orchestration.
 
 ## Features
 
 - **Hashline Editing** — Edit files by line reference with xxHash32 CIDs for validation
 - **AST-based Search & Replace** — Semantic code search via ast-grep integration
 - **Language Server Protocol (LSP)** — Code intelligence (diagnostics, goto-def, hover, references)
-- **Claude Code Plugin** — 5 skills + 20 intelligent hooks
-- **Token Efficiency Hooks** — Preemptive compaction, per-tool output truncation, semantic compression (20-40% reduction)
-- **Agent Quality Hooks** — Intent gate classification, wisdom accumulation, todo enforcement, comment slop detection
-- **Workflow Engine** — Full development workflow: brainstorm → plan → cook → test → review via `sc` binary
+- **Claude Code Plugins** — 2 plugins (solon-cli: 5 skills; solon-core: 5 skills + 9 agents + hooks)
+- **Token Efficiency** — Preemptive compaction, per-tool output truncation, semantic compression (20-40% reduction)
+- **Agent Quality** — Intent gate classification, wisdom accumulation, todo enforcement, comment slop detection
+- **Workflow Engine** — Full development workflow: brainstorm → plan → cook → test → review via `sl` commands
 
 ## Quick Install
 
@@ -85,14 +85,14 @@ sl lsp hover src/main.rs 20 0
 
 ### Workflow Commands
 ```bash
-# Scaffold a new plan
-sc plan scaffold --slug my-feature --mode fast
+# Plan management (via hooks)
+sl plan resolve
 
-# Extract tasks from phases
-sc task hydrate plans/YYMMDD-my-feature
+# Task management (via hooks)
+sl task hydrate plans/YYMMDD-my-feature
 
-# Check progress
-sc workflow status plans/YYMMDD-my-feature
+# Workflow status (via hooks)
+sl workflow status plans/YYMMDD-my-feature
 ```
 
 ## Documentation
@@ -106,12 +106,17 @@ Full documentation is available in `/docs`:
 
 ## Architecture
 
-Solon consists of 4 integrated subsystems:
+Solon is a **Cargo workspace** with a unified Rust binary and 2 Claude Code plugins:
 
-1. **Hashline** — Line-ID editing with content validation via xxHash32
-2. **AST-grep** — Semantic search/replace for code (auto-downloads `sg` binary)
-3. **LSP Client** — Language server protocol integration (stdio JSON-RPC)
-4. **Plugin System** — Claude Code skills + safety hooks
+- **Binary (`sl`)**: Rust command-line tool with 4 subsystems:
+  1. **Hashline** — Line-ID editing with content validation via xxHash32
+  2. **AST-grep** — Semantic search/replace for code (requires `sg` binary)
+  3. **LSP Client** — Language server protocol integration (stdio JSON-RPC)
+  4. **Workspace** — 3 crates (solon-common, solon-cli, solon-core)
+
+- **Plugins**: Two Claude Code plugins registered in marketplace
+  1. **solon-cli** (5 skills): hashline-read, hashline-edit, ast-search, ast-replace, lsp-tools
+  2. **solon-core** (5 skills + 9 agents + hooks): workflow, planning, task management, hooks system
 
 ## Requirements
 

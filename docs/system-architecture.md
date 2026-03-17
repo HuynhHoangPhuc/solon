@@ -364,39 +364,38 @@ pub fn format_hover(hover: &str) -> String
 
 ---
 
-## Hooks Subsystem
+## Plugin Architecture
 
-### Architecture
+### 2 Claude Code Plugins
+
+**solon-cli** (`plugins/solon-cli/`)
+- 5 skills wrapping `sl` file operations
+- hashline-read, hashline-edit, ast-search, ast-replace, lsp-tools
+- Registered in marketplace
+
+**solon-core** (`plugins/solon-core/`)
+- 5 skills for workflow operations
+- 9 agent definitions
+- Hooks system (hooks.json + Go subcommands in hooks/scripts/bin/)
+- Registered in marketplace
+
+Both plugins referenced in `.claude-plugin/marketplace.json`.
+
+### Hooks System
+
+**Location:** `plugins/solon-core/hooks/`
 
 ```
-┌──────────────────────────────────────────────┐
-│     Claude Code Plugin (.claude-plugin/)     │
-└──────────────────────────────────────────────┘
-         │
-    ┌────┴──────────────────┐
-    │  hooks/hooks.json     │
-    │ (20 Lifecycle matchers)
-    └────┬──────────────────┘
-         │
-         ▼
-┌──────────────────────────────────┐
-│  solon-hooks Binary (Go)         │
-│  Location: hooks/scripts/bin/    │
-│  20 subcommands via Cobra        │
-└──────────────────────────────────┘
-         │
-    ┌────┴────┬──────┬──────────┬─────────┐
-    │          │      │          │         │
-    ▼          ▼      ▼          ▼         ▼
-[Session][Access][Intent][Token][Notify]
- Hooks   Control  Gate   Mgmt   Hooks
+hooks.json (lifecycle matchers)
+    │
+    └─→ solon-hooks binary (Go, in hooks/scripts/bin/)
+        ├─ 20 Cobra subcommands
+        ├─ Session, access, intent, token management
+        └─ Notifications and quality checks
 ```
 
-The hooks subsystem is now a **Go-compiled binary** (`solon-hooks`) invoked at specific Claude Code lifecycle events via 8+ event types. No TypeScript runtime required.
+The hooks subsystem is a **Go binary** invoked by Claude Code at lifecycle events via hooks.json matchers. No TypeScript runtime required.
 
-### Skills (5 total)
-
-5 skills wrap `sl` subcommands: hashline-read, hashline-edit, ast-search, ast-replace, lsp-tools.
 See [API Reference](./api-reference.md) for detailed skill documentation and examples.
 
 ### Hook Intelligence Layer
@@ -428,11 +427,11 @@ The hooks subsystem implements three advanced intelligence systems:
 - **Trigger:** UserPromptSubmit hook
 - **Function:** Classifies user prompts into 7 categories (DEBUG/TEST/DEPLOY/REFACTOR/EXPLAIN/RESEARCH/IMPLEMENT)
 - **Output:** Strategy guidance customized to intent
-- **Package:** `internal/intent/` (171 LOC, 7-category classifier)
+- **Package:** `plugins/solon-core/hooks/scripts/internal/intent/` (171 LOC, 7-category classifier)
 
-### Safety Hooks
+### 20 Hooks (Go Subcommands)
 
-The hooks subsystem is invoked via `solon-hooks` binary with 20 subcommands:
+Invoked via `plugins/solon-core/hooks/scripts/bin/solon-hooks` binary with subcommand pattern.
 
 **Session Lifecycle (4):**
 - `session-init` — Initialize session context (startup/resume/clear/compact)
@@ -474,49 +473,49 @@ The hooks subsystem is invoked via `solon-hooks` binary with 20 subcommands:
 - `task-completed` — Handle task completion events
 - `teammate-idle` — Notify on teammate idle state
 
-All 20 hooks are built from Go source in `hooks/scripts/cmd/` and compiled to single binary `hooks/scripts/bin/solon-hooks`.
+All 20 hooks built from Go source in `plugins/solon-core/hooks/scripts/cmd/` and compiled to single binary `plugins/solon-core/hooks/scripts/bin/solon-hooks`.
 
 ---
 
 ## Orchestration Subsystem
 
-### Binaries
+### Single Binary
 
 | Binary | Language | Role |
 |--------|----------|------|
-| `sl` | Rust | File editing — hashline read/edit, AST search/replace, LSP queries |
-| `solon-hooks` | Go | Event handlers — 20 Claude Code lifecycle hooks |
-| `sc` | Go | Orchestration — plan, task, workflow, report management |
+| `sl` | Rust | File editing (hashline read/edit, AST search/replace, LSP queries) + workflow commands |
 
-### `sc` Subcommands
+**All workflow commands** (plan, task, workflow, report) are now Rust functions called via `sl` subcommands. No separate Go binary for orchestration.
 
-| Group | Subcommand | Description |
-|-------|------------|-------------|
-| plan | `plan resolve` | Resolve active plan path via session or branch |
-| plan | `plan scaffold` | Create plan directory from template |
-| plan | `plan validate` | Validate plan completeness |
-| plan | `plan archive` | Archive completed plan |
-| plan | `plan red-team` | Generate adversarial questions for a plan |
-| task | `task hydrate` | Extract structured tasks from phase files |
-| task | `task sync` | Mark phase checkboxes as completed |
-| workflow | `workflow status` | Show phase completion progress |
-| report | `report index` | Index report files in a plan |
+### `sl` Commands
 
-### Interaction Model
+**File Operations:**
+- `sl read <FILE>` — Read file with hashline annotations
+- `sl edit <FILE>` — Hash-validated line editing
+- `sl ast search/replace` — Semantic code search/replace
+- `sl lsp` — Language server protocol queries (diagnostics, goto-def, references, hover)
+
+**Workflow Operations:**
+- `sl plan resolve` — Resolve active plan path
+- `sl task hydrate` — Extract tasks from phase files
+- `sl workflow status` — Show phase completion progress
+- `sl report index` — Index report files
+
+### Plugin Integration Model
 
 ```
 Claude Code lifecycle event
     │
-    ├─→ solon-hooks (Go binary)   — session/access/intent/token/notify hooks
-    │       └─→ calls sc plan resolve  — deterministic plan path lookup
+    ├─→ Hooks (in plugins/solon-core/hooks/)
+    │   └─→ Call sl commands for context injection
     │
-    └─→ Skills (/solon:plan, /solon:cook, etc.)
-            └─→ calls sc task hydrate / sc workflow status / sc report index
+    └─→ Skills (in plugins/)
+        └─→ Call sl binary for file ops or workflow ops
 ```
 
-- **Hooks call `sc`** for plan resolution and context injection into Claude's context window.
-- **Skills call `sc`** for deterministic, side-effect-free plan operations (no LLM needed).
-- `sc` is stateless; session state lives in `/tmp/sl-session-{id}.json` managed by `session` package.
+- **Hooks** (JavaScript + Go subcommands in hooks/) call `sl` for plan resolution and context.
+- **Skills** (JavaScript) wrap `sl` subcommands for LLM exposure.
+- All state is **stateless and file-based**; no daemon processes.
 
 ---
 
@@ -826,5 +825,5 @@ Source Code (Rust)
 
 ---
 
-**Last Updated:** 2026-03-14
-**Architecture Version:** 1.1
+**Last Updated:** 2026-03-17
+**Architecture Version:** 1.2 (Rust migration complete, dual-plugin marketplace)

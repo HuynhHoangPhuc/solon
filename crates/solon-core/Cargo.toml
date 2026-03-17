@@ -1,0 +1,21 @@
+[package]
+name = "solon-core"
+version = "0.3.0"
+edition = "2021"
+description = "Workflow orchestration, planning, hooks for Solon"
+license = "Apache-2.0"
+
+[dependencies]
+solon-common = { path = "../solon-common" }
+clap = { version = "4", features = ["derive"] }
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+regex = "1"
+globset = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
+glob = "0.3"
+dirs = "5"
+
+[dev-dependencies]
+tempfile = "3"

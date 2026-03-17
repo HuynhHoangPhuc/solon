@@ -1,0 +1,101 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          { "type": "command", "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/ensure-binary.sh\" && ${HOME}/.solon/bin/sl hook session-init", "timeout": 60 }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook subagent-init" },
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook team-context" }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "Plan",
+        "hooks": [
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook cook-reminder" }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook wisdom-accumulator", "timeout": 10 }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook dev-rules" },
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook usage-awareness", "timeout": 30 },
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook todo-enforcer", "timeout": 10 },
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook intent-gate", "timeout": 5 }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook descriptive-name" }
+        ]
+      },
+      {
+        "matcher": "Bash|Glob|Grep|Read|Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook scout-block" },
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook privacy-block" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook post-edit" },
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook comment-slop-checker", "timeout": 5 }
+        ]
+      },
+      {
+        "matcher": "Bash|Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook usage-awareness", "timeout": 10 }
+        ]
+      },
+      {
+        "matcher": "Bash|Edit|Write|MultiEdit|NotebookEdit|Read|Glob|Grep",
+        "hooks": [
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook preemptive-compaction", "timeout": 5 }
+        ]
+      },
+      {
+        "matcher": "Bash|Glob|Grep|Read",
+        "hooks": [
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook tool-output-truncation", "timeout": 5 }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook task-completed" }
+        ]
+      }
+    ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook teammate-idle" }
+        ]
+      }
+    ]
+  }
+}

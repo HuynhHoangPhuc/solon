@@ -1,0 +1,13 @@
+{
+  "name": "solon-core",
+  "description": "Workflow orchestration, planning, hooks for Claude Code",
+  "version": "0.3.0",
+  "author": { "name": "HuynhHoangPhuc" },
+  "homepage": "https://github.com/HuynhHoangPhuc/solon",
+  "repository": "https://github.com/HuynhHoangPhuc/solon",
+  "license": "Apache-2.0",
+  "keywords": ["workflow", "hooks", "brainstorm", "planning", "orchestration"],
+  "skills": "./skills/",
+  "agents": "./agents/",
+  "hooks": "./hooks/hooks.json"
+}

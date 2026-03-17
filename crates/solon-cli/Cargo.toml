@@ -1,0 +1,18 @@
+[package]
+name = "solon-cli"
+version = "0.3.0"
+edition = "2021"
+description = "Hashline read/edit, AST-grep, LSP tools for Solon"
+license = "Apache-2.0"
+
+[dependencies]
+solon-common = { path = "../solon-common" }
+clap = { version = "4", features = ["derive"] }
+anyhow = "1"
+xxhash-rust = { version = "0.8", features = ["xxh32"] }
+lsp-types = "0.97"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+libc = "0.2"
+url = "2.5.8"

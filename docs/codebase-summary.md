@@ -2,52 +2,56 @@
 
 ## Quick Overview
 
-**Solon** is a 1,801-line Rust CLI + Claude Code plugin that enables hash-validated file editing with integrated code intelligence (AST-grep + LSP).
+**Solon** is a 2,200+ line Rust CLI + 2 Claude Code plugins for hash-validated file editing, code intelligence (AST-grep + LSP), and workflow orchestration.
 
 | Metric | Value |
 |--------|-------|
-| **Total LOC** | 1,801 (Rust) |
-| **Binary Size** | ~1.8 MB (release, optimized) |
+| **Total LOC** | 2,200+ (Rust crates + root binary) |
+| **Binary Size** | ~2.5 MB (release, all subsystems) |
 | **Unit Tests** | 27 passing |
 | **Integration Tests** | 11 passing |
-| **Dependencies** | 9 direct (6 runtime, 1 dev) |
-| **Modules** | 14 total |
+| **Workspace Crates** | 3 (solon-common, solon-cli, solon-core) |
+| **Plugins** | 2 (solon-cli: 5 skills; solon-core: 5 skills + 9 agents + 20 hooks) |
 | **Supported Platforms** | Linux, macOS, Windows |
-| **Status** | Production-ready (v0.1.0) |
+| **Status** | Production-ready (v0.3.0) |
 
 ---
 
 ## Entry Points
 
-### CLI Binary (`src/main.rs` - 38 lines)
+### CLI Binary (`src/main.rs`)
 
-```rust
-#[tokio::main]
-async fn main() -> Result<()> {
-    let cli = Cli::parse();  // Parse args via clap
+Root binary dispatches to workspace crates:
 
-    match cli.command {
-        Commands::Read(args) => cmd::read::run(args),
-        Commands::Edit(args) => cmd::edit::run(args),
-        Commands::Ast(args) => cmd::ast::run(args),
-        Commands::Lsp(args) => cmd::lsp::run(args).await,
-    }
-}
-```
-
-**Subcommands:**
+**File Operations** (solon-cli crate):
 - `sl read <FILE> [--lines N:M] [--chunk-size N]`
 - `sl edit <FILE> <START#HASH> [<END#HASH>] [<CONTENT>] [--after|--before|--delete]`
-- `sl ast search <PATTERN> [--lang LANG] [--path PATH] [--json] [--max-results N] [--timeout SECS]`
-- `sl ast replace <PATTERN> <REPLACEMENT> [--lang LANG] [--path PATH] [--timeout SECS]`
-- `sl lsp diagnostics <FILE>`
-- `sl lsp goto-def <FILE> <LINE> <COL>`
-- `sl lsp references <FILE> <LINE> <COL>`
-- `sl lsp hover <FILE> <LINE> <COL>`
+- `sl ast search <PATTERN> [--lang LANG] [--path PATH]`
+- `sl ast replace <PATTERN> <REPLACEMENT> [--lang LANG] [--path PATH]`
+- `sl lsp diagnostics/goto-def/references/hover <FILE> <LINE> <COL>`
+
+**Workflow Operations** (solon-core crate):
+- `sl plan resolve [--session ID] [--branch BRANCH]`
+- `sl task hydrate <PLAN_DIR>`
+- `sl workflow status <PLAN_DIR>`
+- `sl report index <PLAN_DIR>`
 
 ---
 
-## Module Breakdown
+## Workspace Crates
+
+### solon-common
+Shared types, utilities, and error handling used by cli and core crates.
+
+### solon-cli
+File operations: hashline (read/edit), AST search/replace, LSP queries.
+
+### solon-core
+Workflow operations: plan resolution, task hydration, workflow status, reporting.
+
+---
+
+## Module Breakdown (solon-cli)
 
 ### 1. Command Handlers (`cmd/` - 480 LOC)
 
@@ -563,87 +567,50 @@ Small Rust file for consistent testing across platforms.
 
 ## Plugin Architecture
 
-### Hooks Subsystem Structure
+### 2 Claude Code Plugins
 
-**Location:** `hooks/scripts/` (Go project, separate from main codebase)
+**solon-cli Plugin** (`plugins/solon-cli/.claude-plugin/`)
+- 5 skills wrapping `sl` file operations
+- hashline-read, hashline-edit, ast-search, ast-replace, lsp-tools
 
-**Entry Point:** `hooks/scripts/main.go` (13 LOC)
-- Imports Cobra root command
-- Invokes `cmd.Execute()`
+**solon-core Plugin** (`plugins/solon-core/.claude-plugin/`)
+- 5 skills for workflow operations
+- 9 agents for planning, cooking, testing, reviewing
+- Hooks system (20 hooks in hooks.json + Go binary)
 
-**Binary:** `hooks/scripts/bin/solon-hooks`
-- Built via `make build-all` for darwin-arm64, darwin-amd64, linux-amd64
-- Cross-compilation flags: `-trimpath -ldflags="-s -w"`
-- ~6-7 MB per platform (optimized)
+### Hooks Subsystem (solon-core)
 
-**Command Handlers:** `hooks/scripts/cmd/` (20 Go files)
-- Root: `root.go` — Cobra CLI setup, registers 20 subcommands
-- Session: `session-init.go`, `subagent-init.go`, `team-context.go`, `cook-reminder.go`
-- Access: `privacy-block.go`, `scout-block.go`
-- Intent: `intent-gate.go` — UserPromptSubmit hook classifying user intent into 7 categories
-- Developer: `dev-rules.go`, `usage-awareness.go`, `descriptive-name.go`, `post-edit.go`
-- Notifications: `notify.go`, `task-completed.go`, `teammate-idle.go`, `statusline.go`
-- Token Management: `preemptive-compaction.go`, `tool-output-truncation.go`, `semantic-compression.go`
-- Knowledge: `wisdom-accumulator.go`, `todo-continuation-enforcer.go`, `comment-slop-checker.go`
-- Context: `compaction-context-preservation.go`
+**Location:** `plugins/solon-core/hooks/`
 
-**Internal Packages:** `hooks/scripts/internal/` (9 packages, ~8,365 LOC)
-- `config/` — Configuration management and defaults
-- `plan/` — Planning context builder and accumulator
-- `privacy/` — Sensitive file pattern matching
-- `scout/` — File visibility and scope validation
-- `statusline/` — Progress and status line rendering
-- `wisdom/` — Wisdom accumulation and retrieval (ReadWisdom, AppendWisdom, PruneWisdom)
-- `intent/` — User intent classification (7 categories: DEBUG/TEST/DEPLOY/REFACTOR/EXPLAIN/RESEARCH/IMPLEMENT)
-- `compress/` — Semantic text compression (CompressText, 115 LOC)
-- `truncation/` — Output truncation with per-tool budgets (ToolBudgets map)
+**Binary:** `plugins/solon-core/hooks/scripts/bin/solon-hooks` (Go, 20 subcommands)
 
-**Dependencies:**
-- `github.com/spf13/cobra` — CLI framework
-- `github.com/sabhiram/go-gitignore` — .gitignore parsing
+**Hook Categories (20 total):**
+- Session lifecycle (4): session-init, subagent-init, team-context, cook-reminder
+- Access control (2): privacy-block, scout-block
+- Intent & strategy (1): intent-gate
+- Developer guidance (3): dev-rules, usage-awareness, descriptive-name
+- Quality assurance (3): post-edit, comment-slop-checker, todo-continuation-enforcer
+- Token management (3): preemptive-compaction, tool-output-truncation, semantic-compression
+- Knowledge & wisdom (1): wisdom-accumulator
+- Context preservation (1): compaction-context-preservation
+- Notifications (2): notify, statusline, task-completed, teammate-idle
 
-### Skills (5 total)
+**Internal Packages (9):**
+- `config/` — Configuration management
+- `plan/` — Planning context builder
+- `privacy/` — Sensitive file patterns
+- `scout/` — File visibility validation
+- `statusline/` — Progress rendering
+- `wisdom/` — Knowledge accumulation
+- `intent/` — User intent classification (7 categories)
+- `compress/` — Semantic text compression
+- `truncation/` — Output truncation budgets
 
-Each skill wraps a `sl` subcommand:
+### Marketplace Registration
 
-**skills/hashline-read/**
-- `SKILL.md` — Documentation
-- `index.js` — Handler: executes `sl read`
+**File:** `.claude-plugin/marketplace.json`
 
-**skills/hashline-edit/**
-- `SKILL.md` — Documentation
-- `index.js` — Handler: executes `sl edit`
-
-**skills/ast-search/**
-- `SKILL.md` — Documentation
-- `index.js` — Handler: executes `sl ast search`
-
-**skills/ast-replace/**
-- `SKILL.md` — Documentation
-- `index.js` — Handler: executes `sl ast replace`
-
-**skills/lsp-tools/**
-- `SKILL.md` — Documentation
-- `index.js` — Handler: executes `sl lsp` (4 subcommands)
-
-### Hook Lifecycle Events
-
-**hooks/hooks.json** (~150 LOC) defines lifecycle matchers and commands across 8+ events:
-
-| Event | Hooks | Purpose |
-|-------|-------|---------|
-| SessionStart | session-init (startup\|resume\|clear\|compact) | Initialize session context & recovery |
-| SubagentStart | subagent-init, team-context | Initialize subagent & team coordination |
-| SubagentStop | cook-reminder (Plan matcher), wisdom-accumulator | Workflow reminders, knowledge preservation |
-| UserPromptSubmit | dev-rules, usage-awareness, todo-enforcer, intent-gate | Developer guidance & intent classification |
-| PreToolUse | scout-block, privacy-block (Write) | Access control & file visibility |
-| PostToolUse | post-edit (Edit/Write), comment-slop-checker | Edit validation & quality checks |
-| PostToolUse | preemptive-compaction, tool-output-truncation | Token management & context preservation |
-| Stop(*) | notify (async) | Completion notifications |
-
-All 20 hooks configured in `.sl.json` and invoked via `solon-hooks <subcommand>` binary with context injected via environment variables.
-
-See [README.md](../README.md) for installation steps.
+Registers both plugins (solon-cli v0.3.0, solon-core v0.3.0) in single marketplace.
 
 ---
 
@@ -762,5 +729,5 @@ See [Code Standards](./code-standards.md) for detailed development guidelines.
 
 ---
 
-**Last Updated:** 2026-03-14
-**Document Version:** 1.1
+**Last Updated:** 2026-03-17
+**Document Version:** 1.2 (Rust workspace + dual-plugin marketplace)
