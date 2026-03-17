@@ -1,28 +1,67 @@
 #!/usr/bin/env bash
 # ensure-binary.sh — Install or update the sl binary from GitHub Releases.
 # Exit 0 = sl binary ready + PATH injected. Exit 1 = failed.
-# Also injects INSTALL_DIR into PATH via CLAUDE_ENV_FILE so skills can call `sl` directly.
-set -euo pipefail
+# Safe for concurrent execution (multiple plugins may call this simultaneously).
 
 INSTALL_DIR="${HOME}/.solon/bin"
 REPO="HuynhHoangPhuc/solon"
 
-# Inject INSTALL_DIR into session PATH via Claude Code env file
+# --- Helpers ---
+
 _inject_path() {
   local env_file="${CLAUDE_ENV_FILE:-}"
   if [ -n "${env_file}" ]; then
-    # Escape $PATH so it expands at execution time, not write time
     echo "export PATH=\"${INSTALL_DIR}:\${PATH}\"" >> "${env_file}"
   fi
 }
 
-# Called on every successful exit — ensures PATH is set each session
 _success() {
   _inject_path
   exit 0
 }
 
-# Detect OS + arch
+_bin_exists() {
+  [ -f "${SL_BIN}" ] && [ -s "${SL_BIN}" ]
+}
+
+_download() {
+  local url="$1" dest="$2"
+  if command -v curl &>/dev/null; then
+    curl -fsSL -o "${dest}" "${url}" 2>/dev/null
+  elif command -v wget &>/dev/null; then
+    wget -q -O "${dest}" "${url}" 2>/dev/null
+  else
+    echo "[solon] Error: curl or wget required" >&2
+    return 1
+  fi
+  # Verify download produced a file (not a directory or empty)
+  [ -f "${dest}" ] && [ -s "${dest}" ]
+}
+
+_verify_checksum() {
+  local bin="$1" url="$2"
+  local chk="${bin}.sha256"
+  _download "${url}.sha256" "${chk}" 2>/dev/null || return 0
+  [ -f "${chk}" ] && [ -s "${chk}" ] || { rm -f "${chk}" 2>/dev/null; return 0; }
+  local expected actual
+  expected=$(awk '{print $1}' "${chk}")
+  if command -v sha256sum &>/dev/null; then
+    actual=$(sha256sum "${bin}" | awk '{print $1}')
+  elif command -v shasum &>/dev/null; then
+    actual=$(shasum -a 256 "${bin}" | awk '{print $1}')
+  else
+    rm -f "${chk}" 2>/dev/null; return 0
+  fi
+  rm -f "${chk}" 2>/dev/null
+  if [ "${expected}" != "${actual}" ]; then
+    echo "[solon] Checksum mismatch" >&2
+    rm -f "${bin}" 2>/dev/null
+    return 1
+  fi
+}
+
+# --- Detect OS + arch ---
+
 case "$(uname -s)" in
   Linux*)                OS="linux";   EXT="" ;;
   Darwin*)               OS="darwin";  EXT="" ;;
@@ -36,18 +75,18 @@ case "$(uname -m)" in
 esac
 
 SL_BIN="${INSTALL_DIR}/sl${EXT}"
-mkdir -p "${INSTALL_DIR}"
+mkdir -p "${INSTALL_DIR}" 2>/dev/null || true
 
 # --- Step 1: Check if binary exists and get local version ---
+
 LOCAL_VERSION=""
-if [ -x "${SL_BIN}" ]; then
+if _bin_exists; then
   RAW_VER=$("${SL_BIN}" --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
-  if [ -n "${RAW_VER}" ]; then
-    LOCAL_VERSION="v${RAW_VER}"
-  fi
+  [ -n "${RAW_VER}" ] && LOCAL_VERSION="v${RAW_VER}"
 fi
 
 # --- Step 2: Get latest release tag from GitHub ---
+
 LATEST_TAG=""
 if command -v curl &>/dev/null; then
   LATEST_TAG=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null \
@@ -59,24 +98,24 @@ fi
 
 # --- Step 3: Decide whether to download ---
 
-# Binary exists and matches latest → ready
-if [ -x "${SL_BIN}" ] && [ -n "${LOCAL_VERSION}" ] && [ "${LOCAL_VERSION}" = "${LATEST_TAG}" ]; then
+# Binary up-to-date → done
+if _bin_exists && [ -n "${LOCAL_VERSION}" ] && [ "${LOCAL_VERSION}" = "${LATEST_TAG}" ]; then
   _success
 fi
 
-# Binary exists but can't reach GitHub → keep current, verify it works
-if [ -x "${SL_BIN}" ] && [ -z "${LATEST_TAG}" ]; then
-  "${SL_BIN}" --version >/dev/null 2>&1 || { echo "[solon] sl binary exists but is corrupted" >&2; exit 1; }
+# Binary exists, can't reach GitHub → keep current
+if _bin_exists && [ -z "${LATEST_TAG}" ]; then
   _success
 fi
 
-# No binary and no GitHub access → fatal
-if [ ! -x "${SL_BIN}" ] && [ -z "${LATEST_TAG}" ]; then
-  echo "[solon] sl binary not found and cannot reach GitHub to download" >&2
+# No binary, no GitHub → fatal
+if ! _bin_exists && [ -z "${LATEST_TAG}" ]; then
+  echo "[solon] sl not found and cannot reach GitHub" >&2
   exit 1
 fi
 
 # --- Step 4: Download ---
+
 TARGET="${LATEST_TAG}"
 if [ -n "${LOCAL_VERSION}" ]; then
   echo "[solon] Updating sl: ${LOCAL_VERSION} -> ${TARGET}" >&2
@@ -84,67 +123,63 @@ else
   echo "[solon] Installing sl ${TARGET}..." >&2
 fi
 
-_download() {
-  local url="$1" dest="$2"
-  if command -v curl &>/dev/null; then
-    curl -fsSL -o "${dest}" "${url}" 2>/dev/null
-  elif command -v wget &>/dev/null; then
-    wget -q -O "${dest}" "${url}" 2>/dev/null
-  else
-    echo "[solon] Error: curl or wget required" >&2
-    return 1
-  fi
-}
-
-_verify_checksum() {
-  local bin="$1" url="$2"
-  local chk="${bin}.sha256"
-  _download "${url}.sha256" "${chk}" 2>/dev/null || return 0
-  [ -s "${chk}" ] || { rm -f "${chk}"; return 0; }
-  local expected actual
-  expected=$(awk '{print $1}' "${chk}")
-  if command -v sha256sum &>/dev/null; then
-    actual=$(sha256sum "${bin}" | awk '{print $1}')
-  elif command -v shasum &>/dev/null; then
-    actual=$(shasum -a 256 "${bin}" | awk '{print $1}')
-  else
-    rm -f "${chk}"; return 0
-  fi
-  rm -f "${chk}"
-  if [ "${expected}" != "${actual}" ]; then
-    echo "[solon] Checksum mismatch for sl binary" >&2
-    rm -f "${bin}"
-    return 1
-  fi
-}
-
 RELEASE_NAME="sl-${OS}-${ARCH}${EXT}"
 URL="https://github.com/${REPO}/releases/download/${TARGET}/${RELEASE_NAME}"
-TMP="${SL_BIN}.tmp"
+# Use PID in temp name to avoid race conditions with concurrent hooks
+TMP="${SL_BIN}.tmp.$$"
 
-# Clean up stale temp (may be a directory from a previous failed download)
-rm -rf "${TMP}" 2>/dev/null || true
+# Clean up any stale temp files (directories or files)
+rm -rf "${SL_BIN}".tmp* 2>/dev/null || true
 
 if ! _download "${URL}" "${TMP}"; then
   rm -rf "${TMP}" 2>/dev/null || true
-  # Download failed — fall back to existing binary if available
-  if [ -x "${SL_BIN}" ]; then
+  if _bin_exists; then
     echo "[solon] Download failed, keeping existing sl ${LOCAL_VERSION}" >&2
     _success
   fi
   echo "[solon] Failed to download sl from ${URL}" >&2
   exit 1
 fi
-_verify_checksum "${TMP}" "${URL}" || { echo "[solon] Checksum verification failed" >&2; exit 1; }
-mv "${TMP}" "${SL_BIN}"
+
+# Verify checksum
+if ! _verify_checksum "${TMP}" "${URL}"; then
+  rm -rf "${TMP}" 2>/dev/null || true
+  if _bin_exists; then
+    echo "[solon] Checksum failed, keeping existing sl ${LOCAL_VERSION}" >&2
+    _success
+  fi
+  echo "[solon] Checksum verification failed" >&2
+  exit 1
+fi
+
+# Atomic move (overwrite existing)
+mv -f "${TMP}" "${SL_BIN}" 2>/dev/null || {
+  # mv failed — maybe another hook already updated, or permission issue
+  rm -rf "${TMP}" 2>/dev/null || true
+  if _bin_exists; then
+    _success
+  fi
+  echo "[solon] Failed to install sl binary" >&2
+  exit 1
+}
+
+# Set permissions
 if [ "${OS}" = "windows" ]; then
-  powershell.exe -NoProfile -Command "Unblock-File '$(cygpath -w "${SL_BIN}")'" 2>/dev/null || true
+  # Remove Windows SmartScreen block
+  if command -v powershell.exe &>/dev/null; then
+    powershell.exe -NoProfile -Command "Unblock-File '$(cygpath -w "${SL_BIN}" 2>/dev/null || echo "${SL_BIN}")'" 2>/dev/null || true
+  fi
 else
-  chmod +x "${SL_BIN}"
+  chmod +x "${SL_BIN}" 2>/dev/null || true
 fi
 
 # --- Step 5: Verify binary works ---
-"${SL_BIN}" --version >/dev/null 2>&1 || { echo "[solon] Installed sl binary failed verification" >&2; rm -f "${SL_BIN}"; exit 1; }
+
+if ! "${SL_BIN}" --version >/dev/null 2>&1; then
+  echo "[solon] Installed sl binary failed verification" >&2
+  rm -f "${SL_BIN}" 2>/dev/null || true
+  exit 1
+fi
 
 echo "[solon] sl ${TARGET} ready" >&2
 _success
