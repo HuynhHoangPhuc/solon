@@ -254,10 +254,8 @@ fn build_reminder_context(session_id: &str, base_dir: &str) -> String {
     lines.push("- Replace `{type}` with: agent name, report type, or context".to_string());
     lines.push("- Replace `{slug}` in pattern with: descriptive-kebab-slug".to_string());
 
-    let content = lines.join("\n");
-
     // Semantic compression (stub — just return as-is; full impl would compress)
-    content
+    lines.join("\n")
 }
 
 fn resolve_rules_path(filename: &str) -> String {

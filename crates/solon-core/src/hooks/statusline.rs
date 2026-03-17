@@ -226,7 +226,8 @@ fn render_session_lines(ctx: &RenderContext) -> Vec<String> {
             ctx.context_percent
         ));
     }
-    if let usage_str = build_usage_string(ctx) {
+    {
+        let usage_str = build_usage_string(ctx);
         if !usage_str.is_empty() {
             session_part.push_str(&format!("  ⌛ {}", usage_str.replace(")", " used)")));
         }
@@ -291,7 +292,8 @@ fn render_compact(ctx: &RenderContext) -> Vec<String> {
             ctx.context_percent
         ));
     }
-    if let usage_str = build_usage_string(ctx) {
+    {
+        let usage_str = build_usage_string(ctx);
         if !usage_str.is_empty() {
             line1.push_str(&format!("  ⌛ {}", usage_str));
         }
@@ -313,7 +315,8 @@ fn render_minimal(ctx: &RenderContext) -> Vec<String> {
         };
         parts.push(format!("{} {}%", battery, ctx.context_percent));
     }
-    if let usage_str = build_usage_string(ctx) {
+    {
+        let usage_str = build_usage_string(ctx);
         if !usage_str.is_empty() {
             parts.push(format!("⏰ {}", usage_str));
         }

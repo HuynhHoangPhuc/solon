@@ -183,8 +183,8 @@ pub fn run() -> Result<()> {
     lines.push(String::new());
     lines.push("## Naming".to_string());
     lines.push(format!(
-        "- Report: {}",
-        format!("{}{}-{}.md", reports_path, agent_type, name_pattern)
+        "- Report: {}{}-{}.md",
+        reports_path, agent_type, name_pattern
     ));
     lines.push(format!("- Plan dir: {}/{}/", plans_path, name_pattern));
 

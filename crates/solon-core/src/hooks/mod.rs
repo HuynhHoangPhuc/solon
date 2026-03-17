@@ -397,16 +397,16 @@ pub fn load_config() -> SlConfig {
     let local_raw = load_raw_config(&cwd.join(LOCAL_CONFIG_PATH));
 
     if global_raw.is_none() && local_raw.is_none() {
-        let mut cfg = SlConfig::default();
-        cfg.hooks = default_hooks();
-        return cfg;
+        return SlConfig {
+            hooks: default_hooks(),
+            ..Default::default()
+        };
     }
 
     // Start with default serialized
-    let default_cfg = {
-        let mut c = SlConfig::default();
-        c.hooks = default_hooks();
-        c
+    let default_cfg = SlConfig {
+        hooks: default_hooks(),
+        ..Default::default()
     };
     let mut merged: serde_json::Map<String, Value> = match serde_json::to_value(&default_cfg) {
         Ok(Value::Object(m)) => m,
@@ -766,7 +766,7 @@ pub fn read_wisdom(plan_path: &str, session_id: &str, max_lines: usize) -> Strin
         if !session_id.is_empty() {
             std::env::temp_dir().join(format!("sl-wisdom-{}.md", session_id))
         } else {
-            return std::path::PathBuf::new();
+            std::path::PathBuf::new()
         }
     });
     if path.as_os_str().is_empty() {
@@ -1506,7 +1506,7 @@ pub fn colorize(text: &str, code: &str) -> String {
 }
 
 pub fn colored_bar(percent: i64, width: usize) -> String {
-    let clamped = percent.max(0).min(100) as usize;
+    let clamped = percent.clamp(0, 100) as usize;
     let width = if width == 0 { 12 } else { width };
     let mut filled = (clamped * width) / 100;
     if (clamped * width) % 100 >= 50 {
@@ -1641,16 +1641,14 @@ pub fn find_sc_binary() -> Option<String> {
             .to_string(),
         "sc".to_string(),
     ];
-    for c in candidates {
-        if std::process::Command::new(&c)
-            .arg("--version")
-            .output()
-            .is_ok()
-        {
-            return Some(c);
-        }
-    }
-    None
+    candidates
+        .into_iter()
+        .find(|c| {
+            std::process::Command::new(c)
+                .arg("--version")
+                .output()
+                .is_ok()
+        })
 }
 
 #[cfg(test)]

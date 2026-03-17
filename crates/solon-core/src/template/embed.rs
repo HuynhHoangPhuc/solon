@@ -1,5 +1,5 @@
-/// Embedded plan and phase templates.
-/// Ported from Go solon-core/internal/template/embed.go
+//! Embedded plan and phase templates.
+//! Ported from Go solon-core/internal/template/embed.go
 
 /// Render a plan.md from the template.
 pub fn render_plan(slug: &str, _mode: &str, _dir_name: &str) -> String {

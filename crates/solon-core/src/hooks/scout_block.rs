@@ -225,7 +225,6 @@ fn extract_from_command(cmd: &str) -> Vec<String> {
     .collect();
 
     let mut command_name = "";
-    let mut is_fs_cmd = false;
 
     for token in &tokens {
         if token.starts_with('-') {
@@ -233,13 +232,14 @@ fn extract_from_command(cmd: &str) -> Vec<String> {
         }
         if *token == "&&" || *token == ";" || token.starts_with('|') {
             command_name = "";
-            is_fs_cmd = false;
             continue;
         }
         if command_name.is_empty() {
             command_name = token;
-            is_fs_cmd = fs_commands.contains(command_name.to_lowercase().as_str());
-            if command_keywords.contains(command_name.to_lowercase().as_str()) || is_fs_cmd {
+            let lower = command_name.to_lowercase();
+            if command_keywords.contains(lower.as_str())
+                || fs_commands.contains(lower.as_str())
+            {
                 continue;
             }
         }
@@ -281,10 +281,10 @@ fn normalize_extracted_path(p: &str) -> String {
         }
     }
     s = s
-        .trim_start_matches(|c| matches!(c, '`' | '(' | '{' | '['))
+        .trim_start_matches(['`', '(', '{', '['])
         .to_string();
     s = s
-        .trim_end_matches(|c| matches!(c, '`' | ')' | '}' | ']' | ';'))
+        .trim_end_matches(['`', ')', '}', ']', ';'])
         .to_string();
     s = s.replace('\\', "/");
     if s.len() > 1 && s.ends_with('/') {
