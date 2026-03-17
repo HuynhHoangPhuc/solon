@@ -111,7 +111,12 @@ TMP="${SL_BIN}.tmp"
 _download "${URL}" "${TMP}" || { echo "[solon] Failed to download sl from ${URL}" >&2; rm -f "${TMP}"; exit 1; }
 _verify_checksum "${TMP}" "${URL}" || { echo "[solon] Checksum verification failed" >&2; exit 1; }
 mv "${TMP}" "${SL_BIN}"
-[ "${OS}" != "windows" ] && chmod +x "${SL_BIN}"
+if [ "${OS}" = "windows" ]; then
+  # Remove Windows SmartScreen "Mark of the Web" block on downloaded binary
+  powershell.exe -NoProfile -Command "Unblock-File '$(cygpath -w "${SL_BIN}")'" 2>/dev/null || true
+else
+  chmod +x "${SL_BIN}"
+fi
 
 # --- Step 5: Verify binary works ---
 "${SL_BIN}" --version >/dev/null 2>&1 || { echo "[solon] Installed sl binary failed verification" >&2; rm -f "${SL_BIN}"; exit 1; }
