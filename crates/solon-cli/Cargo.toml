@@ -1,6 +1,6 @@
 [package]
 name = "solon-cli"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 description = "Hashline read/edit, AST-grep, LSP tools for Solon"
 license = "Apache-2.0"
