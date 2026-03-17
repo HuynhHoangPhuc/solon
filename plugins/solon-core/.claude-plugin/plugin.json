@@ -7,6 +7,5 @@
   "repository": "https://github.com/HuynhHoangPhuc/solon",
   "license": "Apache-2.0",
   "keywords": ["workflow", "hooks", "brainstorm", "planning", "orchestration"],
-  "skills": "./skills/",
-  "hooks": "./hooks/hooks.json"
+  "skills": "./skills/"
 }
