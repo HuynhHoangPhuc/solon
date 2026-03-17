@@ -1,12 +1,28 @@
 #!/usr/bin/env bash
 # ensure-binary.sh — Install or update the sl binary from GitHub Releases.
-# Exit 0 = sl binary ready. Exit 1 = failed (blocks downstream hooks).
-# Flow: binary exists? → get version via --version → compare with GitHub latest
-# → download if missing/outdated → verify binary works.
+# Exit 0 = sl binary ready + PATH injected. Exit 1 = failed.
+# Also injects INSTALL_DIR into PATH via CLAUDE_ENV_FILE so skills can call `sl` directly.
 set -euo pipefail
 
 INSTALL_DIR="${HOME}/.solon/bin"
 REPO="HuynhHoangPhuc/solon"
+
+# Inject INSTALL_DIR into session PATH via Claude Code env file
+_inject_path() {
+  local env_file="${CLAUDE_ENV_FILE:-}"
+  if [ -n "${env_file}" ]; then
+    # Only add if not already in PATH
+    if ! echo "${PATH:-}" | tr ':' '\n' | grep -qx "${INSTALL_DIR}"; then
+      echo "PATH=${INSTALL_DIR}:${PATH:-}" >> "${env_file}"
+    fi
+  fi
+}
+
+# Called on every successful exit — ensures PATH is set each session
+_success() {
+  _inject_path
+  exit 0
+}
 
 # Detect OS + arch
 case "$(uname -s)" in
@@ -45,15 +61,15 @@ fi
 
 # --- Step 3: Decide whether to download ---
 
-# Binary exists and matches latest → verified ready
+# Binary exists and matches latest → ready
 if [ -x "${SL_BIN}" ] && [ -n "${LOCAL_VERSION}" ] && [ "${LOCAL_VERSION}" = "${LATEST_TAG}" ]; then
-  exit 0
+  _success
 fi
 
 # Binary exists but can't reach GitHub → keep current, verify it works
 if [ -x "${SL_BIN}" ] && [ -z "${LATEST_TAG}" ]; then
   "${SL_BIN}" --version >/dev/null 2>&1 || { echo "[solon] sl binary exists but is corrupted" >&2; exit 1; }
-  exit 0
+  _success
 fi
 
 # No binary and no GitHub access → fatal
@@ -112,7 +128,6 @@ _download "${URL}" "${TMP}" || { echo "[solon] Failed to download sl from ${URL}
 _verify_checksum "${TMP}" "${URL}" || { echo "[solon] Checksum verification failed" >&2; exit 1; }
 mv "${TMP}" "${SL_BIN}"
 if [ "${OS}" = "windows" ]; then
-  # Remove Windows SmartScreen "Mark of the Web" block on downloaded binary
   powershell.exe -NoProfile -Command "Unblock-File '$(cygpath -w "${SL_BIN}")'" 2>/dev/null || true
 else
   chmod +x "${SL_BIN}"
@@ -122,4 +137,4 @@ fi
 "${SL_BIN}" --version >/dev/null 2>&1 || { echo "[solon] Installed sl binary failed verification" >&2; rm -f "${SL_BIN}"; exit 1; }
 
 echo "[solon] sl ${TARGET} ready" >&2
-exit 0
+_success
