@@ -7,7 +7,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.3.0] - 2026-03-17
+## [0.4.0] - 2026-03-17
 
 ### Changed
 - Restructured as 2-plugin marketplace (solon-cli + solon-core)
@@ -68,6 +68,6 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-[0.3.0]: https://github.com/HuynhHoangPhuc/solon/releases/tag/v0.3.0
+[0.4.0]: https://github.com/HuynhHoangPhuc/solon/releases/tag/v0.4.0
 [0.1.1]: https://github.com/HuynhHoangPhuc/solon/releases/tag/v0.1.1
 [0.1.0]: https://github.com/HuynhHoangPhuc/solon/releases/tag/v0.1.0

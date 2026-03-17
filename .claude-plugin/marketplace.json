@@ -6,14 +6,14 @@
       "name": "solon-cli",
       "source": "./plugins/solon-cli",
       "description": "Hashline read/edit, AST-grep, LSP tools for Claude Code",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "author": { "name": "HuynhHoangPhuc" }
     },
     {
       "name": "solon-core",
       "source": "./plugins/solon-core",
       "description": "Workflow orchestration, planning, hooks for Claude Code",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "author": { "name": "HuynhHoangPhuc" }
     }
   ]
