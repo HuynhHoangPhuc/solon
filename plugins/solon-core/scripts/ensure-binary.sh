@@ -11,10 +11,8 @@ REPO="HuynhHoangPhuc/solon"
 _inject_path() {
   local env_file="${CLAUDE_ENV_FILE:-}"
   if [ -n "${env_file}" ]; then
-    # Only add if not already in PATH
-    if ! echo "${PATH:-}" | tr ':' '\n' | grep -qx "${INSTALL_DIR}"; then
-      echo "PATH=${INSTALL_DIR}:${PATH:-}" >> "${env_file}"
-    fi
+    # Escape $PATH so it expands at execution time, not write time
+    echo "export PATH=\"${INSTALL_DIR}:\${PATH}\"" >> "${env_file}"
   fi
 }
 
