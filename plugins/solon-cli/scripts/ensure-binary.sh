@@ -122,8 +122,11 @@ RELEASE_NAME="sl-${OS}-${ARCH}${EXT}"
 URL="https://github.com/${REPO}/releases/download/${TARGET}/${RELEASE_NAME}"
 TMP="${SL_BIN}.tmp"
 
+# Clean up stale temp (may be a directory from a previous failed download)
+rm -rf "${TMP}" 2>/dev/null || true
+
 if ! _download "${URL}" "${TMP}"; then
-  rm -f "${TMP}"
+  rm -rf "${TMP}" 2>/dev/null || true
   # Download failed — fall back to existing binary if available
   if [ -x "${SL_BIN}" ]; then
     echo "[solon] Download failed, keeping existing sl ${LOCAL_VERSION}" >&2
