@@ -69,8 +69,8 @@ fn render_statusline(raw: &str) -> Result<()> {
         if context_size > 0 && (total_input + total_output) > 0 {
             total_tokens = total_input + total_output;
             let compact_threshold = get_compact_threshold(context_size);
-            let raw_pct = total_tokens as f64 / compact_threshold as f64 * 100.0;
-            context_percent = raw_pct.round().min(100.0).max(0.0) as i64;
+            let raw_pct = total_tokens as f64 / compact_threshold * 100.0;
+            context_percent = raw_pct.round().clamp(0.0, 100.0) as i64;
         } else if let Some(pct) = json_i64(cw.get("used_percentage")) {
             // Fallback: use Claude Code's pre-calculated percentage
             context_percent = pct;
