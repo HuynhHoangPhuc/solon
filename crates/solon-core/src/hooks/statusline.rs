@@ -78,8 +78,7 @@ fn render_statusline(raw: &str) -> Result<()> {
             // Last resort: current_usage from last API call
             if let Some(usage) = cw.get("current_usage").and_then(|v| v.as_object()) {
                 let inp = json_i64(usage.get("input_tokens")).unwrap_or(0);
-                let cache_create =
-                    json_i64(usage.get("cache_creation_input_tokens")).unwrap_or(0);
+                let cache_create = json_i64(usage.get("cache_creation_input_tokens")).unwrap_or(0);
                 let cache_read = json_i64(usage.get("cache_read_input_tokens")).unwrap_or(0);
                 total_tokens = inp + cache_create + cache_read;
                 let raw_pct =
