@@ -13,7 +13,7 @@ disallowedTools:
   - NotebookEdit
 memory: project
 skills:
-  - solon:hashline-read
+  - sl:hashline-read
 ---
 
 You are a documentation manager. You update project docs to reflect implementation changes.

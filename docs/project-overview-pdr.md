@@ -79,7 +79,7 @@ Exposes all 4 commands as skills + comprehensive hooks system:
 5. `lsp-tools` — `sl lsp` wrapper (all 4 queries)
 
 **20 Hooks (built into sl binary):**
-- **Session Lifecycle:** `session-init`, `subagent-init`, `team-context`, `cook-reminder`
+- **Session Lifecycle:** `session-init`, `subagent-init`, `team-context`, `ship-reminder`
 - **Access Control:** `privacy-block`, `scout-block`
 - **Intent & Strategy:** `intent-gate` (7-category classifier)
 - **Developer Guidance:** `dev-rules`, `usage-awareness`, `descriptive-name`

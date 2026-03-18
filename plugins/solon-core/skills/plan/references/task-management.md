@@ -78,16 +78,16 @@ Step 3.4 (addBlockedBy: [P2-id])         ← critical steps share phase dependen
 
 Parallel phases: no `addBlockedBy` — they start simultaneously.
 
-## Cook Handoff
+## Ship Handoff
 
-### Same Session (planning → cook immediately)
+### Same Session (planning → ship immediately)
 1. Hydrate tasks → tasks exist in session
-2. Cook runs `TaskList` → finds existing tasks → starts implementation
+2. Ship runs `TaskList` → finds existing tasks → starts implementation
 
 ### Cross Session (new session, resume plan)
-1. User runs `/solon:cook {plan-dir}/plan.md`
-2. Cook runs `TaskList` → empty (tasks died with session)
-3. Cook reads plan files → re-hydrates from unchecked `[ ]` items
+1. User runs `/sl:ship {plan-dir}/plan.md`
+2. Ship runs `TaskList` → empty (tasks died with session)
+3. Ship reads plan files → re-hydrates from unchecked `[ ]` items
 4. Already-checked `[x]` items = done, skipped
 
 ## Quality Checks After Hydration

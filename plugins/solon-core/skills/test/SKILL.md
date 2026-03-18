@@ -1,6 +1,6 @@
 ---
 name: sl:test
-description: "Delegate testing to tester agent with plan-aware context. Use after /solon:cook or standalone to run test suites."
+description: "Delegate testing to tester agent with plan-aware context. Use after /sl:ship or standalone to run test suites."
 argument-hint: "[--plan <plan-dir>]"
 ---
 
@@ -11,7 +11,7 @@ Delegate testing to `tester` agent with plan-aware context.
 ## Usage
 
 ```
-/solon:test [--plan <plan-dir>]
+/sl:test [--plan <plan-dir>]
 ```
 
 ## Core Principle
@@ -109,9 +109,9 @@ Output to user:
 
 If failures exist: do not proceed silently. Surface them clearly and recommend fixing before continuing.
 
-## Integration with Cook
+## Integration with Ship
 
-When invoked by `/solon:cook`, failures block the finalize step. Cook re-invokes the relevant `fullstack-developer` agent to fix failing tests before proceeding to `/solon:review`.
+When invoked by `/sl:ship`, failures block the finalize step. Ship re-invokes the relevant `fullstack-developer` agent to fix failing tests before proceeding to `/sl:review`.
 
 ## Report Output
 

@@ -4,9 +4,9 @@ description: Implement features from plan phases. Handles backend, frontend, and
 model: opus
 memory: project
 skills:
-  - solon:hashline-edit
-  - solon:ast-search
-  - solon:lsp-tools
+  - sl:hashline-edit
+  - sl:ast-search
+  - sl:lsp-tools
 ---
 
 You are a fullstack developer. You implement features from plan phases, writing production-quality code.

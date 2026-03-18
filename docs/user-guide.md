@@ -272,11 +272,11 @@ The full development workflow chains five skills in sequence:
 
 | Step | Skill | Description |
 |------|-------|-------------|
-| 1 | `/solon:brainstorm` | Generate ideas and problem framing for a feature |
-| 2 | `/solon:plan` | Create a structured implementation plan with phase files |
-| 3 | `/solon:cook` | Execute the plan phase by phase via subagents |
-| 4 | `/solon:test` | Run tests and validate implementation quality |
-| 5 | `/solon:review` | Code review, cleanup, and final sign-off |
+| 1 | `/sl:brainstorm` | Generate ideas and problem framing for a feature |
+| 2 | `/sl:plan` | Create a structured implementation plan with phase files |
+| 3 | `/sl:ship` | Execute the plan phase by phase via subagents |
+| 4 | `/sl:test` | Run tests and validate implementation quality |
+| 5 | `/sl:review` | Code review, cleanup, and final sign-off |
 
 Each skill reads from and writes to the active plan directory resolved by `sl plan resolve`.
 

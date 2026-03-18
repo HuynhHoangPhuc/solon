@@ -1,9 +1,9 @@
 use crate::hooks::{get_env, is_hook_enabled, read_session_state, write_context};
-/// SubagentStop(Plan): remind to run /cook after plan agent finishes.
+/// SubagentStop(Plan): remind to run /ship after plan agent finishes.
 use anyhow::Result;
 
 pub fn run() -> Result<()> {
-    if !is_hook_enabled("cook-after-plan-reminder") {
+    if !is_hook_enabled("ship-after-plan-reminder") {
         std::process::exit(0);
     }
 
@@ -35,16 +35,14 @@ pub fn run() -> Result<()> {
         String::new()
     };
 
-    write_context("MUST invoke /solon:cook --auto skill before implementing the plan\n");
+    write_context("MUST invoke /sl:ship --auto skill before implementing the plan\n");
     if !plan_path.is_empty() {
         write_context(&format!(
-            "Best Practice: Run /clear then /solon:cook {}/plan.md\n",
+            "Best Practice: Run /clear then /sl:ship {}/plan.md\n",
             plan_path
         ));
     } else {
-        write_context(
-            "Best Practice: Run /clear then /solon:cook {full-absolute-path-to-plan.md}\n",
-        );
+        write_context("Best Practice: Run /clear then /sl:ship {full-absolute-path-to-plan.md}\n");
     }
 
     Ok(())

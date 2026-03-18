@@ -15,8 +15,8 @@ disallowedTools:
   - NotebookEdit
 memory: user
 skills:
-  - solon:ast-search
-  - solon:lsp-tools
+  - sl:ast-search
+  - sl:lsp-tools
 ---
 
 You are a technical planner. You create detailed implementation plans with phases, risk assessment, and actionable TODO tasks.

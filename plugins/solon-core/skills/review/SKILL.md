@@ -1,6 +1,6 @@
 ---
 name: sl:review
-description: "Delegate code review to code-reviewer agent with plan-aware context. Use after /solon:cook or standalone for code quality review."
+description: "Delegate code review to code-reviewer agent with plan-aware context. Use after /sl:ship or standalone for code quality review."
 argument-hint: "[--plan <plan-dir>]"
 ---
 
@@ -11,7 +11,7 @@ Delegate code review to `code-reviewer` agent with plan-aware context.
 ## Usage
 
 ```
-/solon:review [--plan <plan-dir>]
+/sl:review [--plan <plan-dir>]
 ```
 
 ## Severity Levels
@@ -116,11 +116,11 @@ Output to user:
 - List of Critical findings (titles only)
 - Path to full report
 
-If Critical findings exist: surface them clearly. When invoked from `/solon:cook`, Critical findings block finalize step and re-invoke `fullstack-developer` agent to fix.
+If Critical findings exist: surface them clearly. When invoked from `/sl:ship`, Critical findings block finalize step and re-invoke `fullstack-developer` agent to fix.
 
-## Integration with Cook
+## Integration with Ship
 
-When invoked by `/solon:cook`:
+When invoked by `/sl:ship`:
 - Critical findings → fix loop: re-invoke `fullstack-developer` agent with findings, then re-review
 - Warning findings → present to user, ask to fix or document reason for skipping
 - Suggestion findings → logged in report, no blocking

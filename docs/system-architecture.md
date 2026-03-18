@@ -437,7 +437,7 @@ Invoked via `crates/solon-core/src/hooks/` binary with subcommand pattern.
 - `session-init` — Initialize session context (startup/resume/clear/compact)
 - `subagent-init` — Initialize subagent context
 - `team-context` — Populate team coordination details
-- `cook-reminder` — Remind to review planning phase outputs
+- `ship-reminder` — Remind to review planning phase outputs
 
 **Access Control (2):**
 - `privacy-block` — Blocks reading/editing of sensitive files (`.env*`, `.aws/`, `.ssh/`, `*.pem`, `secrets/`)

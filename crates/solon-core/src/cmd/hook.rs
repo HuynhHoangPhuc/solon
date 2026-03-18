@@ -8,8 +8,8 @@ use clap::Subcommand;
 pub enum HookCommand {
     /// PostToolUse: detect AI-generated comment patterns in code edits
     CommentSlopChecker,
-    /// SubagentStop: remind to run /solon:cook after plan agent
-    CookReminder,
+    /// SubagentStop: remind to run /sl:ship after plan agent
+    ShipReminder,
     /// PreToolUse(Write): inject file naming guidance as allow response
     DescriptiveName,
     /// UserPromptSubmit: inject full dev rules reminder (throttled)
@@ -55,7 +55,7 @@ pub enum HookCommand {
 pub fn run(cmd: HookCommand) -> Result<()> {
     match cmd {
         HookCommand::CommentSlopChecker => crate::hooks::comment_slop_checker::run(),
-        HookCommand::CookReminder => crate::hooks::cook_reminder::run(),
+        HookCommand::ShipReminder => crate::hooks::ship_reminder::run(),
         HookCommand::DescriptiveName => crate::hooks::descriptive_name::run(),
         HookCommand::DevRules => crate::hooks::dev_rules::run(),
         HookCommand::IntentGate => crate::hooks::intent_gate::run(),

@@ -136,8 +136,8 @@ Report format:
 Use `AskUserQuestion` to ask:
 
 "Ready to create a detailed implementation plan?"
-- Yes → Run `/solon:plan` with brainstorm summary as context. Pass report path as argument.
-- No → End session, remind user to run `/solon:plan` later with the report.
+- Yes → Run `/sl:plan` with brainstorm summary as context. Pass report path as argument.
+- No → End session, remind user to run `/sl:plan` later with the report.
 
 If Yes: invoke plan skill with context note "Brainstorm report: {report-path}"
 

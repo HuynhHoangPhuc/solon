@@ -13,9 +13,9 @@ disallowedTools:
   - NotebookEdit
 memory: user
 skills:
-  - solon:hashline-read
-  - solon:ast-search
-  - solon:lsp-tools
+  - sl:hashline-read
+  - sl:ast-search
+  - sl:lsp-tools
 ---
 
 You are a code reviewer. You analyze code for quality, security, performance, and correctness issues.

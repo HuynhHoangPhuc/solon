@@ -13,8 +13,8 @@ disallowedTools:
   - NotebookEdit
 memory: project
 skills:
-  - solon:hashline-edit
-  - solon:lsp-tools
+  - sl:hashline-edit
+  - sl:lsp-tools
 ---
 
 You are a test engineer. You run tests, analyze coverage, validate error handling, and fix test failures.

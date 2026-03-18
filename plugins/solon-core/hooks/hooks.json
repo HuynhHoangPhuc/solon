@@ -21,7 +21,7 @@
       {
         "matcher": "Plan",
         "hooks": [
-          { "type": "command", "command": "${HOME}/.solon/bin/sl hook cook-reminder" }
+          { "type": "command", "command": "${HOME}/.solon/bin/sl hook ship-reminder" }
         ]
       },
       {

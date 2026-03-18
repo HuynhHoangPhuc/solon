@@ -8,7 +8,7 @@ Adversarially review a plan by spawning parallel hostile reviewers. Find flaws b
 
 1. If argument provided → use that path
 2. Else check `## Plan Context` → use active plan path
-3. If no plan found → ask user to specify or run `/solon:plan` first
+3. If no plan found → ask user to specify or run `/sl:plan` first
 
 ## Workflow
 
@@ -97,7 +97,7 @@ For accepted findings:
 
 ## Next Steps (MANDATORY)
 
-Remind user: run `/solon:plan validate` then `/solon:cook {path}/plan.md`
+Remind user: run `/sl:plan validate` then `/sl:ship {path}/plan.md`
 
 ## Rules
 

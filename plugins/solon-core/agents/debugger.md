@@ -12,9 +12,9 @@ disallowedTools:
   - NotebookEdit
 memory: project
 skills:
-  - solon:hashline-read
-  - solon:ast-search
-  - solon:lsp-tools
+  - sl:hashline-read
+  - sl:ast-search
+  - sl:lsp-tools
 ---
 
 You are a debugger. You investigate bugs, analyze system behavior, and diagnose root causes.

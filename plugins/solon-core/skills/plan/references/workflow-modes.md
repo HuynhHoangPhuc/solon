@@ -21,9 +21,9 @@ No research. Scout → Plan → Hydrate.
 2. `sl plan scaffold --slug <slug> --mode fast`
 3. Fill plan.md and phase files
 4. `sl task hydrate <plan-dir>`
-5. **Cook reminder:** `Ready to implement. Run: /solon:cook --auto {absolute-plan-path}/plan.md`
+5. **Ship reminder:** `Ready to implement. Run: /sl:ship --auto {absolute-plan-path}/plan.md`
 
-**Why `--auto` cook flag?** Fast planning pairs with fast execution — skip review gates.
+**Why `--auto` ship flag?** Fast planning pairs with fast execution — skip review gates.
 
 ## Hard Mode (`--hard`)
 
@@ -36,7 +36,7 @@ Research → Scout → Plan → Red Team → Validate → Hydrate.
 5. `sl plan red-team <plan-dir>` → evaluate with adversarial reviewers
 6. `sl plan validate <plan-dir>` → interview user
 7. `sl task hydrate <plan-dir>`
-8. **Cook reminder:** `Ready to implement. Run: /solon:cook {absolute-plan-path}/plan.md`
+8. **Ship reminder:** `Ready to implement. Run: /sl:ship {absolute-plan-path}/plan.md`
 
 ## Parallel Mode (`--parallel`)
 
@@ -48,7 +48,7 @@ Same as Hard + file ownership + dependency matrix.
 4. `sl plan red-team <plan-dir>`
 5. `sl plan validate <plan-dir>`
 6. `sl task hydrate <plan-dir>` — parallel phases have no `addBlockedBy`
-7. **Cook reminder:** `Ready to implement. Run: /solon:cook --parallel {absolute-plan-path}/plan.md`
+7. **Ship reminder:** `Ready to implement. Run: /sl:ship --parallel {absolute-plan-path}/plan.md`
 
 ### Parallel Phase Requirements
 - Each phase self-contained, no runtime deps on sibling phases
@@ -67,7 +67,7 @@ Research → 2 approaches → User selects → Red Team → Validate → Hydrate
 6. `sl plan red-team <plan-dir>`
 7. `sl plan validate <plan-dir>`
 8. `sl task hydrate <plan-dir>`
-9. **Cook reminder:** `Ready to implement. Run: /solon:cook {absolute-plan-path}/plan.md`
+9. **Ship reminder:** `Ready to implement. Run: /sl:ship {absolute-plan-path}/plan.md`
 
 ## Task Hydration Per Mode
 
@@ -78,16 +78,16 @@ Research → 2 approaches → User selects → Red Team → Validate → Hydrate
 | parallel | Phase + steps + ownership | Parallel groups + sequential deps |
 | two | After user selects approach | Sequential chain |
 
-## Cook Reminder (MANDATORY)
+## Ship Reminder (MANDATORY)
 
 Always output after plan creation with **actual absolute path**:
 
-| Mode | Cook Command |
+| Mode | Ship Command |
 |------|-------------|
-| fast | `/solon:cook --auto {path}/plan.md` |
-| hard | `/solon:cook {path}/plan.md` |
-| parallel | `/solon:cook --parallel {path}/plan.md` |
-| two | `/solon:cook {path}/plan.md` |
+| fast | `/sl:ship --auto {path}/plan.md` |
+| hard | `/sl:ship {path}/plan.md` |
+| parallel | `/sl:ship --parallel {path}/plan.md` |
+| two | `/sl:ship {path}/plan.md` |
 
 > Run `/clear` before implementing — fresh context helps Claude focus on implementation.
 > **Why absolute path?** After `/clear`, new session loses context.

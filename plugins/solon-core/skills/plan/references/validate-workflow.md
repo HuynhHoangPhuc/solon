@@ -6,7 +6,7 @@ Interview the user with critical questions to validate assumptions and surface i
 
 1. If argument provided → use that path
 2. Else check `## Plan Context` → use active plan path
-3. If no plan found → ask user to specify or run `/solon:plan --hard` first
+3. If no plan found → ask user to specify or run `/sl:plan --hard` first
 
 ## Configuration
 
@@ -96,7 +96,7 @@ After validation, output with absolute path:
 
 ```
 Best Practice: Run /clear before implementing — fresh context helps focus.
-Then run: /solon:cook --auto {ABSOLUTE_PATH}/plan.md
+Then run: /sl:ship --auto {ABSOLUTE_PATH}/plan.md
 
 Why --auto? Plan was validated — safe to skip review gates.
 Why absolute path? After /clear, new session loses context.

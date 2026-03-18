@@ -11,7 +11,7 @@ Create detailed implementation plans with configurable workflow modes.
 ## Usage
 
 ```
-/solon:plan <task description> [--fast|--hard|--parallel|--two]
+/sl:plan <task description> [--fast|--hard|--parallel|--two]
 ```
 
 Default: `--auto` (analyze task complexity and pick mode automatically).
@@ -47,7 +47,7 @@ Load: `references/workflow-modes.md` for auto-detection logic and per-mode workf
 
 ## Workflow Modes
 
-| Flag | Research | Red Team | Validate | Cook Reminder |
+| Flag | Research | Red Team | Validate | Ship Reminder |
 |------|----------|----------|----------|---------------|
 | `--fast` | Skip | Skip | Skip | `--auto` flag |
 | `--hard` | 2 researchers | Yes | Optional | (none) |
@@ -62,7 +62,7 @@ No research. Scout → Plan → Hydrate.
 2. Run `sl plan scaffold --slug <slug> --mode fast` to create plan directory
 3. Fill plan.md and phase files with content
 4. Run `sl task hydrate <plan-dir>` to create tasks
-5. Output cook reminder: `Ready to implement. Run: /solon:cook --auto {planDir}/plan.md`
+5. Output ship reminder: `Ready to implement. Run: /sl:ship --auto {planDir}/plan.md`
 
 ### Hard Mode
 
@@ -75,7 +75,7 @@ Research → Scout → Plan → Red Team → Validate → Hydrate.
 5. Run `sl plan red-team <plan-dir>` — evaluate prompt output with adversarial reviewers
 6. Run `sl plan validate <plan-dir>` — interview user with critical questions
 7. Run `sl task hydrate <plan-dir>`
-8. Output cook reminder: `Ready to implement. Run: /solon:cook {planDir}/plan.md`
+8. Output ship reminder: `Ready to implement. Run: /sl:ship {planDir}/plan.md`
 
 ### Parallel Mode
 
@@ -87,7 +87,7 @@ Same as Hard + file ownership per phase + dependency matrix.
 4. Run `sl plan red-team <plan-dir>`
 5. Run `sl plan validate <plan-dir>`
 6. Run `sl task hydrate <plan-dir>` — parallel groups have no `addBlockedBy`
-7. Output cook reminder: `Ready to implement. Run: /solon:cook --parallel {planDir}/plan.md`
+7. Output ship reminder: `Ready to implement. Run: /sl:ship --parallel {planDir}/plan.md`
 
 ### Two-Approach Mode
 
@@ -101,7 +101,7 @@ Research → 2 approaches → User picks → Red Team → Validate → Hydrate.
 6. Run `sl plan red-team <plan-dir>`
 7. Run `sl plan validate <plan-dir>`
 8. Run `sl task hydrate <plan-dir>`
-9. Output cook reminder: `Ready to implement. Run: /solon:cook {planDir}/plan.md`
+9. Output ship reminder: `Ready to implement. Run: /sl:ship {planDir}/plan.md`
 
 ## Core Responsibilities
 
@@ -135,7 +135,7 @@ Load: `references/output-standards.md`
 7. **Red Team Review** → `sl plan red-team <plan-dir>` (hard/parallel/two modes)
 8. **Validation** → `sl plan validate <plan-dir>` (hard/parallel/two modes)
 9. **Hydrate Tasks** → `sl task hydrate <plan-dir>` (unless `--no-tasks`)
-10. **Cook Reminder** → Output command with absolute path (MANDATORY)
+10. **Ship Reminder** → Output command with absolute path (MANDATORY)
 
 ## Active Plan State
 
@@ -152,9 +152,9 @@ After creating plan: run `sl workflow status <plan-dir>` to verify structure.
 
 | Subcommand | Reference | Purpose |
 |------------|-----------|---------|
-| `/solon:plan archive` | `references/archive-workflow.md` | Archive plans + write journal entries |
-| `/solon:plan red-team` | `references/red-team-workflow.md` | Adversarial plan review |
-| `/solon:plan validate` | `references/validate-workflow.md` | Validate plan with critical questions interview |
+| `/sl:plan archive` | `references/archive-workflow.md` | Archive plans + write journal entries |
+| `/sl:plan red-team` | `references/red-team-workflow.md` | Adversarial plan review |
+| `/sl:plan validate` | `references/validate-workflow.md` | Validate plan with critical questions interview |
 
 ## Quality Standards
 

@@ -2,7 +2,6 @@
 /// Each hook reads JSON from stdin, processes logic, writes result to stdout.
 /// Exit code: 0=allow, 2=block (explicit deny).
 pub mod comment_slop_checker;
-pub mod cook_reminder;
 pub mod descriptive_name;
 pub mod dev_rules;
 pub mod intent_gate;
@@ -11,6 +10,7 @@ pub mod preemptive_compaction;
 pub mod privacy_block;
 pub mod scout_block;
 pub mod session_init;
+pub mod ship_reminder;
 pub mod statusline;
 pub mod subagent_init;
 pub mod task_completed;

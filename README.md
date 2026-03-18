@@ -13,7 +13,7 @@
 - **Claude Code Plugins** — 2 plugins (solon-cli: 5 skills; solon-core: 5 skills + 9 agents + hooks)
 - **Token Efficiency** — Preemptive compaction, per-tool output truncation, semantic compression (20-40% reduction)
 - **Agent Quality** — Intent gate classification, wisdom accumulation, todo enforcement, comment slop detection
-- **Workflow Engine** — Full development workflow: brainstorm → plan → cook → test → review via `sl` commands
+- **Workflow Engine** — Full development workflow: brainstorm → plan → ship → test → review via `sl` commands
 
 ## Quick Install
 
