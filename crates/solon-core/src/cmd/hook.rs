@@ -27,7 +27,11 @@ pub enum HookCommand {
     /// SessionStart: detect project, resolve plan path, inject context
     SessionInit,
     /// StatusLine: render Claude Code status display
-    Statusline,
+    Statusline {
+        /// Dump raw stdin JSON to temp file for debugging
+        #[arg(long, default_value_t = false)]
+        debug: bool,
+    },
     /// SubagentStart: build compact context block for subagents
     SubagentInit,
     /// TaskCompleted: log task completion and inject progress context
@@ -60,7 +64,7 @@ pub fn run(cmd: HookCommand) -> Result<()> {
         HookCommand::PrivacyBlock => crate::hooks::privacy_block::run(),
         HookCommand::ScoutBlock => crate::hooks::scout_block::run(),
         HookCommand::SessionInit => crate::hooks::session_init::run(),
-        HookCommand::Statusline => crate::hooks::statusline::run(),
+        HookCommand::Statusline { debug } => crate::hooks::statusline::run(debug),
         HookCommand::SubagentInit => crate::hooks::subagent_init::run(),
         HookCommand::TaskCompleted => crate::hooks::task_completed::run(),
         HookCommand::TeamContext => crate::hooks::team_context::run(),

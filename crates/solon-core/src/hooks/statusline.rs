@@ -8,12 +8,25 @@ use std::io::{self, Read};
 const AUTOCOMPACT_BUFFER: i64 = 45_000;
 const USAGE_CACHE_FILE: &str = "sl-usage-limits-cache.json";
 
-pub fn run() -> Result<()> {
+pub fn run(debug: bool) -> Result<()> {
+    let debug = debug || std::env::var("SL_STATUSLINE_DEBUG").is_ok();
+
     let mut buf = String::new();
     if io::stdin().read_to_string(&mut buf).is_err() || buf.trim().is_empty() {
         print_fallback();
         return Ok(());
     }
+
+    if debug {
+        let debug_path = std::env::temp_dir().join("sl-statusline-debug.json");
+        let _ = std::fs::write(&debug_path, &buf);
+        eprintln!(
+            "[statusline-debug] Wrote {} bytes to {:?}",
+            buf.len(),
+            debug_path
+        );
+    }
+
     if render_statusline(&buf).is_err() {
         print_fallback();
     }
@@ -57,33 +70,38 @@ fn render_statusline(raw: &str) -> Result<()> {
     let git_info = get_git_info(&raw_dir);
 
     // Context window calculation
-    // Priority: total_input+output tokens (cumulative) > used_percentage (native) > current_usage (last call)
+    // Priority: used_percentage (native) > total_input_tokens (cumulative) > current_usage (last call)
     let mut context_percent: i64 = 0;
     let mut total_tokens: i64 = 0;
     let mut context_size: i64 = 0;
     if let Some(cw) = data.get("context_window").and_then(|v| v.as_object()) {
         context_size = json_i64(cw.get("context_window_size")).unwrap_or(0);
-        // Try cumulative totals first (most accurate for session-wide view)
-        let total_input = json_i64(cw.get("total_input_tokens")).unwrap_or(0);
-        let total_output = json_i64(cw.get("total_output_tokens")).unwrap_or(0);
-        if context_size > 0 && (total_input + total_output) > 0 {
-            total_tokens = total_input + total_output;
-            let compact_threshold = get_compact_threshold(context_size);
-            let raw_pct = total_tokens as f64 / compact_threshold * 100.0;
-            context_percent = raw_pct.round().clamp(0.0, 100.0) as i64;
-        } else if let Some(pct) = json_i64(cw.get("used_percentage")) {
-            // Fallback: use Claude Code's pre-calculated percentage
+        if let Some(pct) = json_i64(cw.get("used_percentage")) {
+            // Primary: Claude Code's pre-calculated percentage (most reliable)
             context_percent = pct;
-        } else if context_size > AUTOCOMPACT_BUFFER {
-            // Last resort: current_usage from last API call
-            if let Some(usage) = cw.get("current_usage").and_then(|v| v.as_object()) {
-                let inp = json_i64(usage.get("input_tokens")).unwrap_or(0);
-                let cache_create = json_i64(usage.get("cache_creation_input_tokens")).unwrap_or(0);
-                let cache_read = json_i64(usage.get("cache_read_input_tokens")).unwrap_or(0);
-                total_tokens = inp + cache_create + cache_read;
-                let raw_pct =
-                    (total_tokens + AUTOCOMPACT_BUFFER) as f64 / context_size as f64 * 100.0;
-                context_percent = raw_pct.round().min(100.0) as i64;
+            total_tokens = json_i64(cw.get("total_input_tokens")).unwrap_or(0);
+        } else {
+            // Fallback: cumulative input tokens (input-only, no output)
+            let total_input = json_i64(cw.get("total_input_tokens")).unwrap_or(0);
+            if context_size > 0 && total_input > 0 {
+                total_tokens = total_input;
+                let compact_threshold = get_compact_threshold(context_size);
+                let raw_pct = total_tokens as f64 / compact_threshold * 100.0;
+                context_percent = raw_pct.round().clamp(0.0, 100.0) as i64;
+            } else if context_size > AUTOCOMPACT_BUFFER {
+                // Last resort: current_usage from last API call
+                if let Some(usage) = cw.get("current_usage").and_then(|v| v.as_object()) {
+                    let inp = json_i64(usage.get("input_tokens")).unwrap_or(0);
+                    let cache_create =
+                        json_i64(usage.get("cache_creation_input_tokens")).unwrap_or(0);
+                    let cache_read =
+                        json_i64(usage.get("cache_read_input_tokens")).unwrap_or(0);
+                    total_tokens = inp + cache_create + cache_read;
+                    let raw_pct = (total_tokens + AUTOCOMPACT_BUFFER) as f64
+                        / context_size as f64
+                        * 100.0;
+                    context_percent = raw_pct.round().min(100.0) as i64;
+                }
             }
         }
     }
@@ -820,7 +838,7 @@ fn get_git_info(cwd: &str) -> Option<GitInfo> {
     }
 
     let ab_out = crate::hooks::exec_safe(
-        "git rev-list --count --left-right @{upstream}...HEAD 2>/dev/null",
+        "git rev-list --count --left-right @{upstream}...HEAD",
         cwd,
         3000,
     );

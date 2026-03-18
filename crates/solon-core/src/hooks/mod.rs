@@ -709,32 +709,39 @@ pub fn extract_task_list_id(resolved: &PlanResolution) -> String {
 
 // ── Git helpers ─────────────────────────────────────────────────────────────
 
-pub fn exec_safe(cmd: &str, cwd: &str, timeout_ms: u64) -> String {
+/// Try running a command via a specific shell. Returns Some(output) on success.
+fn try_shell(shell: &str, flag: &str, cmd: &str, cwd: &str) -> Option<String> {
     use std::process::Command;
-
-    let timeout = if timeout_ms == 0 { 5000 } else { timeout_ms };
-    let mut c = Command::new("/bin/sh");
-    c.arg("-c").arg(cmd);
+    let mut c = Command::new(shell);
+    c.arg(flag).arg(cmd);
     if !cwd.is_empty() {
         c.current_dir(cwd);
     }
-    // Use wait_timeout via thread to avoid external crate dep
-    let output = std::thread::Builder::new()
-        .spawn(move || c.output())
-        .ok()
-        .and_then(|h| {
-            // We can't timeout cleanly without tokio; use output() directly
-            // Since we already spawned, just join. If cmd hangs, hook will hang too — acceptable tradeoff.
-            h.join().ok()
-        })
-        .and_then(|r| r.ok());
-    match output {
-        Some(o) if o.status.success() => String::from_utf8_lossy(&o.stdout).trim().to_string(),
-        _ => {
-            let _ = timeout; // suppress unused warning
-            String::new()
+    let output = c.output().ok()?;
+    if output.status.success() {
+        Some(String::from_utf8_lossy(&output.stdout).trim().to_string())
+    } else {
+        None
+    }
+}
+
+pub fn exec_safe(cmd: &str, cwd: &str, timeout_ms: u64) -> String {
+    let _timeout = if timeout_ms == 0 { 5000 } else { timeout_ms };
+
+    // Try `sh` first — works on Linux/macOS and Windows with Git Bash in PATH
+    if let Some(output) = try_shell("sh", "-c", cmd, cwd) {
+        return output;
+    }
+
+    // Windows fallback: cmd.exe (strip POSIX shell redirections)
+    if cfg!(target_os = "windows") {
+        let clean_cmd = cmd.replace(" 2>/dev/null", "");
+        if let Some(output) = try_shell("cmd", "/C", &clean_cmd, cwd) {
+            return output;
         }
     }
+
+    String::new()
 }
 
 pub fn get_git_branch() -> String {
@@ -1727,5 +1734,29 @@ mod tests {
         // Should be 11 chars: YYMMDD-HHmm
         assert_eq!(result.len(), 11);
         assert!(result.contains('-'));
+    }
+
+    #[test]
+    fn test_try_shell_echo() {
+        let result = try_shell("sh", "-c", "echo hello", "");
+        assert_eq!(result, Some("hello".to_string()));
+    }
+
+    #[test]
+    fn test_try_shell_bad_shell() {
+        let result = try_shell("nonexistent_shell_xyz", "-c", "echo hi", "");
+        assert_eq!(result, None);
+    }
+
+    #[test]
+    fn test_exec_safe_basic() {
+        let result = exec_safe("echo test123", "", 5000);
+        assert_eq!(result, "test123");
+    }
+
+    #[test]
+    fn test_exec_safe_bad_command() {
+        let result = exec_safe("false", "", 5000);
+        assert_eq!(result, "");
     }
 }
