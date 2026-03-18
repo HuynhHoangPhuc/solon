@@ -57,15 +57,29 @@ fn render_statusline(raw: &str) -> Result<()> {
     let git_info = get_git_info(&raw_dir);
 
     // Context window calculation
+    // Priority: total_input+output tokens (cumulative) > used_percentage (native) > current_usage (last call)
     let mut context_percent: i64 = 0;
     let mut total_tokens: i64 = 0;
     let mut context_size: i64 = 0;
     if let Some(cw) = data.get("context_window").and_then(|v| v.as_object()) {
         context_size = json_i64(cw.get("context_window_size")).unwrap_or(0);
-        if context_size > AUTOCOMPACT_BUFFER {
+        // Try cumulative totals first (most accurate for session-wide view)
+        let total_input = json_i64(cw.get("total_input_tokens")).unwrap_or(0);
+        let total_output = json_i64(cw.get("total_output_tokens")).unwrap_or(0);
+        if context_size > 0 && (total_input + total_output) > 0 {
+            total_tokens = total_input + total_output;
+            let compact_threshold = get_compact_threshold(context_size);
+            let raw_pct = total_tokens as f64 / compact_threshold as f64 * 100.0;
+            context_percent = raw_pct.round().min(100.0).max(0.0) as i64;
+        } else if let Some(pct) = json_i64(cw.get("used_percentage")) {
+            // Fallback: use Claude Code's pre-calculated percentage
+            context_percent = pct;
+        } else if context_size > AUTOCOMPACT_BUFFER {
+            // Last resort: current_usage from last API call
             if let Some(usage) = cw.get("current_usage").and_then(|v| v.as_object()) {
                 let inp = json_i64(usage.get("input_tokens")).unwrap_or(0);
-                let cache_create = json_i64(usage.get("cache_creation_input_tokens")).unwrap_or(0);
+                let cache_create =
+                    json_i64(usage.get("cache_creation_input_tokens")).unwrap_or(0);
                 let cache_read = json_i64(usage.get("cache_read_input_tokens")).unwrap_or(0);
                 total_tokens = inp + cache_create + cache_read;
                 let raw_pct =
@@ -149,6 +163,17 @@ fn render_statusline(raw: &str) -> Result<()> {
         println!("{}", line);
     }
     Ok(())
+}
+
+/// Compact threshold: the token count at which autocompaction triggers.
+/// Research-based defaults: 200k→77.5%, 1M→33%.
+fn get_compact_threshold(context_size: i64) -> f64 {
+    match context_size {
+        200_000 => 155_000.0,
+        1_000_000 => 330_000.0,
+        s if s >= 1_000_000 => s as f64 * 0.33,
+        s => s as f64 * 0.775, // default ~77.5% for standard windows
+    }
 }
 
 // ── Render context ────────────────────────────────────────────────────────────
@@ -770,7 +795,11 @@ struct GitInfo {
 }
 
 fn get_git_info(cwd: &str) -> Option<GitInfo> {
-    let branch = crate::hooks::exec_safe("git branch --show-current", cwd, 3000);
+    let mut branch = crate::hooks::exec_safe("git branch --show-current", cwd, 3000);
+    // Fallback: detached HEAD or older git versions
+    if branch.is_empty() {
+        branch = crate::hooks::exec_safe("git rev-parse --short HEAD", cwd, 3000);
+    }
     if branch.is_empty() {
         return None;
     }
