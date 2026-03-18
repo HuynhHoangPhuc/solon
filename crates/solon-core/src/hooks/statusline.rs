@@ -69,8 +69,10 @@ fn render_statusline(raw: &str) -> Result<()> {
     // Git info (using exec_safe with cache handled externally)
     let git_info = get_git_info(&raw_dir);
 
-    // Context window calculation
-    // Priority: used_percentage (native) > total_input_tokens (cumulative) > current_usage (last call)
+    // Context window calculation — matches CK reference implementation
+    // Priority: used_percentage (native, most reliable) > current_usage + AUTOCOMPACT_BUFFER
+    // NOTE: total_input_tokens/total_output_tokens are cumulative session totals (bug #13783),
+    // NOT current context usage — do NOT use them for context % calculation.
     let mut context_percent: i64 = 0;
     let mut total_tokens: i64 = 0;
     let mut context_size: i64 = 0;
@@ -79,29 +81,18 @@ fn render_statusline(raw: &str) -> Result<()> {
         if let Some(pct) = json_i64(cw.get("used_percentage")) {
             // Primary: Claude Code's pre-calculated percentage (most reliable)
             context_percent = pct;
-            total_tokens = json_i64(cw.get("total_input_tokens")).unwrap_or(0);
-        } else {
-            // Fallback: cumulative input tokens (input-only, no output)
-            let total_input = json_i64(cw.get("total_input_tokens")).unwrap_or(0);
-            if context_size > 0 && total_input > 0 {
-                total_tokens = total_input;
-                let compact_threshold = get_compact_threshold(context_size);
-                let raw_pct = total_tokens as f64 / compact_threshold * 100.0;
-                context_percent = raw_pct.round().clamp(0.0, 100.0) as i64;
-            } else if context_size > AUTOCOMPACT_BUFFER {
-                // Last resort: current_usage from last API call
-                if let Some(usage) = cw.get("current_usage").and_then(|v| v.as_object()) {
-                    let inp = json_i64(usage.get("input_tokens")).unwrap_or(0);
-                    let cache_create =
-                        json_i64(usage.get("cache_creation_input_tokens")).unwrap_or(0);
-                    let cache_read =
-                        json_i64(usage.get("cache_read_input_tokens")).unwrap_or(0);
-                    total_tokens = inp + cache_create + cache_read;
-                    let raw_pct = (total_tokens + AUTOCOMPACT_BUFFER) as f64
-                        / context_size as f64
-                        * 100.0;
-                    context_percent = raw_pct.round().min(100.0) as i64;
-                }
+        } else if context_size > AUTOCOMPACT_BUFFER {
+            // Fallback: current_usage (per-API-call) + AUTOCOMPACT_BUFFER (matches CK)
+            if let Some(usage) = cw.get("current_usage").and_then(|v| v.as_object()) {
+                let inp = json_i64(usage.get("input_tokens")).unwrap_or(0);
+                let cache_create =
+                    json_i64(usage.get("cache_creation_input_tokens")).unwrap_or(0);
+                let cache_read =
+                    json_i64(usage.get("cache_read_input_tokens")).unwrap_or(0);
+                total_tokens = inp + cache_create + cache_read;
+                let raw_pct =
+                    (total_tokens + AUTOCOMPACT_BUFFER) as f64 / context_size as f64 * 100.0;
+                context_percent = raw_pct.round().min(100.0) as i64;
             }
         }
     }
@@ -180,17 +171,6 @@ fn render_statusline(raw: &str) -> Result<()> {
         println!("{}", line);
     }
     Ok(())
-}
-
-/// Compact threshold: the token count at which autocompaction triggers.
-/// Research-based defaults: 200k→77.5%, 1M→33%.
-fn get_compact_threshold(context_size: i64) -> f64 {
-    match context_size {
-        200_000 => 155_000.0,
-        1_000_000 => 330_000.0,
-        s if s >= 1_000_000 => s as f64 * 0.33,
-        s => s as f64 * 0.775, // default ~77.5% for standard windows
-    }
 }
 
 // ── Render context ────────────────────────────────────────────────────────────
