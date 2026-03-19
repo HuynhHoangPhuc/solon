@@ -7,6 +7,27 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.6.0] - 2026-03-19
+
+### Added
+- 10 new workflow skills in solon-core (15 total):
+  - `sl:scout` — fast parallel codebase exploration
+  - `sl:git` — conventional commits with security scanning and PR creation
+  - `sl:fix` — structured bug diagnosis and repair workflow
+  - `sl:debug` — systematic root cause analysis with evidence chain
+  - `sl:refactor` — semantic refactoring via AST-grep + LSP orchestration (killer feature)
+  - `sl:docs-seeker` — external documentation lookup via context7.com llms.txt
+  - `sl:simplify` — post-edit code cleanup (dead code, DRY, complexity)
+  - `sl:watzup` — session wrap-up and handoff summary
+  - `sl:ask` — quick expert technical consultation
+  - `sl:preview` — visual explanations (ASCII, Mermaid diagrams, architecture viz)
+
+### Changed
+- Bumped solon-cli and solon-core plugin versions to 0.6.0
+- Updated plugin keywords with new skill names
+
+---
+
 ## [0.4.0] - 2026-03-17
 
 ### Changed

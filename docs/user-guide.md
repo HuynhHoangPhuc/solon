@@ -268,7 +268,9 @@ sl read file.rs
 
 ## Workflow
 
-The full development workflow chains five skills in sequence:
+The full development workflow chains skills in sequence:
+
+### Core Workflow Loop
 
 | Step | Skill | Description |
 |------|-------|-------------|
@@ -277,6 +279,21 @@ The full development workflow chains five skills in sequence:
 | 3 | `/sl:ship` | Execute the plan phase by phase via subagents |
 | 4 | `/sl:test` | Run tests and validate implementation quality |
 | 5 | `/sl:review` | Code review, cleanup, and final sign-off |
+
+### Supporting Skills (15 total)
+
+| Skill | Description |
+|-------|-------------|
+| `/sl:scout` | Fast codebase exploration using parallel Explore agents |
+| `/sl:git` | Git operations with conventional commits, security scanning, PR creation |
+| `/sl:fix` | Structured bug fix: diagnose → fix → verify (auto-activates for bug fixes) |
+| `/sl:debug` | Systematic root cause analysis with evidence chain |
+| `/sl:refactor` | Semantic refactoring via AST-grep + LSP (renames, transforms, migrations) |
+| `/sl:docs-seeker` | Library/framework docs lookup via context7.com llms.txt |
+| `/sl:simplify` | Post-edit code cleanup (dead code, DRY violations, complexity) |
+| `/sl:watzup` | Session wrap-up summary (what's done, remaining, blockers) |
+| `/sl:ask` | Quick technical Q&A with project-aware context |
+| `/sl:preview` | Visual explanations: ASCII diagrams, Mermaid charts, architecture viz |
 
 Each skill reads from and writes to the active plan directory resolved by `sl plan resolve`.
 

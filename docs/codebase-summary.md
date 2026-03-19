@@ -11,9 +11,9 @@
 | **Unit Tests** | 27 passing |
 | **Integration Tests** | 11 passing |
 | **Workspace Crates** | 3 (solon-common, solon-cli, solon-core) |
-| **Plugins** | 2 (solon-cli: 5 skills; solon-core: 5 skills + 9 agents + 20 hooks) |
+| **Plugins** | 2 (solon-cli: 5 skills; solon-core: 15 skills + 9 agents + 20 hooks) |
 | **Supported Platforms** | Linux, macOS, Windows |
-| **Status** | Production-ready (v0.3.0) |
+| **Status** | Production-ready (v0.6.0) |
 
 ---
 
@@ -574,7 +574,12 @@ Small Rust file for consistent testing across platforms.
 - hashline-read, hashline-edit, ast-search, ast-replace, lsp-tools
 
 **solon-core Plugin** (`plugins/solon-core/.claude-plugin/`)
-- 5 skills for workflow operations
+- 15 skills for workflow operations:
+  - **Workflow loop:** brainstorm, plan, ship, test, review
+  - **Foundation:** scout (codebase exploration), git (smart commits + PRs)
+  - **Core workflow:** fix (bug diagnosis+repair), debug (root cause analysis), refactor (AST+LSP semantic transforms)
+  - **Productivity:** docs-seeker (external docs lookup), simplify (post-edit cleanup), watzup (session wrap-up)
+  - **Polish:** ask (quick expert consultation), preview (visual explanations + diagrams)
 - 9 agents for planning, shipping, testing, reviewing
 - Hooks system (20 hooks in hooks.json + Rust binary)
 
@@ -729,5 +734,5 @@ See [Code Standards](./code-standards.md) for detailed development guidelines.
 
 ---
 
-**Last Updated:** 2026-03-17
-**Document Version:** 1.2 (Rust workspace + dual-plugin marketplace)
+**Last Updated:** 2026-03-19
+**Document Version:** 1.3 (15 skills in solon-core v0.6.0)
