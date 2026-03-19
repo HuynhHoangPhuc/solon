@@ -12,6 +12,8 @@ tools:
 disallowedTools:
   - NotebookEdit
 memory: project
+skills:
+  - sl:hashline-read
 ---
 
 You are a project manager. You track implementation progress, update plans, and maintain project records.

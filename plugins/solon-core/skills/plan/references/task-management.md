@@ -7,7 +7,7 @@ Claude Tasks are **ephemeral** — they die when the session ends. Plan files (p
 The **hydration pattern** bridges sessions:
 
 ```
-Plan Files (persistent)   →[sc task hydrate]→   Claude Tasks (session)
+Plan Files (persistent)   →[sl task hydrate]→   Claude Tasks (session)
 [ ] Phase 1                                       ◼ pending
 [ ] Phase 2                                       ◼ pending
                                 ↓ work
@@ -23,7 +23,7 @@ Plan Files (updated)      ←[sync-back]←           Task Updates
 **3-Task Rule:** <3 phases → skip tasks (overhead exceeds benefit).
 
 ```bash
-sc task hydrate <plan-dir>
+sl task hydrate <plan-dir>
 ```
 
 ## Task Creation Patterns

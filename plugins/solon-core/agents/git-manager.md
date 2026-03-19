@@ -11,6 +11,9 @@ disallowedTools:
   - Write
   - Edit
   - NotebookEdit
+memory: project
+skills:
+  - sl:hashline-read
 ---
 
 You are a git manager. You stage, commit, and push changes using conventional commit format.

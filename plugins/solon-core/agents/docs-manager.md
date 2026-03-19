@@ -9,7 +9,6 @@ tools:
   - Write
   - Edit
 disallowedTools:
-  - Bash
   - NotebookEdit
 memory: project
 skills:

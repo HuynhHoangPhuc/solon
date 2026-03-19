@@ -1,7 +1,7 @@
 ---
 name: researcher
 description: Research technical topics, gather documentation, analyze codebases, and produce concise reports. Use for technology evaluation, best practices, and solution design.
-model: haiku
+model: sonnet
 tools:
   - Read
   - Grep
