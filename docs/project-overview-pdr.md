@@ -4,7 +4,7 @@
 
 **Solon** is a Rust-based CLI tool and Claude Code plugin that enables precise, hash-validated file editing with integrated code intelligence. It combines hashline-based line reference, AST-based semantic search/replace, and LSP-based diagnostics into a unified toolset for Claude Code.
 
-**Version:** 0.2.0
+**Version:** 0.5.0 (CLI) / 0.6.0 (Plugins)
 **Status:** Implemented & Tested (27 unit + 11 integration tests passing)
 **License:** Apache-2.0
 
@@ -72,13 +72,20 @@ Enable Claude Code to reliably edit files at scale by:
 Exposes all 4 commands as skills + comprehensive hooks system:
 
 **5 Skills:**
-1. `hashline-read` — `sl read` wrapper
-2. `hashline-edit` — `sl edit` wrapper
-3. `ast-search` — `sl ast search` wrapper
-4. `ast-replace` — `sl ast replace` wrapper
-5. `lsp-tools` — `sl lsp` wrapper (all 4 queries)
+1. `sl:hashline-read` — `sl read` wrapper
+2. `sl:hashline-edit` — `sl edit` wrapper
+3. `sl:ast-search` — `sl ast search` wrapper
+4. `sl:ast-replace` — `sl ast replace` wrapper
+5. `sl:lsp-tools` — `sl lsp` wrapper (all 4 queries)
 
-**20 Hooks (built into sl binary):**
+**14 Workflow Skills (solon-core):**
+- Workflow loop: `sl:brainstorm`, `sl:plan`, `sl:ship`, `sl:test`, `sl:review`
+- Foundation: `sl:scout`, `sl:git`
+- Core workflow: `sl:fix`, `sl:debug`, `sl:refactor`
+- Productivity: `sl:docs-seeker`, `sl:simplify`, `sl:watzup`
+- Polish: `sl:ask`, `sl:preview`
+
+**21 Hooks (built into sl binary):**
 - **Session Lifecycle:** `session-init`, `subagent-init`, `team-context`, `ship-reminder`
 - **Access Control:** `privacy-block`, `scout-block`
 - **Intent & Strategy:** `intent-gate` (7-category classifier)
@@ -172,23 +179,24 @@ All hooks implemented in Rust binary (`sl`) compiled for darwin-arm64, darwin-am
 ## Architecture Overview
 
 ```
-┌──────────────────────────────────────────────────────┐
-│           Claude Code Plugin (.claude-plugin/)       │
-├──────────────────────────────────────────────────────┤
-│  5 Skills (Rust CLI)  │  14 Hooks (Go Binary)       │
-│  - hashline-read      │  - session-init             │
-│  - hashline-edit      │  - subagent-init            │
-│  - ast-search         │  - team-context             │
-│  - ast-replace        │  - privacy-block            │
-│  - lsp-tools          │  - scout-block              │
-│                       │  - dev-rules + 8 more       │
-└──────────┬─────────────────────────────┬─────────────┘
-           │ executes                    │ executes
-           ▼                             ▼
-  ┌────────────────────┐      ┌─────────────────────┐
-  │ Solon CLI (`sl`)   │      │ Solon Hooks Binary  │
-  │ Rust (1.8 MB)      │      │ Go (6-7 MB/platform)│
-  └──────────┬─────────┘      └─────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│      Claude Code Plugins (.claude-plugin/)             │
+├────────────────────────────────────────────────────────┤
+│ solon-cli              │  solon-core                    │
+│ 5 Skills (CLI)         │  14 Skills + 9 Agents        │
+│ - sl:hashline-read     │  + 21 Hooks (Rust binary)    │
+│ - sl:hashline-edit     │  - Workflow (5 skills)       │
+│ - sl:ast-search        │  - Foundation (2 skills)     │
+│ - sl:ast-replace       │  - Core workflow (3 skills)  │
+│ - sl:lsp-tools         │  - Productivity (3 skills)   │
+│                        │  - Polish (2 skills)         │
+└──────────┬────────────────────────┬─────────────────────┘
+           │ executes               │ executes
+           ▼                        ▼
+  ┌──────────────────────┐  ┌──────────────────────┐
+  │ Solon CLI (`sl`)     │  │ Solon Hooks (Rust)   │
+  │ Rust ~2.5 MB        │  │ 21 subcommands       │
+  └──────────┬──────────┘  └──────────────────────┘
              │
   ┌──────────┴──────────────┬─────────────┐
   ▼                         ▼             ▼
@@ -365,5 +373,5 @@ sl lsp hover file.rs 10 5
 
 ---
 
-**Last Updated:** 2026-03-14
-**Document Version:** 1.1
+**Last Updated:** 2026-03-20
+**Document Version:** 1.2

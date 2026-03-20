@@ -3,14 +3,14 @@
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Rust 1.70+](https://img.shields.io/badge/rust-1.70+-orange.svg)](https://www.rust-lang.org)
 
-**Solon v0.6.0** — A Rust CLI tool and workflow engine for precise, hash-validated file editing with semantic code search, language server protocol support, and full development workflow orchestration.
+**Solon v0.5.0** — A Rust CLI tool and workflow engine for precise, hash-validated file editing with semantic code search, language server protocol support, and full development workflow orchestration.
 
 ## Features
 
 - **Hashline Editing** — Edit files by line reference with xxHash32 CIDs for validation
 - **AST-based Search & Replace** — Semantic code search via ast-grep integration
 - **Language Server Protocol (LSP)** — Code intelligence (diagnostics, goto-def, hover, references)
-- **Claude Code Plugins** — 2 plugins (solon-cli: 5 skills; solon-core: 15 skills + 9 agents + hooks)
+- **Claude Code Plugins** — 2 plugins (solon-cli: 5 skills; solon-core: 14 skills + 9 agents + hooks)
 - **Token Efficiency** — Preemptive compaction, per-tool output truncation, semantic compression (20-40% reduction)
 - **Agent Quality** — Intent gate classification, wisdom accumulation, todo enforcement, comment slop detection
 - **Workflow Engine** — Full development workflow: brainstorm → plan → ship → test → review via `sl` commands
@@ -116,8 +116,8 @@ Solon is a **Cargo workspace** with a unified Rust binary and 2 Claude Code plug
   4. **Workspace** — 3 crates (solon-common, solon-cli, solon-core)
 
 - **Plugins**: Two Claude Code plugins registered in marketplace
-  1. **solon-cli** (5 skills): hashline-read, hashline-edit, ast-search, ast-replace, lsp-tools
-  2. **solon-core** (15 skills + 9 agents + hooks): workflow loop (brainstorm, plan, ship, test, review), foundation (scout, git), core workflow (fix, debug, refactor), productivity (docs-seeker, simplify, watzup), polish (ask, preview)
+  1. **solon-cli** (5 skills): sl:hashline-read, sl:hashline-edit, sl:ast-search, sl:ast-replace, sl:lsp-tools
+  2. **solon-core** (14 skills + 9 agents + 21 hooks): workflow loop (brainstorm, plan, ship, test, review), foundation (scout, git), core workflow (fix, debug, refactor), productivity (docs-seeker, simplify, watzup), polish (ask, preview)
 
 ## Requirements
 

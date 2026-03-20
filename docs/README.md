@@ -23,15 +23,15 @@ Welcome to the Solon documentation hub. This directory contains comprehensive gu
 
 | Document | Purpose | Audience | Length |
 |----------|---------|----------|--------|
-| **[project-overview-pdr.md](./project-overview-pdr.md)** | Project vision, features, requirements | Product managers, stakeholders | ~600 lines |
-| **[system-architecture.md](./system-architecture.md)** | System design, subsystems, data flows | Architects, senior developers | ~850 lines |
-| **[code-standards.md](./code-standards.md)** | Naming, testing, development workflows | Developers, maintainers | ~750 lines |
+| **[project-overview-pdr.md](./project-overview-pdr.md)** | Project vision, features, requirements | Product managers, stakeholders | ~550 lines |
+| **[system-architecture.md](./system-architecture.md)** | System design, subsystems, data flows | Architects, senior developers | ~750 lines |
+| **[code-standards.md](./code-standards.md)** | Naming, testing, development workflows | Developers, maintainers | ~700 lines |
 | **[codebase-summary.md](./codebase-summary.md)** | Module structure, dependencies, tests | Developers, contributors | ~800 lines |
-| **[user-guide.md](./user-guide.md)** | Installation, usage, best practices | End users, Claude Code users | ~900 lines |
-| **[api-reference.md](./api-reference.md)** | Command signatures, arguments, output formats | API consumers, integrators | ~1,200 lines |
-| **[faq-troubleshooting.md](./faq-troubleshooting.md)** | Common questions, error solutions | Support, users | ~1,200 lines |
+| **[user-guide.md](./user-guide.md)** | Installation, usage, best practices | End users, Claude Code users | ~650 lines |
+| **[api-reference.md](./api-reference.md)** | Command signatures, arguments, output formats | API consumers, integrators | ~600 lines |
+| **[faq-troubleshooting.md](./faq-troubleshooting.md)** | Common questions, error solutions | Support, users | ~700 lines |
 
-**Total:** ~5,400 lines of documentation
+**Total:** ~4,750 lines of documentation
 
 ---
 
@@ -224,9 +224,10 @@ Documentation contributions are welcome! When contributing:
 
 ## Version
 
-- **Documentation Version:** 1.0
-- **Solon Version:** 0.1.7
-- **Last Updated:** 2026-03-15
+- **Documentation Version:** 1.1
+- **Solon CLI Version:** 0.5.0
+- **Plugin Version:** 0.6.0
+- **Last Updated:** 2026-03-20
 
 ---
 

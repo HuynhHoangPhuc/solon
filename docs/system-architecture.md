@@ -388,92 +388,47 @@ Both plugins referenced in `.claude-plugin/marketplace.json`.
 ```
 hooks.json (lifecycle matchers)
     │
-    └─→ sl hook binary (Go, in )
-        ├─ 20 Clap subcommands
+    └─→ sl hook subcommand (Rust binary)
+        ├─ 21 subcommands (Clap-based)
         ├─ Session, access, intent, token management
         └─ Notifications and quality checks
 ```
 
-The hooks subsystem is a **Rust binary** invoked by Claude Code at lifecycle events via hooks.json matchers. No TypeScript runtime required.
+The hooks subsystem is a **Rust binary** invoked by Claude Code at lifecycle events via hooks.json matchers. Built into the `sl` binary itself, no separate runtime required.
 
 See [API Reference](./api-reference.md) for detailed skill documentation and examples.
 
-### Hook Intelligence Layer
+### Hook Intelligence Systems
 
-The hooks subsystem implements three advanced intelligence systems:
+**Wisdom Accumulation:** Extracts learnings from subagent output, stored in `.wisdom.md`.
 
-#### Wisdom Accumulation
-- **Trigger:** SubagentStop hook
-- **Function:** Extracts learnings and patterns from subagent output
-- **Storage:** `.wisdom.md` file (persistent across sessions)
-- **Recovery:** SubagentStart injects relevant wisdom into context
-- **Packages:** `internal/wisdom/` (ReadWisdom, AppendWisdom, PruneWisdom)
+**Compaction Context:** Preserves critical context when token limits approach.
 
-#### Compaction Context Preservation
-- **Trigger:** SessionStart hook (compact event)
-- **Function:** Preserves critical context when token limit approaches
-- **Strategy:** Injects recovery context to continue from exact state
-- **Method:** `compaction-context-preservation.go`
-- **Package:** `internal/plan/` (context builder)
+**Semantic Compression:** Reduces token usage 20-40% via semantic text compression.
 
-#### Semantic Compression
-- **Trigger:** Context builder integration (not separate hook)
-- **Function:** Reduces token usage by 20-40% via semantic text compression
-- **Algorithm:** CompressText function preserves meaning while reducing size
-- **Package:** `internal/compress/` (115 LOC)
-- **Example:** Long explanations → concise summaries, code → annotations
+**Intent Gate:** Classifies user prompts into 7 categories with strategy guidance.
 
-#### Intent Gate Classification
-- **Trigger:** UserPromptSubmit hook
-- **Function:** Classifies user prompts into 7 categories (DEBUG/TEST/DEPLOY/REFACTOR/EXPLAIN/RESEARCH/IMPLEMENT)
-- **Output:** Strategy guidance customized to intent
-- **Package:** `plugins/solon-core/crates/solon-core/src/hooks/internal/intent/` (171 LOC, 7-category classifier)
+### 21 Hooks (Rust Subcommands)
 
-### 20 Hooks (Go Subcommands)
+Built into the `sl` binary via Clap subcommand dispatch.
 
-Invoked via `crates/solon-core/src/hooks/` binary with subcommand pattern.
+**Session Lifecycle (4):** session-init, subagent-init, team-context, ship-reminder
 
-**Session Lifecycle (4):**
-- `session-init` — Initialize session context (startup/resume/clear/compact)
-- `subagent-init` — Initialize subagent context
-- `team-context` — Populate team coordination details
-- `ship-reminder` — Remind to review planning phase outputs
+**Access Control (2):** privacy-block (blocks `.env*`, `.aws/`, `.ssh/`, `*.pem`), scout-block
 
-**Access Control (2):**
-- `privacy-block` — Blocks reading/editing of sensitive files (`.env*`, `.aws/`, `.ssh/`, `*.pem`, `secrets/`)
-- `scout-block` — Respects Claude Code's file visibility rules; filters output to permitted files only
+**Intent & Strategy (1):** intent-gate (7-category classifier)
 
-**Intent & Strategy (1):**
-- `intent-gate` — Classify user prompt intent (7 categories) and provide strategy guidance
+**Developer Guidance (3):** dev-rules, usage-awareness, descriptive-name
 
-**Developer Guidance (3):**
-- `dev-rules` — Remind developer of critical rules before command submission
-- `usage-awareness` — Track token usage; alert on approaching limits
-- `descriptive-name` — Validate file names follow kebab-case conventions
+**Quality Assurance (3):** post-edit, comment-slop-checker, todo-continuation-enforcer
 
-**Quality Assurance (3):**
-- `post-edit` — Post-edit validation and logging
-- `comment-slop-checker` — Detect and report AI-generated comment patterns
-- `todo-continuation-enforcer` — Inject incomplete todo count into context
+**Token Management (3):** preemptive-compaction, tool-output-truncation, semantic-compression
 
-**Token Management (3):**
-- `preemptive-compaction` — Escalating urgency at 65%/75%/85% context usage
-- `tool-output-truncation` — Per-tool output budgets (Bash:500, Grep:200, Read:300, etc.)
-- Semantic compression — Integrated into context builder
+**Knowledge & Wisdom (1):** wisdom-accumulator
 
-**Knowledge & Wisdom (1):**
-- `wisdom-accumulator` — Extract and store learnings from subagent output
+**Context Preservation (1):** compaction-context-preservation
 
-**Context Preservation (1):**
-- `compaction-context-preservation` — Inject recovery context on SessionStart(compact)
-
-**Notifications (2):**
-- `notify` — Send completion notifications (async)
-- `statusline` — Render status/progress information
-- `task-completed` — Handle task completion events
-- `teammate-idle` — Notify on teammate idle state
-
-All 20 hooks built from Rust source in `crates/solon-core/src/hooks/` and compiled to single binary `crates/solon-core/src/hooks/`.
+**Notifications (4):** notify, statusline, task-completed, teammate-idle
 
 ---
 

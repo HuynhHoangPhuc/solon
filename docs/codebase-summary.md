@@ -11,7 +11,7 @@
 | **Unit Tests** | 27 passing |
 | **Integration Tests** | 11 passing |
 | **Workspace Crates** | 3 (solon-common, solon-cli, solon-core) |
-| **Plugins** | 2 (solon-cli: 5 skills; solon-core: 15 skills + 9 agents + 20 hooks) |
+| **Plugins** | 2 (solon-cli: 5 skills; solon-core: 14 skills + 9 agents + 21 hooks) |
 | **Supported Platforms** | Linux, macOS, Windows |
 | **Status** | Production-ready (v0.6.0) |
 
@@ -574,22 +574,22 @@ Small Rust file for consistent testing across platforms.
 - hashline-read, hashline-edit, ast-search, ast-replace, lsp-tools
 
 **solon-core Plugin** (`plugins/solon-core/.claude-plugin/`)
-- 15 skills for workflow operations:
-  - **Workflow loop:** brainstorm, plan, ship, test, review
-  - **Foundation:** scout (codebase exploration), git (smart commits + PRs)
-  - **Core workflow:** fix (bug diagnosis+repair), debug (root cause analysis), refactor (AST+LSP semantic transforms)
-  - **Productivity:** docs-seeker (external docs lookup), simplify (post-edit cleanup), watzup (session wrap-up)
-  - **Polish:** ask (quick expert consultation), preview (visual explanations + diagrams)
-- 9 agents for planning, shipping, testing, reviewing
-- Hooks system (20 hooks in hooks.json + Rust binary)
+- 14 skills for workflow operations:
+  - **Workflow loop:** sl:brainstorm, sl:plan, sl:ship, sl:test, sl:review (5 skills)
+  - **Foundation:** sl:scout (codebase exploration), sl:git (smart commits + PRs) (2 skills)
+  - **Core workflow:** sl:fix (bug diagnosis+repair), sl:debug (root cause analysis), sl:refactor (AST+LSP semantic transforms) (3 skills)
+  - **Productivity:** sl:docs-seeker (external docs lookup), sl:simplify (post-edit cleanup), sl:watzup (session wrap-up) (3 skills)
+  - **Polish:** sl:ask (quick expert consultation), sl:preview (visual explanations + diagrams) (2 skills)
+- 9 agents for planning, shipping, testing, reviewing, and other operations
+- Hooks system (21 hooks in hooks.json + Rust binary subcommands)
 
 ### Hooks Subsystem (solon-core)
 
 **Location:** `plugins/solon-core/hooks/`
 
-**Binary:** `plugins/solon-core/sl hook` (Rust, 20 subcommands)
+**Binary:** `sl hook` (Rust binary subcommand, 21 hooks)
 
-**Hook Categories (20 total):**
+**Hook Categories (21 total):**
 - Session lifecycle (4): session-init, subagent-init, team-context, ship-reminder
 - Access control (2): privacy-block, scout-block
 - Intent & strategy (1): intent-gate
@@ -598,7 +598,7 @@ Small Rust file for consistent testing across platforms.
 - Token management (3): preemptive-compaction, tool-output-truncation, semantic-compression
 - Knowledge & wisdom (1): wisdom-accumulator
 - Context preservation (1): compaction-context-preservation
-- Notifications (2): notify, statusline, task-completed, teammate-idle
+- Notifications (4): notify, statusline, task-completed, teammate-idle
 
 **Internal Packages (9):**
 - `config/` — Configuration management
@@ -615,7 +615,7 @@ Small Rust file for consistent testing across platforms.
 
 **File:** `.claude-plugin/marketplace.json`
 
-Registers both plugins (solon-cli v0.3.0, solon-core v0.3.0) in single marketplace.
+Registers both plugins (solon-cli v0.6.0, solon-core v0.6.0) in single marketplace.
 
 ---
 
@@ -734,5 +734,5 @@ See [Code Standards](./code-standards.md) for detailed development guidelines.
 
 ---
 
-**Last Updated:** 2026-03-19
-**Document Version:** 1.3 (15 skills in solon-core v0.6.0)
+**Last Updated:** 2026-03-20
+**Document Version:** 1.4 (14 skills + 21 hooks in solon-core v0.6.0)

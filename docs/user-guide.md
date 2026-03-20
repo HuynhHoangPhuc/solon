@@ -280,24 +280,24 @@ The full development workflow chains skills in sequence:
 | 4 | `/sl:test` | Run tests and validate implementation quality |
 | 5 | `/sl:review` | Code review, cleanup, and final sign-off |
 
-### Supporting Skills (15 total)
+### Supporting Skills (14 total)
 
 | Skill | Description |
 |-------|-------------|
-| `/sl:scout` | Fast codebase exploration using parallel Explore agents |
+| `/sl:scout` | Fast codebase exploration using parallel agents |
 | `/sl:git` | Git operations with conventional commits, security scanning, PR creation |
 | `/sl:fix` | Structured bug fix: diagnose → fix → verify (auto-activates for bug fixes) |
 | `/sl:debug` | Systematic root cause analysis with evidence chain |
 | `/sl:refactor` | Semantic refactoring via AST-grep + LSP (renames, transforms, migrations) |
-| `/sl:docs-seeker` | Library/framework docs lookup via context7.com llms.txt |
+| `/sl:docs-seeker` | External documentation lookup via context7.com llms.txt |
 | `/sl:simplify` | Post-edit code cleanup (dead code, DRY violations, complexity) |
 | `/sl:watzup` | Session wrap-up summary (what's done, remaining, blockers) |
 | `/sl:ask` | Quick technical Q&A with project-aware context |
 | `/sl:preview` | Visual explanations: ASCII diagrams, Mermaid charts, architecture viz |
 
-Each skill reads from and writes to the active plan directory resolved by `sl plan resolve`.
+**Total: 14 skills** (5 workflow + 2 foundation + 3 core + 3 productivity + 1 polish)
 
-### `sc` CLI Quick Reference
+### `sl` CLI Workflow Commands Reference
 
 | Subcommand | Description |
 |------------|-------------|
@@ -795,5 +795,5 @@ sl --version
 
 ---
 
-**Last Updated:** 2026-03-13
-**Guide Version:** 1.0
+**Last Updated:** 2026-03-20
+**Guide Version:** 1.1

@@ -3,11 +3,11 @@
 ## Codebase Overview
 
 **Workspace:** 3 Rust crates + root binary
-**Total Lines:** ~2,200 LOC (Rust, excluding plugins)
+**Total Lines:** ~10,860 LOC (all crates, solon-core: 8,236 LOC)
 **Binary Size:** ~2.5 MB (optimized release, all subsystems)
 **Test Coverage:** 27 unit + 11 integration tests
-**Compilation Time:** ~35s (clean build)
-**Plugins:** 2 (solon-cli, solon-core)
+**Compilation Time:** ~45s (clean build)
+**Plugins:** 2 (solon-cli: 5 skills; solon-core: 14 skills + 9 agents + 21 hooks)
 
 ---
 
@@ -275,10 +275,10 @@ plugins/solon-cli/.claude-plugin/
 ```
 plugins/solon-core/.claude-plugin/
 ├── plugin.json                  # Plugin metadata
-├── skills/                      # 5 Workflow skills
+├── skills/                      # 14 Workflow skills (sl:*)
 ├── agents/                      # 9 Agent definitions
 ├── hooks/
-│   └── hooks.json              # Lifecycle matchers (20 hooks → sl hook)
+│   └── hooks.json              # Lifecycle matchers (21 hooks → sl hook)
 └── scripts/
     └── install.sh              # Installation script
 ```
