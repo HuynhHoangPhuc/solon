@@ -26,6 +26,8 @@ enum Commands {
     Workflow(solon_core::cmd::workflow::WorkflowArgs),
     /// Report indexing
     Report(solon_core::cmd::report::ReportArgs),
+    /// Skill management (create, validate, catalog)
+    Skill(solon_core::cmd::skill::SkillArgs),
     /// Hook event handlers
     #[command(subcommand)]
     Hook(solon_core::cmd::hook::HookCommand),
@@ -43,6 +45,7 @@ async fn main() -> Result<()> {
         Commands::Task(args) => solon_core::cmd::task::run(args),
         Commands::Workflow(args) => solon_core::cmd::workflow::run(args),
         Commands::Report(args) => solon_core::cmd::report::run(args),
+        Commands::Skill(args) => solon_core::cmd::skill::run(args),
         Commands::Hook(args) => solon_core::cmd::hook::run(args),
     }
 }
