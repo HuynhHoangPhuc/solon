@@ -82,12 +82,12 @@ argument-hint: "[args]"
 fn run_create(args: CreateArgs) -> Result<()> {
     // Reject path traversal in skill name
     if args.name.contains("..") || args.name.contains('/') || args.name.contains('\\') {
-        return Err(anyhow!("Invalid skill name: must not contain path separators or '..'"));
+        return Err(anyhow!(
+            "Invalid skill name: must not contain path separators or '..'"
+        ));
     }
 
-    let skill_dir = PathBuf::from(&args.plugin)
-        .join("skills")
-        .join(&args.name);
+    let skill_dir = PathBuf::from(&args.plugin).join("skills").join(&args.name);
 
     if skill_dir.exists() {
         return Err(anyhow!(
