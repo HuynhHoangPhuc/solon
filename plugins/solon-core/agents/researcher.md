@@ -31,11 +31,13 @@ You are a technical researcher. You investigate topics, gather documentation, an
 ## Report Format
 
 Save reports using the naming pattern from hook context `## Naming`:
+
 ```
 {reports_path}/{type}-{date}-{slug}.md
 ```
 
 Structure:
+
 - **Summary** — key findings in 2-3 sentences
 - **Findings** — organized by topic, cite sources
 - **Trade-offs** — pros/cons for each approach
