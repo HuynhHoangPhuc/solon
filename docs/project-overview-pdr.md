@@ -4,7 +4,7 @@
 
 **Solon** is a Rust-based CLI tool and Claude Code plugin that enables precise, hash-validated file editing with integrated code intelligence. It combines hashline-based line reference, AST-based semantic search/replace, and LSP-based diagnostics into a unified toolset for Claude Code.
 
-**Version:** 0.5.0 (CLI) / 0.6.0 (Plugins)
+**Version:** 0.5.0
 **Status:** Implemented & Tested (27 unit + 11 integration tests passing)
 **License:** Apache-2.0
 
@@ -68,24 +68,30 @@ Enable Claude Code to reliably edit files at scale by:
 - `sl lsp references file.rs 5 10` — Find all symbol references
 - `sl lsp hover file.rs 5 10` — Show type/docstring info
 
-### 5. Claude Code Plugin
-Exposes all 4 commands as skills + comprehensive hooks system:
+### 5. Claude Code Plugins (3 plugins, 24 skills)
 
-**5 Skills:**
-1. `sl:hashline-read` — `sl read` wrapper
-2. `sl:hashline-edit` — `sl edit` wrapper
-3. `sl:ast-search` — `sl ast search` wrapper
-4. `sl:ast-replace` — `sl ast replace` wrapper
-5. `sl:lsp-tools` — `sl lsp` wrapper (all 4 queries)
+**Plugin 1: solon-cli** (5 skills for file operations)
+1. `hashline-read` — `sl read` wrapper
+2. `hashline-edit` — `sl edit` wrapper
+3. `ast-search` — `sl ast search` wrapper
+4. `ast-replace` — `sl ast replace` wrapper
+5. `lsp-tools` — `sl lsp` wrapper (diagnostics, goto-def, references, hover)
 
-**14 Workflow Skills (solon-core):**
-- Workflow loop: `sl:brainstorm`, `sl:plan`, `sl:ship`, `sl:test`, `sl:review`
-- Foundation: `sl:scout`, `sl:git`
-- Core workflow: `sl:fix`, `sl:debug`, `sl:refactor`
-- Productivity: `sl:docs-seeker`, `sl:simplify`, `sl:watzup`
-- Polish: `sl:ask`, `sl:preview`
+**Plugin 2: solon-core** (11 skills for workflow orchestration + hooks)
+Workflow Skills:
+1. `brainstorm` — Structured brainstorming & ideation
+2. `plan` — Planning & task breakdown
+3. `docs` — Documentation generation & management
+4. `fix` — Bug fixing & debugging
+5. `ask` — Interactive questioning & problem analysis
+6. `bootstrap` — Project setup & initialization
+7. `review` — Code review & quality analysis
+8. `release` — Release management & versioning
+9. `ship` — Build & deployment management
+10. `watzup` — Status & progress tracking
+11. `test` — Test execution & validation
 
-**21 Hooks (built into sl binary):**
+**Hooks System (built into sl binary):**
 - **Session Lifecycle:** `session-init`, `subagent-init`, `team-context`, `ship-reminder`
 - **Access Control:** `privacy-block`, `scout-block`
 - **Intent & Strategy:** `intent-gate` (7-category classifier)
@@ -96,7 +102,17 @@ Exposes all 4 commands as skills + comprehensive hooks system:
 - **Context Preservation:** `compaction-context-preservation`
 - **Notifications:** `notify`, `statusline`, `task-completed`, `teammate-idle`
 
-All hooks implemented in Rust binary (`sl`) compiled for darwin-arm64, darwin-amd64, linux-amd64.
+**Plugin 3: solon-skills** (8 domain-specific skills)
+1. `sequential-thinking` — Multi-step problem solving & reasoning
+2. `git` — Git operations & version control
+3. `frontend-development` — Web UI/UX development
+4. `backend-development` — Server & API development
+5. `databases` — Database design & management
+6. `devops` — Infrastructure & deployment
+7. `docs-seeker` — Documentation research & discovery
+8. `ai-multimodal` — Image/video processing & analysis
+
+All skills and hooks implemented in Rust binary (`sl`) compiled for darwin-arm64, darwin-amd64, linux-amd64.
 
 ---
 
@@ -179,35 +195,41 @@ All hooks implemented in Rust binary (`sl`) compiled for darwin-arm64, darwin-am
 ## Architecture Overview
 
 ```
-┌────────────────────────────────────────────────────────┐
-│      Claude Code Plugins (.claude-plugin/)             │
-├────────────────────────────────────────────────────────┤
-│ solon-cli              │  solon-core                    │
-│ 5 Skills (CLI)         │  14 Skills + 9 Agents        │
-│ - sl:hashline-read     │  + 21 Hooks (Rust binary)    │
-│ - sl:hashline-edit     │  - Workflow (5 skills)       │
-│ - sl:ast-search        │  - Foundation (2 skills)     │
-│ - sl:ast-replace       │  - Core workflow (3 skills)  │
-│ - sl:lsp-tools         │  - Productivity (3 skills)   │
-│                        │  - Polish (2 skills)         │
-└──────────┬────────────────────────┬─────────────────────┘
-           │ executes               │ executes
-           ▼                        ▼
-  ┌──────────────────────┐  ┌──────────────────────┐
-  │ Solon CLI (`sl`)     │  │ Solon Hooks (Rust)   │
-  │ Rust ~2.5 MB        │  │ 21 subcommands       │
-  └──────────┬──────────┘  └──────────────────────┘
-             │
-  ┌──────────┴──────────────┬─────────────┐
-  ▼                         ▼             ▼
-Hashline              AST-Grep         LSP
-   │Protocol │                  │ (sg bin)│   │ Client  │
-   ├─────────┤                  ├─────────┤   ├─────────┤
-   │ • Read  │                  │Search   │   │Diagnos. │
-   │ • Edit  │                  │Replace  │   │GotoDef  │
-   │ • Diff  │                  │Format   │   │Refs     │
-   │ • Hash  │                  │         │   │Hover    │
-   └─────────┘                  └─────────┘   └─────────┘
+┌─────────────────────────────────────────────────────────┐
+│      Claude Code: 3 Plugins + 24 Skills + Hooks        │
+├──────────────────┬──────────────────┬──────────────────┤
+│  solon-cli       │   solon-core     │  solon-skills    │
+│  (5 skills)      │   (11 skills+    │  (8 domain       │
+│                  │    hooks)        │   skills)        │
+│  - hashline-read │ - brainstorm     │ - sequential-    │
+│  - hashline-edit │ - plan           │   thinking       │
+│  - ast-search    │ - docs           │ - git            │
+│  - ast-replace   │ - fix            │ - frontend-dev   │
+│  - lsp-tools     │ - ask            │ - backend-dev    │
+│                  │ - bootstrap      │ - databases      │
+│                  │ - review         │ - devops         │
+│                  │ - release        │ - docs-seeker    │
+│                  │ - ship           │ - ai-multimodal  │
+│                  │ - watzup         │                  │
+│                  │ - test           │                  │
+└──────────────────┴──────────────────┴──────────────────┘
+                           │ executes
+                           ▼
+                  ┌────────────────────┐
+                  │ Solon CLI (`sl`)   │
+                  │ Rust (1.8 MB)      │
+                  └──────────┬─────────┘
+                             │
+                  ┌──────────┴──────────────┬─────────────┐
+                  ▼                         ▼             ▼
+                Hashline              AST-Grep         LSP
+                Protocol              (sg bin)       Client
+                ├─────────┤            ├─────────┤   ├─────────┤
+                │ • Read  │            │Search   │   │Diagnos. │
+                │ • Edit  │            │Replace  │   │GotoDef  │
+                │ • Diff  │            │Format   │   │Refs     │
+                │ • Hash  │            │         │   │Hover    │
+                └─────────┘            └─────────┘   └─────────┘
 ```
 
 ---
@@ -373,5 +395,5 @@ sl lsp hover file.rs 10 5
 
 ---
 
-**Last Updated:** 2026-03-20
-**Document Version:** 1.2
+**Last Updated:** 2026-03-23
+**Document Version:** 1.2 (CKE→Solon migration: 3 plugins, 24 skills)

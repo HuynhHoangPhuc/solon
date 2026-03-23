@@ -3,18 +3,17 @@
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Rust 1.70+](https://img.shields.io/badge/rust-1.70+-orange.svg)](https://www.rust-lang.org)
 
-**Solon v0.5.0** — A Rust CLI tool and workflow engine for precise, hash-validated file editing with semantic code search, language server protocol support, and full development workflow orchestration.
+**Solon v0.5.0** — A Rust CLI tool and workflow engine for precise, hash-validated file editing with semantic code search, language server protocol support, and full development workflow orchestration across 3 plugins (24 skills).
 
 ## Features
 
 - **Hashline Editing** — Edit files by line reference with xxHash32 CIDs for validation
 - **AST-based Search & Replace** — Semantic code search via ast-grep integration
 - **Language Server Protocol (LSP)** — Code intelligence (diagnostics, goto-def, hover, references)
-- **Claude Code Plugins** — 2 plugins (solon-cli: 5 skills; solon-core: 14 skills + 9 agents + hooks)
+- **Claude Code Plugins** — 3 plugins (solon-cli: 5 skills; solon-core: 11 skills + hooks; solon-skills: 8 domain skills)
 - **Token Efficiency** — Preemptive compaction, per-tool output truncation, semantic compression (20-40% reduction)
 - **Agent Quality** — Intent gate classification, wisdom accumulation, todo enforcement, comment slop detection
-- **Workflow Engine** — Full development workflow: brainstorm → plan → ship → test → review via `sl` commands
-- **Semantic Refactoring** — AST-grep + LSP orchestration for type-safe renames, structural transforms, and pattern migrations
+- **Workflow Engine** — Full development workflow: brainstorm → plan → ship → test → review via skill integration
 
 ## Quick Install
 
@@ -107,7 +106,7 @@ Full documentation is available in `/docs`:
 
 ## Architecture
 
-Solon is a **Cargo workspace** with a unified Rust binary and 2 Claude Code plugins:
+Solon is a **Cargo workspace** with a unified Rust binary and 3 Claude Code plugins:
 
 - **Binary (`sl`)**: Rust command-line tool with 4 subsystems:
   1. **Hashline** — Line-ID editing with content validation via xxHash32
@@ -115,9 +114,10 @@ Solon is a **Cargo workspace** with a unified Rust binary and 2 Claude Code plug
   3. **LSP Client** — Language server protocol integration (stdio JSON-RPC)
   4. **Workspace** — 3 crates (solon-common, solon-cli, solon-core)
 
-- **Plugins**: Two Claude Code plugins registered in marketplace
-  1. **solon-cli** (5 skills): sl:hashline-read, sl:hashline-edit, sl:ast-search, sl:ast-replace, sl:lsp-tools
-  2. **solon-core** (14 skills + 9 agents + 21 hooks): workflow loop (brainstorm, plan, ship, test, review), foundation (scout, git), core workflow (fix, debug, refactor), productivity (docs-seeker, simplify, watzup), polish (ask, preview)
+- **Plugins**: Three Claude Code plugins registered in marketplace
+  1. **solon-cli** (5 skills): hashline-read, hashline-edit, ast-search, ast-replace, lsp-tools
+  2. **solon-core** (11 skills + hooks): workflow skills (brainstorm, plan, docs, fix, ask, bootstrap, review, release, ship, watzup, test) + hooks system
+  3. **solon-skills** (8 domain skills): sequential-thinking, git, frontend-development, backend-development, databases, devops, docs-seeker, ai-multimodal
 
 ## Requirements
 

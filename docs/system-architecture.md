@@ -366,7 +366,7 @@ pub fn format_hover(hover: &str) -> String
 
 ## Plugin Architecture
 
-### 2 Claude Code Plugins
+### 3 Claude Code Plugins
 
 **solon-cli** (`plugins/solon-cli/`)
 - 5 skills wrapping `sl` file operations
@@ -374,12 +374,16 @@ pub fn format_hover(hover: &str) -> String
 - Registered in marketplace
 
 **solon-core** (`plugins/solon-core/`)
-- 5 skills for workflow operations
-- 9 agent definitions
-- Hooks system (hooks.json + Rust subcommands in )
+- 11 skills for workflow operations: brainstorm, plan, docs, fix, ask, bootstrap, review, release, ship, watzup, test
+- Hooks system (hooks.json + Rust subcommands)
 - Registered in marketplace
 
-Both plugins referenced in `.claude-plugin/marketplace.json`.
+**solon-skills** (`plugins/solon-skills/`)
+- 8 curated domain skills: sequential-thinking, git, frontend-development, backend-development, databases, devops, docs-seeker, ai-multimodal
+- Domain-specific development utilities
+- Registered in marketplace
+
+All 3 plugins referenced in `.claude-plugin/marketplace.json`.
 
 ### Hooks System
 
@@ -780,5 +784,5 @@ Source Code (Rust)
 
 ---
 
-**Last Updated:** 2026-03-17
-**Architecture Version:** 1.2 (Rust migration complete, dual-plugin marketplace)
+**Last Updated:** 2026-03-23
+**Architecture Version:** 1.3 (CKE→Solon migration complete, 3-plugin marketplace with 24 skills)
