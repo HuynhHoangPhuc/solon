@@ -8,6 +8,8 @@ argument-hint: "<plan-dir>/plan.md [--auto] [--parallel] [--no-test]"
 
 Execute plan phases with progress tracking and quality gates.
 
+**See also:** `../../references/shared/skill-decision-tree.md` for when to use `/sl:ship` vs other skills.
+
 ## Usage
 
 ```
@@ -111,6 +113,13 @@ If any criterion fails: re-invoke agent with specific fix instructions before ma
 - Compile error after phase → fix before marking complete, do not proceed
 - Agent fails to complete → report to user, ask to retry or skip
 - `sl` binary not found → instruct user to install Solon CLI
+
+## Shared References
+
+- `../../references/shared/workflow-modes.md` - Mode detection and flag vocabulary
+- `../../references/shared/task-orchestration.md` - Task creation and dependency patterns
+- `../../references/shared/verification-protocol.md` - Review gate and quality thresholds
+- `../../references/shared/subagent-patterns.md` - Agent spawning patterns
 
 ## Token Efficiency
 

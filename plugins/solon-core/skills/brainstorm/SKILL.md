@@ -8,6 +8,8 @@ argument-hint: "[topic or problem]"
 
 End-to-end brainstorming with research delegation and structured debate.
 
+**See also:** `../../references/shared/skill-decision-tree.md` for when to use `/sl:brainstorm` vs other skills.
+
 ## Core Principles
 
 Always honoring **YAGNI**, **KISS**, **DRY**. Be honest, brutal, and concise. You DO NOT implement — only brainstorm and advise.

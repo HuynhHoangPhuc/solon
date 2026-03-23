@@ -1,17 +1,19 @@
 ---
 name: sl:plan
 description: "Plan implementations, design architectures, create technical roadmaps with detailed phases. Use for feature planning, system design, solution architecture, implementation strategy."
-argument-hint: "[task description] [--fast|--hard|--parallel|--two]"
+argument-hint: "[task description] [--fast|--deep|--parallel|--two]"
 ---
 
 # Plan — Implementation Planning with Research + Validation
 
 Create detailed implementation plans with configurable workflow modes.
 
+**See also:** `../../references/shared/skill-decision-tree.md` for when to use `/sl:plan` vs other skills.
+
 ## Usage
 
 ```
-/sl:plan <task description> [--fast|--hard|--parallel|--two]
+/sl:plan <task description> [--fast|--deep|--parallel|--two]
 ```
 
 Default: `--auto` (analyze task complexity and pick mode automatically).
@@ -38,19 +40,19 @@ When no flag specified, analyze task and pick mode:
 | "quick", "simple", clear scope, <3 files | fast |
 | "parallel", 3+ independent features/layers | parallel |
 | "compare", "evaluate", ambiguous approach | two |
-| Complex, unfamiliar domain, new tech | hard |
-| Default (uncertain) | hard |
+| Complex, unfamiliar domain, new tech | deep |
+| Default (uncertain) | deep |
 
 Use `AskUserQuestion` if detection is uncertain.
 
-Load: `references/workflow-modes.md` for auto-detection logic and per-mode workflows.
+Load: `../../references/shared/workflow-modes.md` for auto-detection logic and per-mode workflows.
 
 ## Workflow Modes
 
 | Flag | Research | Red Team | Validate | Ship Reminder |
 |------|----------|----------|----------|---------------|
 | `--fast` | Skip | Skip | Skip | `--auto` flag |
-| `--hard` | 2 researchers | Yes | Optional | (none) |
+| `--deep` | 2 researchers | Yes | Optional | (none) |
 | `--parallel` | 2 researchers | Yes | Optional | `--parallel` flag |
 | `--two` | 2+ researchers | After selection | After selection | (none) |
 
@@ -58,8 +60,8 @@ Per-mode step details: Load `references/workflow-modes.md` for full step-by-step
 
 **Quick summary:**
 - **Fast:** Read docs → scaffold → fill → hydrate → ship reminder (`--auto`)
-- **Hard:** Research (2 agents) → scout → scaffold → fill → red-team → validate → hydrate → ship reminder
-- **Parallel:** Same as Hard + exclusive file ownership + dependency matrix → ship reminder (`--parallel`)
+- **Deep:** Research (2 agents) → scout → scaffold → fill → red-team → validate → hydrate → ship reminder
+- **Parallel:** Same as Deep + exclusive file ownership + dependency matrix → ship reminder (`--parallel`)
 - **Two:** Research → 2 approaches → user picks → scaffold → fill → red-team → validate → hydrate → ship reminder
 
 ## Core Responsibilities
@@ -83,6 +85,10 @@ Load: `references/plan-organization.md`
 ### Task Breakdown & Output Standards
 Load: `references/output-standards.md`
 
+### Task Management
+Load: `../../references/shared/task-orchestration.md`
+**Replaces:** `references/task-management.md` (now shared)
+
 ## Workflow Process
 
 1. **Pre-Creation Check** → Check Plan Context for active/suggested/none
@@ -91,8 +97,8 @@ Load: `references/output-standards.md`
 4. **Codebase Analysis** → Read docs, scout if needed
 5. **Plan Scaffolding** → `sl plan scaffold --slug <slug> --mode <mode>`
 6. **Plan Documentation** → Fill content into scaffolded files
-7. **Red Team Review** → `sl plan red-team <plan-dir>` (hard/parallel/two modes)
-8. **Validation** → `sl plan validate <plan-dir>` (hard/parallel/two modes)
+7. **Red Team Review** → `sl plan red-team <plan-dir>` (deep/parallel/two modes)
+8. **Validation** → `sl plan validate <plan-dir>` (deep/parallel/two modes)
 9. **Hydrate Tasks** → `sl task hydrate <plan-dir>` (unless `--no-tasks`)
 10. **Ship Reminder** → Output command with absolute path (MANDATORY)
 

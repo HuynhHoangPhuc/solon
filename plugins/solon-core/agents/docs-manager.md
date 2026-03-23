@@ -1,7 +1,7 @@
 ---
 name: docs-manager
 description: Update project documentation after implementation changes. Analyzes code changes and updates relevant docs. Use after features are implemented.
-model: haiku
+model: sonnet
 tools:
   - Read
   - Grep

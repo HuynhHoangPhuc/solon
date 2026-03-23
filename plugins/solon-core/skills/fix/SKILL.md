@@ -2,18 +2,20 @@
 name: sl:fix
 description: "ALWAYS activate this skill before fixing ANY bug, error, test failure, CI/CD issue, type error, lint, log error, UI issue, code problem."
 version: 1.2.0
-argument-hint: "[issue] --auto|--review|--quick|--parallel"
+argument-hint: "[issue] --auto|--deep|--fast|--parallel"
 ---
 
 # Fixing
 
 Unified skill for fixing issues of any complexity with intelligent routing.
 
+**See also:** `../../references/shared/skill-decision-tree.md` for when to use `/sl:fix` vs other skills.
+
 ## Arguments
 
 - `--auto` - Activate autonomous mode (**default**)
-- `--review` - Activate human-in-the-loop review mode
-- `--quick` - Activate quick mode
+- `--deep` - Activate human-in-the-loop review mode (thorough investigation + approval gates)
+- `--fast` - Activate quick mode (fast debug-fix-review cycle)
 - `--parallel` - Activate parallel mode: route to parallel `fullstack-developer` agents per issue
 
 ## Workflow
@@ -25,10 +27,10 @@ Unified skill for fixing issues of any complexity with intelligent routing.
 | Option | Recommend When | Behavior |
 |--------|----------------|----------|
 | **Autonomous** (default) | Simple/moderate issues | Auto-approve if score >= 9.5 & 0 critical |
-| **Human-in-the-loop Review** | Critical/production code | Pause for approval at each step |
-| **Quick** | Type errors, lint, trivial bugs | Fast debug → fix → review cycle |
+| **Deep** (`--deep`) | Critical/production code | Pause for approval at each step |
+| **Fast** (`--fast`) | Type errors, lint, trivial bugs | Fast debug → fix → review cycle |
 
-See `references/mode-selection.md` for AskUserQuestion format.
+See `../../references/shared/workflow-modes.md` for mode detection and AskUserQuestion format.
 
 ### Step 2: Debug
 
@@ -48,7 +50,7 @@ Classify before routing. See `references/complexity-assessment.md`.
 | **Complex** | System-wide, architecture impact | `references/workflow-deep.md` |
 | **Parallel** | 2+ independent issues OR `--parallel` flag | Parallel `fullstack-developer` agents |
 
-**Task Orchestration (Moderate+ only):** After classifying, create native Claude Tasks for all phases upfront with dependencies. See `references/task-orchestration.md`.
+**Task Orchestration (Moderate+ only):** After classifying, create native Claude Tasks for all phases upfront with dependencies. See `../../references/shared/task-orchestration.md`.
 - Skip for Quick workflow (< 3 steps, overhead exceeds benefit)
 - Use `TaskCreate` with `addBlockedBy` for dependency chains
 - Update via `TaskUpdate` as each phase completes
@@ -93,13 +95,14 @@ Unified step markers:
 ## References
 
 Load as needed:
-- `references/mode-selection.md` - AskUserQuestion format for mode
+- `../../references/shared/workflow-modes.md` - Mode detection and AskUserQuestion format
 - `references/complexity-assessment.md` - Classification criteria
-- `references/task-orchestration.md` - Native Claude Task patterns for moderate+ workflows
+- `../../references/shared/task-orchestration.md` - Native Claude Task patterns for moderate+ workflows
 - `references/workflow-quick.md` - Quick: debug → fix → review
 - `references/workflow-standard.md` - Standard: full pipeline with Tasks
 - `references/workflow-deep.md` - Deep: research + brainstorm + plan with Tasks
-- `references/review-cycle.md` - Review logic (autonomous vs HITL)
+- `../../references/shared/verification-protocol.md` - Review logic (autonomous vs HITL)
+- `references/review-cycle.md` - Fix-specific review cycle details
 - `references/skill-activation-matrix.md` - When to activate each skill
 - `references/parallel-exploration.md` - Parallel Explore/Bash/Task coordination patterns
 

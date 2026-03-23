@@ -8,6 +8,8 @@ argument-hint: "[major|minor|patch] [--dry-run] [--no-push]"
 
 Orchestrate releases: bump version, generate changelog, create git tag, optionally push.
 
+**See also:** `../../references/shared/skill-decision-tree.md` for when to use `/sl:release` vs other skills.
+
 ## Usage
 
 ```

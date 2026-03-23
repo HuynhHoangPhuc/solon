@@ -6,7 +6,7 @@ Interview the user with critical questions to validate assumptions and surface i
 
 1. If argument provided → use that path
 2. Else check `## Plan Context` → use active plan path
-3. If no plan found → ask user to specify or run `/sl:plan --hard` first
+3. If no plan found → ask user to specify or run `/sl:plan --deep` first
 
 ## Configuration
 

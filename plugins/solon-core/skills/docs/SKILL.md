@@ -8,6 +8,8 @@ argument-hint: "init|update|summarize"
 
 Analyze codebase and manage project documentation through scouting, analysis, and structured doc generation.
 
+**See also:** `../../references/shared/skill-decision-tree.md` for when to use `/sl:docs` vs other skills.
+
 ## Default (No Arguments)
 
 If invoked without arguments, use `AskUserQuestion` to present available documentation operations:

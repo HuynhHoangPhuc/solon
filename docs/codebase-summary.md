@@ -11,7 +11,7 @@
 | **Unit Tests** | 27 passing |
 | **Integration Tests** | 11 passing |
 | **Workspace Crates** | 3 (solon-common, solon-cli, solon-core) |
-| **Plugins** | 2 (solon-cli: 5 skills; solon-core: 14 skills + 9 agents + 21 hooks) |
+| **Plugins** | 3 (solon-cli: 5 skills; solon-core: 14 skills + 14 agents + 21 hooks + shared references; solon-skills: 8 domain skills) |
 | **Supported Platforms** | Linux, macOS, Windows |
 | **Status** | Production-ready (v0.6.0) |
 
@@ -580,7 +580,8 @@ Small Rust file for consistent testing across platforms.
   - **Core workflow:** sl:fix (bug diagnosis+repair), sl:debug (root cause analysis), sl:refactor (AST+LSP semantic transforms) (3 skills)
   - **Productivity:** sl:docs-seeker (external docs lookup), sl:simplify (post-edit cleanup), sl:watzup (session wrap-up) (3 skills)
   - **Polish:** sl:ask (quick expert consultation), sl:preview (visual explanations + diagrams) (2 skills)
-- 9 agents for planning, shipping, testing, reviewing, and other operations
+- 14 agents for planning, implementation, testing, reviewing, documentation
+- Shared references layer (`references/shared/`): workflow-modes, skill-decision-tree, verification-protocol, subagent-patterns
 - Hooks system (21 hooks in hooks.json + Rust binary subcommands)
 
 ### Hooks Subsystem (solon-core)

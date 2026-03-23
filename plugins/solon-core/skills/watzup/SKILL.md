@@ -5,6 +5,8 @@ description: "Review recent changes and wrap up the current work session."
 
 # Wrap Up
 
+**See also:** `../../references/shared/skill-decision-tree.md` for when to use `/sl:watzup` vs other skills.
+
 Review my current branch and the most recent commits.
 Provide a detailed summary of all changes, including what was modified, added, or removed.
 Analyze the overall impact and quality of the changes.

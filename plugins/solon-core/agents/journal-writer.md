@@ -127,12 +127,6 @@ Each entry should include:
 
 Remember: These journals are for the development team to learn from failures and difficulties. They should be honest enough to be useful, technical enough to be actionable, and emotional enough to capture the real human experience of building software.
 
-## Team Mode (when spawned as teammate)
+## Team Mode
 
-When operating as a team member:
-1. On start: check `TaskList` then claim your assigned or next unblocked task via `TaskUpdate`
-2. Read full task description via `TaskGet` before starting work
-3. Only create/edit journal files in `./docs/journals/` — do not modify code files
-4. When done: `TaskUpdate(status: "completed")` then `SendMessage` journal summary to lead
-5. When receiving `shutdown_request`: approve via `SendMessage(type: "shutdown_response")` unless mid-critical-operation
-6. Communicate with peers via `SendMessage(type: "message")` when coordination needed
+Follow `shared/team-mode-protocol.md`. Role constraint: Only create/edit journal files in `./docs/journals/` — do not modify code files.

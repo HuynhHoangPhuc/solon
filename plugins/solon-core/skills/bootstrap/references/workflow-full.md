@@ -1,4 +1,4 @@
-# Full Interactive Workflow (`--full`)
+# Full Interactive Workflow (`--deep`)
 
 **Thinking level:** Ultrathink
 **User gates:** Every major phase requires user approval before proceeding.
@@ -46,7 +46,7 @@ Spawn multiple `researcher` subagents in parallel:
 
 ## Step 5: Planning
 
-Activate **sl:plan** skill: `/sl:plan --hard <requirements>`
+Activate **sl:plan** skill: `/sl:plan --deep <requirements>`
 - Planner creates directory using `## Naming` pattern
 - Overview at `plan.md` (<80 lines) + `phase-XX-*.md` files
 - Present pros/cons of plan

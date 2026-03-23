@@ -375,6 +375,8 @@ pub fn format_hover(hover: &str) -> String
 
 **solon-core** (`plugins/solon-core/`)
 - 11 skills for workflow operations: brainstorm, plan, docs, fix, ask, bootstrap, review, release, ship, watzup, test
+- 14 agents (sonnet/haiku/opus) for planning, implementation, testing, reviewing
+- Shared references layer (`references/shared/`): 4 deduplicated reference files (workflow-modes, skill-decision-tree, verification-protocol, subagent-patterns) + 2 agent shared files (team-mode-protocol, ui-design-expertise)
 - Hooks system (hooks.json + Rust subcommands)
 - Registered in marketplace
 

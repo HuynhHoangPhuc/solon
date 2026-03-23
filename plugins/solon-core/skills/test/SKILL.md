@@ -8,6 +8,8 @@ argument-hint: "[--plan <plan-dir>]"
 
 Delegate testing to `tester` agent with plan-aware context.
 
+**See also:** `../../references/shared/skill-decision-tree.md` for when to use `/sl:test` vs other skills.
+
 ## Usage
 
 ```
@@ -112,6 +114,11 @@ If failures exist: do not proceed silently. Surface them clearly and recommend f
 ## Integration with Ship
 
 When invoked by `/sl:ship`, failures block the finalize step. Ship re-invokes the relevant `fullstack-developer` agent to fix failing tests before proceeding to `/sl:review`.
+
+## Shared References
+
+- `../../references/shared/verification-protocol.md` - Quality thresholds and severity levels
+- `../../references/shared/subagent-patterns.md` - Agent spawning patterns
 
 ## Report Output
 

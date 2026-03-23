@@ -8,6 +8,8 @@ argument-hint: "[--plan <plan-dir>]"
 
 Delegate code review to `code-reviewer` agent with plan-aware context.
 
+**See also:** `../../references/shared/skill-decision-tree.md` for when to use `/sl:review` vs other skills.
+
 ## Usage
 
 ```
@@ -124,6 +126,11 @@ When invoked by `/sl:ship`:
 - Critical findings → fix loop: re-invoke `fullstack-developer` agent with findings, then re-review
 - Warning findings → present to user, ask to fix or document reason for skipping
 - Suggestion findings → logged in report, no blocking
+
+## Shared References
+
+- `../../references/shared/verification-protocol.md` - Review cycle, quality thresholds, severity levels
+- `../../references/shared/subagent-patterns.md` - Agent spawning patterns
 
 ## Report Output
 
